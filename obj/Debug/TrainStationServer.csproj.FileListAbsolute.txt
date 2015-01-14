@@ -11,3 +11,6 @@ C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\TrainStati
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\TrainStationServer\bin\Debug\TrainStationServer.pdb
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.exe
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.pdb
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\bin\Debug\TrainStationServer.exe.config
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.exe
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.pdb
