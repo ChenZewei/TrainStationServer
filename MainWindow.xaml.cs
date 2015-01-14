@@ -39,7 +39,7 @@ namespace TrainStationServer
 
         private void Start_Click_1(object sender, RoutedEventArgs e)
         {
-            ipEnd = new IPEndPoint(IPAddress.Any, 12000);
+            ipEnd = new IPEndPoint(IPAddress.Any, 15000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
             socket.Listen(20);
@@ -50,14 +50,8 @@ namespace TrainStationServer
 
         private void Listening()
         {
-            Thread clientThread;
-            while (true)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>  Result.AppendText("Wait for accepting...\n")));
-                client = socket.Accept();
-                clientThread = new Thread(Proc);
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted!\n")));
-            }
+            this.Dispatcher.BeginInvoke(new Action(() =>  Result.AppendText("Wait for accepting...\n")));
+            socket.BeginAccept(new AsyncCallback(onConnectRequest), socket);
         }
 
         private void Proc()
@@ -69,6 +63,12 @@ namespace TrainStationServer
         {
             Socket Server = (Socket)ar.AsyncState;
             Socket Client = Server.EndAccept(ar);
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\n")));
+            string buffer = "Welcome.\n";
+            Byte[] bufferbyte = System.Text.Encoding.ASCII.GetBytes(buffer);
+            Client.Send(bufferbyte, bufferbyte.Length, 0);
+            Server.BeginAccept(new AsyncCallback(onConnectRequest), Server);
+            Client.Close();
         }
 
         private void Analysis()
