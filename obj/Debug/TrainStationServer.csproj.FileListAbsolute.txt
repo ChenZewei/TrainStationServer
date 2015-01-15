@@ -27,3 +27,6 @@ C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStati
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.g.resources
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.Properties.Resources.resources
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache
+C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\bin\Debug\TrainStationServer.exe.config
+C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\TrainStationServer.exe
+C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\TrainStationServer.pdb

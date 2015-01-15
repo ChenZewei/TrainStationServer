@@ -68,12 +68,36 @@ namespace TrainStationServer
             Byte[] bufferbyte = System.Text.Encoding.ASCII.GetBytes(buffer);
             Client.Send(bufferbyte, bufferbyte.Length, 0);
             Server.BeginAccept(new AsyncCallback(onConnectRequest), Server);
+            
             Client.Close();
         }
 
-        private void Analysis()
+        private void Analysis(byte[] buffer,int bufferlen)
         {
-
+            int i,index = 0,index2 = 0;
+            byte[] bufferline;
+            byte[] length;
+            bufferline = new byte[100];
+            length = new byte[10];
+            for (i = 0; i < bufferlen; i++)
+            {
+                bufferline[index++] = buffer[i];
+                if (buffer[i+1] == ':')
+                {
+                    index = 0;
+                    if (bufferline.Equals(Encoding.ASCII.GetBytes("Content-Length")))
+                    {
+                        i++;
+                        do
+                        {
+                            length[index2] = buffer[i];
+                            if((buffer[i + 1] == '\r') && (buffer[i + 2] == '\n'))
+                                break;
+                        }
+                        while(true);
+                    }
+                }
+            }
         }
     }
 }
