@@ -25,7 +25,9 @@ namespace TrainStationServer
     {
         private Socket socket, client;
         private IPEndPoint ipEnd;
-        private Thread mainThread;
+        private Thread mainThread,recvThread,clientThread;
+        byte[] recv;
+        int i;
         public MainWindow()
         {
             InitializeComponent();
@@ -34,13 +36,16 @@ namespace TrainStationServer
         ~MainWindow()
         {
             //if (mainThread.IsAlive)
+            socket.Close();
                 mainThread.Abort();
+                recvThread.Abort();
         }
 
         private void Start_Click_1(object sender, RoutedEventArgs e)
         {
             ipEnd = new IPEndPoint(IPAddress.Any, 15000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
             socket.Listen(20);
             mainThread = new Thread(Listening);
@@ -51,25 +56,71 @@ namespace TrainStationServer
         private void Listening()
         {
             this.Dispatcher.BeginInvoke(new Action(() =>  Result.AppendText("Wait for accepting...\n")));
-            socket.BeginAccept(new AsyncCallback(onConnectRequest), socket);
+            //socket.BeginAccept(new AsyncCallback(onConnectRequest), socket);
+            while (true)
+            {
+                client = socket.Accept();
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\n")));
+                clientThread = new Thread(ClientThread);
+                clientThread.Start();
+            }
         }
 
-        private void Proc()
+        private void ClientThread()
         {
-
+            Socket temp;
+            byte[] send = new byte[1024];
+            temp = client;
+            recv = new byte[1024];
+            while (true)
+            {
+                try
+                {
+                    i = temp.Receive(recv);
+                }
+                catch (SocketException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
+                send = Encoding.ASCII.GetBytes("Received...\n");
+                temp.Send(send);
+            }
         }
 
         private void onConnectRequest(IAsyncResult ar)
         {
             Socket Server = (Socket)ar.AsyncState;
             Socket Client = Server.EndAccept(ar);
+            client = Client;
             this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\n")));
             string buffer = "Welcome.\n";
             Byte[] bufferbyte = System.Text.Encoding.ASCII.GetBytes(buffer);
             Client.Send(bufferbyte, bufferbyte.Length, 0);
             Server.BeginAccept(new AsyncCallback(onConnectRequest), Server);
-            
-            Client.Close();
+            recvThread = new Thread(RecvThread);
+            recvThread.Start();
+            //Client.Close();
+        }
+
+        private void RecvThread()
+        {
+            Socket tempClient = client;
+            recv = new byte[1024];
+            while (true)
+            {
+                try
+                {
+                    i = tempClient.Receive(recv);
+                }
+                catch (SocketException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
+            }
         }
 
         private void Analysis(byte[] buffer,int bufferlen)
