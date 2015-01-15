@@ -36,9 +36,18 @@ namespace TrainStationServer
         ~MainWindow()
         {
             //if (mainThread.IsAlive)
-            socket.Close();
+            if(socket != null)
+                socket.Close();
+            if (mainThread != null)
+            {
                 mainThread.Abort();
+                mainThread.Join();
+            }
+            if (recvThread != null)
+            {
                 recvThread.Abort();
+                recvThread.Join();
+            }
         }
 
         private void Start_Click_1(object sender, RoutedEventArgs e)
@@ -49,19 +58,21 @@ namespace TrainStationServer
             socket.Bind(ipEnd);
             socket.Listen(20);
             mainThread = new Thread(Listening);
+            mainThread.IsBackground = true;
             mainThread.Start();
-            Result.AppendText("Start listening...\n");
+            Result.AppendText("Start listening...\r\n");
         }
 
         private void Listening()
         {
-            this.Dispatcher.BeginInvoke(new Action(() =>  Result.AppendText("Wait for accepting...\n")));
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Wait for accepting...\r\n")));
             //socket.BeginAccept(new AsyncCallback(onConnectRequest), socket);
             while (true)
             {
                 client = socket.Accept();
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\n")));
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
                 clientThread = new Thread(ClientThread);
+                clientThread.IsBackground = true;
                 clientThread.Start();
             }
         }
@@ -83,8 +94,9 @@ namespace TrainStationServer
                     MessageBox.Show(ex.Message);
                     return;
                 }
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
-                send = Encoding.ASCII.GetBytes("Received...\n");
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
+                Analysis(recv, i);
+                send = Encoding.ASCII.GetBytes("Received...\r\n");
                 temp.Send(send);
             }
         }
@@ -94,8 +106,8 @@ namespace TrainStationServer
             Socket Server = (Socket)ar.AsyncState;
             Socket Client = Server.EndAccept(ar);
             client = Client;
-            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\n")));
-            string buffer = "Welcome.\n";
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
+            string buffer = "Welcome.\r\n";
             Byte[] bufferbyte = System.Text.Encoding.ASCII.GetBytes(buffer);
             Client.Send(bufferbyte, bufferbyte.Length, 0);
             Server.BeginAccept(new AsyncCallback(onConnectRequest), Server);
@@ -120,35 +132,57 @@ namespace TrainStationServer
                     return;
                 }
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
+                Analysis(recv, i);
             }
         }
 
         private void Analysis(byte[] buffer,int bufferlen)
         {
-            int i,index = 0,index2 = 0;
+            int i = 0,index = 0,index2 = 0;
             byte[] bufferline;
             byte[] length;
             bufferline = new byte[100];
             length = new byte[10];
-            for (i = 0; i < bufferlen; i++)
+            if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("Content-Length"))) != -1)
             {
-                bufferline[index++] = buffer[i];
-                if (buffer[i+1] == ':')
+                index++;
+                while ((index + i)<bufferlen)
                 {
-                    index = 0;
-                    if (bufferline.Equals(Encoding.ASCII.GetBytes("Content-Length")))
-                    {
-                        i++;
-                        do
-                        {
-                            length[index2] = buffer[i];
-                            if((buffer[i + 1] == '\r') && (buffer[i + 2] == '\n'))
-                                break;
-                        }
-                        while(true);
-                    }
+                    length[i] = buffer[index + i];
+                    i++;
+                    if ((buffer[index + i] == '\r') && (buffer[index + i + 1] == '\n'))
+                        break;
                 }
             }
+            Console.Write(Encoding.UTF8.GetString(length,0,length.Length));
         }
+
+        private int IndexOf(byte[] srcBytes, byte[] searchBytes)
+        {
+            if (srcBytes == null) { return -1; }
+            if (searchBytes == null) { return -1; }
+            if (srcBytes.Length == 0) { return -1; }
+            if (searchBytes.Length == 0) { return -1; }
+            if (srcBytes.Length < searchBytes.Length) { return -1; }
+            for (int i = 0; i < srcBytes.Length - searchBytes.Length; i++)
+            {
+                if (srcBytes[i] == searchBytes[0])
+                {
+                    if (searchBytes.Length == 1) { return i; }
+                    bool flag = true;
+                    for (int j = 1; j < searchBytes.Length; j++)
+                    {
+                        if (srcBytes[i + j] != searchBytes[j])
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag) { return i+searchBytes.Length; }
+                }
+            }
+            return -1;
+        }
+
     }
 }
