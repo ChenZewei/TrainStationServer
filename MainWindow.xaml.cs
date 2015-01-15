@@ -138,7 +138,7 @@ namespace TrainStationServer
 
         private void Analysis(byte[] buffer,int bufferlen)
         {
-            int i = 0,index = 0,index2 = 0;
+            int i = 0,index = 0;
             byte[] bufferline;
             byte[] length;
             bufferline = new byte[100];
@@ -178,7 +178,8 @@ namespace TrainStationServer
                             break;
                         }
                     }
-                    if (flag) { return i+searchBytes.Length; }
+                    if (flag)
+                        return i+searchBytes.Length;
                 }
             }
             return -1;
