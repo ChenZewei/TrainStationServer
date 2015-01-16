@@ -78,7 +78,7 @@ namespace TrainStationServer
             }
         }
 
-        private void ClientThread()
+        private void ClientThread()//多线程法
         {
             Socket temp;
             XmlDocument doc;
@@ -97,14 +97,14 @@ namespace TrainStationServer
                     return;
                 }
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
-                doc = Analysis(recv, i);
+                doc = XmlExtract(recv, i);
                 doc.Save("D://test.xml");
                 send = Encoding.ASCII.GetBytes("Received...\r\n");
                 temp.Send(send);
             }
         }
 
-        private void onConnectRequest(IAsyncResult ar)
+        private void onConnectRequest(IAsyncResult ar)//异步调用法
         {
             Socket Server = (Socket)ar.AsyncState;
             Socket Client = Server.EndAccept(ar);
@@ -135,11 +135,11 @@ namespace TrainStationServer
                     return;
                 }
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
-                Analysis(recv, i);
+                XmlExtract(recv, i);
             }
         }
 
-        private XmlDocument Analysis(byte[] buffer,int bufferlen)
+        private XmlDocument XmlExtract(byte[] buffer,int bufferlen)//Xml提取
         {
             XmlDocument xmlDoc;
             int i = 0,index = 0;
