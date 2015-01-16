@@ -98,7 +98,8 @@ namespace TrainStationServer
                 }
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
                 doc = XmlExtract(recv, i);
-                doc.Save("D://test.xml");
+                //doc.Save("D://test.xml");
+                FuncDistribution(doc);
                 send = Encoding.ASCII.GetBytes("Received...\r\n");
                 temp.Send(send);
             }
@@ -170,7 +171,111 @@ namespace TrainStationServer
             return null;
         }
 
-        private int IndexOf(byte[] srcBytes, byte[] searchBytes)
+        private void FuncDistribution(XmlDocument doc)
+        {
+            XmlElement root;
+            XmlNodeList nodeList;
+            XmlNode node;
+
+            root = doc.DocumentElement;
+            nodeList = root.SelectNodes("/request/@command");
+            node = nodeList.Item(0);
+            switch(node.InnerText)
+            {
+                case "ResReport":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResReport\n")));
+                    break;
+                case "ResChange":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChange\n")));
+                    break;
+                case "QueryHistoryFiles":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("QueryHistoryFiles\n")));
+                    break;
+                case "MURegister":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("MURegister\n")));
+                    break;
+                case "MUKeepAlive":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("MUKeepAlive\n")));
+                    break;
+                case "StartMediaReq":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartMediaReq\n")));
+                    break;
+
+                case "INFO"://DDU->DDU
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("INFO\n")));
+                    break;
+
+                case "StopMediaReq":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StopMediaReq\n")));
+                    break;
+                case "StartPlayBack":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartPlayBack\n")));
+                    break;
+
+                case "HisInfo"://DDU->DDU
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("HisInfo\n")));
+                    break;
+
+                case "ControlFileBack":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ControlFileBack\n")));
+                    break;
+                case "StartHisLoad":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartHisLoad\n")));
+                    break;
+
+                case "HisLoadInfo"://DDU->DDU
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("HisLoadInfo\n")));
+                    break;
+
+                case "ReportCamResState":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportCamResState\n")));
+                    break;
+                case "ReqCamResState":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReqCamResState\n")));
+                    break;
+                case "UserResReport":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("UserResReport\n")));
+                    break;
+                case "GetUserCurState":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("GetUserCurState\n")));
+                    break;
+                case "UserResChange":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("UserResChange\n")));
+                    break;
+                case "SetUserCamManage":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("SetUserCamManage\n")));
+                    break;
+                case "AlarmResListReport":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("AlarmResListReport\n")));
+                    break;
+                case "AlarmResListChange":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("AlarmResListChange\n")));
+                    break;
+                case "AlarmResSubscribe":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("AlarmResSubscribe\n")));
+                    break;
+                case "ReportAlarmRes":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportAlarmRes\n")));
+                    break;
+                case "QueryAlarmRes":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("QueryAlarmRes\n")));
+                    break;
+                case "ReportAlarmInfo":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportAlarmInfo\n")));
+                    break;
+                case "ControlPTZ":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ControlPTZ\n")));
+                    break;
+                case "ResTransOrder":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResTransOrder\n")));
+                    break;
+                case "ResChangeOrder":
+                    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChangeOrder\n")));
+                    break;
+            }
+        }
+
+        private int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
         {
             if (srcBytes == null) { return -1; }
             if (searchBytes == null) { return -1; }
