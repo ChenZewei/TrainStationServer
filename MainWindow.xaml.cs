@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Xml;
 
 namespace TrainStationServer
 {
@@ -80,6 +81,7 @@ namespace TrainStationServer
         private void ClientThread()
         {
             Socket temp;
+            XmlDocument doc;
             byte[] send = new byte[1024];
             temp = client;
             recv = new byte[1024];
@@ -95,7 +97,8 @@ namespace TrainStationServer
                     return;
                 }
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
-                Analysis(recv, i);
+                doc = Analysis(recv, i);
+                doc.Save("D://test.xml");
                 send = Encoding.ASCII.GetBytes("Received...\r\n");
                 temp.Send(send);
             }
@@ -136,11 +139,13 @@ namespace TrainStationServer
             }
         }
 
-        private void Analysis(byte[] buffer,int bufferlen)
+        private XmlDocument Analysis(byte[] buffer,int bufferlen)
         {
+            XmlDocument xmlDoc;
             int i = 0,index = 0;
             byte[] bufferline;
             byte[] length;
+            string strBuffer;
             bufferline = new byte[100];
             length = new byte[10];
             if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("Content-Length"))) != -1)
@@ -155,6 +160,14 @@ namespace TrainStationServer
                 }
             }
             Console.Write(Encoding.UTF8.GetString(length,0,length.Length));
+            if((index = IndexOf(buffer, Encoding.ASCII.GetBytes("\r\n\r\n"))) != -1)
+            {
+                xmlDoc = new XmlDocument();
+                strBuffer = Encoding.UTF8.GetString(buffer, index, (bufferlen - index));
+                xmlDoc.LoadXml(strBuffer);
+                return xmlDoc;
+            }
+            return null;
         }
 
         private int IndexOf(byte[] srcBytes, byte[] searchBytes)
