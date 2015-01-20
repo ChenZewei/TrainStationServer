@@ -54,7 +54,18 @@ namespace TrainStationServer
             para.AppendChild(responsemuId);
             responseNode.AppendChild(para);
 
-            Response.Save("D://test.xml");
+            Response.Save("D://test1.xml");
+            XmlCreator test = new XmlCreator();
+            XmlDocument testdoc = test.XmlCreate();
+            test.ElementAdd(testdoc,null,"response");
+            test.SetNodeAttribute(testdoc, "response", 0, "command", "AlarmResSubscribe");
+            test.ElementAdd(testdoc, "response", "result");
+            test.SetNodeAttribute(testdoc, "result", 0, "code", "0");
+            test.SetNodeInnerText(testdoc, "result", 0, "success");
+            test.ElementAdd(testdoc, "response", "parameters");
+            test.ElementAdd(testdoc, "parameters", "muId");
+            test.SetNodeInnerText(testdoc, "muId", 0, muId);
+            testdoc.Save("D://test2.xml");
             return Response;
         }
     }
