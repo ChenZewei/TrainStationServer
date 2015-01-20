@@ -81,7 +81,7 @@ namespace TrainStationServer
         private void ClientThread()//多线程法
         {
             Socket temp;
-            XmlDocument doc;
+            XmlDocument doc,sendxml;
             byte[] send = new byte[1024];
             temp = client;
             recv = new byte[1024];
@@ -99,10 +99,13 @@ namespace TrainStationServer
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
                 doc = XmlExtract(recv, i);
                 //doc.Save("D://test.xml");
-                FuncDistribution(doc);
+                sendxml = FuncDistribution(doc);
                 send = Encoding.ASCII.GetBytes("Received...\r\n");
                 temp.Send(send);
+                send = Encoding.ASCII.GetBytes(sendxml.OuterXml);
+                temp.Send(send);
             }
+            //temp.Close();
         }
 
         private void onConnectRequest(IAsyncResult ar)//异步调用法
@@ -171,12 +174,13 @@ namespace TrainStationServer
             return null;
         }
 
-        private void FuncDistribution(XmlDocument doc)
+        private XmlDocument FuncDistribution(XmlDocument doc)
         {
+            InterfaceB B = new InterfaceB();
             XmlElement root;
             XmlNodeList nodeList;
             XmlNode node;
-
+            XmlDocument response = new XmlDocument() ;
             root = doc.DocumentElement;
             nodeList = root.SelectNodes("/request/@command");
             node = nodeList.Item(0);
@@ -253,6 +257,7 @@ namespace TrainStationServer
                     break;
                 case "AlarmResSubscribe":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("AlarmResSubscribe\n")));
+                    response = B.AlarmResSubscribe(doc);
                     break;
                 case "ReportAlarmRes":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportAlarmRes\n")));
@@ -272,7 +277,11 @@ namespace TrainStationServer
                 case "ResChangeOrder":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChangeOrder\n")));
                     break;
+                default:
+                    response = new XmlDocument();
+                    break;
             }
+            return response;
         }
 
         private int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
