@@ -32,7 +32,6 @@ C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\TrainStationServer.pdb
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\bin\Debug\TrainStationServer.exe
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\bin\Debug\TrainStationServer.pdb
-C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\TrainStationServer.csprojResolveAssemblyReference.cache
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\MainWindow.baml
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\MainWindow.g.cs
 C:\Users\czw\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\App.g.cs
