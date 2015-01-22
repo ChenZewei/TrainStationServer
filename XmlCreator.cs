@@ -33,6 +33,23 @@ namespace TrainStationServer
             }
         }
 
+        public void ElementAdd(XmlDocument doc, string fatherNode, string nodeName, int fatherIndex)
+        {
+            if (fatherNode != null)
+            {
+                XmlNodeList list = doc.SelectNodes("//" + fatherNode);
+                XmlNode father = list.Item(fatherIndex);
+                XmlElement element = doc.CreateElement(nodeName);
+                father.AppendChild(element);
+            }
+            else
+            {
+                //XmlElement father = doc.DocumentElement;
+                XmlElement element = doc.CreateElement(nodeName);
+                doc.AppendChild(element);
+            }
+        }
+
         public void SetNodeAttribute(XmlDocument doc, string nodeName, int index,string attributeName, string attribute)
         {
             XmlNode node = doc.SelectSingleNode("//" + nodeName);

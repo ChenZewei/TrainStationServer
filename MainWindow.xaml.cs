@@ -218,6 +218,7 @@ namespace TrainStationServer
 
                 case "HisInfo"://DDU->DDU
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("HisInfo\n")));
+                    B.HisInfo(doc);
                     break;
 
                 case "ControlFileBack":
@@ -230,6 +231,7 @@ namespace TrainStationServer
 
                 case "HisLoadInfo"://DDU->DDU
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("HisLoadInfo\n")));
+                    B.HisLoadInfo(doc);
                     break;
 
                 case "ReportCamResState":
@@ -243,6 +245,7 @@ namespace TrainStationServer
                     break;
                 case "GetUserCurState":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("GetUserCurState\n")));
+                    B.GetUserCurState(doc);
                     break;
                 case "UserResChange":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("UserResChange\n")));
