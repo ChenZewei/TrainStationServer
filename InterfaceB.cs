@@ -11,16 +11,12 @@ namespace TrainStationServer
     {
         public XmlDocument AlarmResSubscribe(XmlDocument Doc)
         {
-            XmlElement root,responseRoot;
-            XmlNodeList nodeList;
-            XmlNode node;
             XmlCreator XmlOp = new XmlCreator();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId, muName;
             int action;
             List<string> idURL = new List<string>();
             List<string> typeURL = new List<string>();
-            root = Doc.DocumentElement;
 
             muId = XmlOp.GetInnerText(Doc, "muId");
             muName = XmlOp.GetInnerText(Doc, "muName");
@@ -38,14 +34,12 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "muId");
             XmlOp.SetNodeInnerText(Response, "muId", 0, muId);
             Response.Save("D://AlarmResSubscribe-response.xml");
+
             return Response;
         }
 
         public XmlDocument ControlFileBack(XmlDocument Doc)
         {
-            XmlElement root, responseRoot;
-            XmlNodeList nodeList;
-            XmlNode node;
             XmlCreator XmlOp = new XmlCreator();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId, cmd;
@@ -64,6 +58,32 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Response, "sessionId", 0, sessionId);
             Response.Save("D://ControlFileBack-response.xml");
+
+            return Response;
+        }
+
+        public XmlDocument ControlPTZ(XmlDocument Doc)
+        {
+            XmlCreator XmlOp = new XmlCreator();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string resId, userId, userLevel, cmd, param;
+            int speed;
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            userId = XmlOp.GetInnerText(Doc, "userId");
+            userLevel = XmlOp.GetInnerText(Doc, "userLevel");
+            cmd = XmlOp.GetInnerText(Doc, "cmd");
+            param = XmlOp.GetInnerText(Doc, "param");
+            speed = Int16.Parse(XmlOp.GetInnerText(Doc, "speed"));
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ControlPTZ");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Response, "resId", 0, resId);
+            Response.Save("D://ControlPTZ-response.xml");
 
             return Response;
         }

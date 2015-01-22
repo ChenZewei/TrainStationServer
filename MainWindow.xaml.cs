@@ -271,6 +271,7 @@ namespace TrainStationServer
                     break;
                 case "ControlPTZ":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ControlPTZ\n")));
+                    response = B.ControlPTZ(doc);
                     break;
                 case "ResTransOrder":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResTransOrder\n")));

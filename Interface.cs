@@ -10,8 +10,8 @@ namespace TrainStationServer
     interface Interface
     {
         XmlDocument AlarmResSubscribe(XmlDocument Doc);
-        XmlDocument ControlFileBack(XmlDocument Doc);/*
-        XmlDocument ControlPTZ(XmlDocument Doc);
+        XmlDocument ControlFileBack(XmlDocument Doc);
+        XmlDocument ControlPTZ(XmlDocument Doc);/*
         XmlDocument GetUserCurState(XmlDocument Doc);
         XmlDocument HisInfo(XmlDocument Doc);
         XmlDocument HisLoadInfo(XmlDocument Doc);
