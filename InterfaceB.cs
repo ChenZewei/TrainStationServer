@@ -11,7 +11,7 @@ namespace TrainStationServer
     {
         public XmlDocument AlarmResSubscribe(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId, muName;
             int action;
@@ -40,7 +40,7 @@ namespace TrainStationServer
 
         public XmlDocument ControlFileBack(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId, cmd;
             int param;
@@ -64,7 +64,7 @@ namespace TrainStationServer
 
         public XmlDocument ControlPTZ(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string resId, userId, userLevel, cmd, param;
             int speed;
@@ -90,7 +90,7 @@ namespace TrainStationServer
 
         public XmlDocument GetUserCurState(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId, curUserId;
             muId = XmlOp.GetInnerText(Doc, "muId");
@@ -127,7 +127,7 @@ namespace TrainStationServer
 
         public XmlDocument HisInfo(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId, userId, userLevel;
             sessionId = XmlOp.GetInnerText(Doc, "sessionId");
@@ -150,7 +150,7 @@ namespace TrainStationServer
 
         public XmlDocument HisLoadInfo(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId, userId, userLevel;
             sessionId = XmlOp.GetInnerText(Doc, "sessionId");
@@ -173,7 +173,7 @@ namespace TrainStationServer
 
         public XmlDocument INFO(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId, userId, userLevel;
             sessionId = XmlOp.GetInnerText(Doc, "sessionId");
@@ -196,7 +196,7 @@ namespace TrainStationServer
 
         public XmlDocument QueryAlarmRes(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId, muName;
             List<string> id = new List<string>();
@@ -239,7 +239,7 @@ namespace TrainStationServer
 
         public XmlDocument QueryHistoryFiles(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string resId, userId, userLevel, cuId, fromDate, toDate;
             resId = XmlOp.GetInnerText(Doc, "resId");
@@ -281,7 +281,7 @@ namespace TrainStationServer
 
         public XmlDocument ReportAlarmInfo(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId, muName;
             List<string> id, type, startTime, endTime;
@@ -322,7 +322,7 @@ namespace TrainStationServer
 
         public XmlDocument ReqCamResState(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId;
             List<string> resId;
@@ -351,7 +351,7 @@ namespace TrainStationServer
 
         public XmlDocument ResChangeOrder(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId;
             List<string> resId;
@@ -373,7 +373,7 @@ namespace TrainStationServer
 
         public XmlDocument ResTransOrder(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string muId;
             List<string> resId;
@@ -395,7 +395,7 @@ namespace TrainStationServer
 
         public XmlDocument SetUserCamManage(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string cuId, cuLevel, startTime, endTime, schduleCreatTime;
             int action;
@@ -424,7 +424,7 @@ namespace TrainStationServer
 
         public XmlDocument StartHisLoad(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string resId, userId, userLevel, startTime, endTime, targetIpAddr, targetPort;
             int linkMode, flag, locationFlag;
@@ -458,7 +458,7 @@ namespace TrainStationServer
 
         public XmlDocument StartMediaReq(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string resId, userId, userLevel, targetIpAddr, targetPort;
             int mediaType, linkMode, flag;
@@ -490,7 +490,7 @@ namespace TrainStationServer
 
         public XmlDocument StartPlayBack(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string resId, userId, userLevel, startTime, endTime, targetIpAddr, targetPort;
             int linkMode, flag, locationFlag;
@@ -524,7 +524,7 @@ namespace TrainStationServer
 
         public XmlDocument StopMediaReq(XmlDocument Doc)
         {
-            XmlCreator XmlOp = new XmlCreator();
+            XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId;
             int stopFlag;

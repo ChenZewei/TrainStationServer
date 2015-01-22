@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace TrainStationServer
 {
-    class XmlCreator
+    class XmlTools
     {
         public XmlDocument XmlCreate()
         {
