@@ -1,0 +1,22 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="GB2312"?>
+<request command="StartMediaReq">
+  <parameters>
+    <resId>000000</resId>
+	<userId>000000</userId>
+	<userLevel>0</userLevel>
+	<mediaType>2</mediaType>
+	<linkMode>0</linkMode>
+	<targetIpAddr>192.168.1.101</targetIpAddr>
+	<targetPort>10000</targetPort>
+	<flag>1</flag>
+  </parameters>
+</request>

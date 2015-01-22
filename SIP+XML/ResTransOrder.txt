@@ -1,0 +1,24 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="utf-8" ?>
+<request command="ResTransOrder">
+  <parameters>
+    <muId>000000</muId>
+	<totalPacketNum>100</totalPacketNum>
+	<curPacketNum>50</curPacketNum>
+    <resources>
+		<resId>000000</resId>
+		<name>name0</name>
+		<location>location0</location>
+		<purpose>purpose0</purpose>
+		<information>information0</information>
+	</resources>
+  </parameters>
+</request>

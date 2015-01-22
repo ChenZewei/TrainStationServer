@@ -204,6 +204,7 @@ namespace TrainStationServer
                     break;
                 case "StartMediaReq":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartMediaReq\n")));
+                    B.StartMediaReq(doc);
                     break;
 
                 case "INFO"://DDU->DDU
@@ -213,9 +214,11 @@ namespace TrainStationServer
 
                 case "StopMediaReq":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StopMediaReq\n")));
+                    B.StopMediaReq(doc);
                     break;
                 case "StartPlayBack":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartPlayBack\n")));
+                    B.StartPlayBack(doc);
                     break;
 
                 case "HisInfo"://DDU->DDU
@@ -229,6 +232,7 @@ namespace TrainStationServer
                     break;
                 case "StartHisLoad":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartHisLoad\n")));
+                    B.StartHisLoad(doc);
                     break;
 
                 case "HisLoadInfo"://DDU->DDU
@@ -241,6 +245,7 @@ namespace TrainStationServer
                     break;
                 case "ReqCamResState":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReqCamResState\n")));
+                    B.ReqCamResState(doc);
                     break;
                 case "UserResReport":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("UserResReport\n")));
@@ -254,6 +259,7 @@ namespace TrainStationServer
                     break;
                 case "SetUserCamManage":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("SetUserCamManage\n")));
+                    B.SetUserCamManage(doc);
                     break;
                 case "AlarmResListReport":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("AlarmResListReport\n")));
@@ -274,6 +280,7 @@ namespace TrainStationServer
                     break;
                 case "ReportAlarmInfo":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportAlarmInfo\n")));
+                    B.ReportAlarmInfo(doc);
                     break;
                 case "ControlPTZ":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ControlPTZ\n")));
@@ -281,9 +288,11 @@ namespace TrainStationServer
                     break;
                 case "ResTransOrder":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResTransOrder\n")));
+                    B.ResTransOrder(doc);
                     break;
                 case "ResChangeOrder":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChangeOrder\n")));
+                    B.ResChangeOrder(doc);
                     break;
                 default:
                     response = new XmlDocument();

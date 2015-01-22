@@ -17,7 +17,7 @@ namespace TrainStationServer
         XmlDocument HisLoadInfo(XmlDocument Doc);
         XmlDocument INFO(XmlDocument Doc);
         XmlDocument QueryAlarmRes(XmlDocument Doc);
-        XmlDocument QueryHistoryFiles(XmlDocument Doc);/*
+        XmlDocument QueryHistoryFiles(XmlDocument Doc);
         XmlDocument ReportAlarmInfo(XmlDocument Doc);
         XmlDocument ReqCamResState(XmlDocument Doc);
         XmlDocument ResChangeOrder(XmlDocument Doc);
@@ -26,6 +26,6 @@ namespace TrainStationServer
         XmlDocument StartHisLoad(XmlDocument Doc);
         XmlDocument StartMediaReq(XmlDocument Doc);
         XmlDocument StartPlayBack(XmlDocument Doc);
-        XmlDocument StopMediaReq(XmlDocument Doc);*/
+        XmlDocument StopMediaReq(XmlDocument Doc);
     }
 }

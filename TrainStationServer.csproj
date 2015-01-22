@@ -121,6 +121,33 @@
   <ItemGroup>
     <Resource Include="SIP+XML\QueryHistoryFiles.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\ReportAlarmInfo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\ReqCamResState.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\ResChangeOrder.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\ResTransOrder.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\SetUserCamManage.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\StartHisLoad.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\StartMediaReq.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\StartPlayBack.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\StopMediaReq.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

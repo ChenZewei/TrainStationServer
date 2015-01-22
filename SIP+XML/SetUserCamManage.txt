@@ -1,0 +1,36 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="utf-8" ?>
+<request command="SetUserCamManage">
+  <parameters>
+    <cuId>000000</cuId>
+	<cuLevel>0</cuLevel>
+	<action>0</action>
+	<startTime>2014-12-31 12:00:00</startTime>
+	<endTime>2015-1-1 12:00:00</endTime>
+	<schduleCreatTime>2014-12-31 00:00:00</schduleCreatTime>
+    <group>
+		<URL>
+			<camId>000000</camId>
+		</URL>
+		<URL>
+			<camId>000001</camId>
+		</URL>
+	</group>
+	<whiteUser>
+		<URL>
+			<id>000000</id>
+		</URL>
+		<URL>
+			<id>000001</id>
+		</URL>
+	</whiteUser>
+  </parameters>
+</request>

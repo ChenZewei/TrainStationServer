@@ -1,0 +1,36 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="utf-8" ?>
+<request command="ReportAlarmInfo">
+  <parameters>
+    <muId>000000</muId>
+    <muName>000000</muName>
+    <group>
+		<URL>
+			<id>00000</id>
+			<type>0</type>
+			<startTime>2014-12-31 12:00:00</startTime>
+			<endTime>2015-1-1 12:00:00</endTime>
+		</URL>
+		<URL>
+			<id>00001</id>
+			<type>1</type>
+			<startTime>2014-12-31 12:00:00</startTime>
+			<endTime>2015-1-1 12:00:00</endTime>
+		</URL>
+		<URL>
+			<id>00002</id>
+			<type>2</type>
+			<startTime>2014-12-31 12:00:00</startTime>
+			<endTime>2015-1-1 12:00:00</endTime>
+		</URL>
+	</group>
+  </parameters>
+</request>

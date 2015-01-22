@@ -14,7 +14,7 @@ Content-Length:200
     <userId>100</userId>
     <userLevel>100</userLevel>
     <cuId>100</cuId>
-    <fromDate>2014-12-31 12:00:00</fromDate>
-    <toDate>2015-1-1 12:00:00</toDate>
+    <fromDate>2014-12-31</fromDate>
+    <toDate>2015-1-1</toDate>
   </parameters>
 </request>

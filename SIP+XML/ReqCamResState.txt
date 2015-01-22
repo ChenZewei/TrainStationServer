@@ -1,0 +1,26 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="utf-8" ?>
+<request command="ReqCamResState">
+  <parameters>
+    <muId>000000</muId>
+    <group>
+		<URL>
+			<resId>000000</resId>
+		</URL>
+		<URL>
+			<resId>000001</resId>
+		</URL>
+		<URL>
+			<resId>000002</resId>
+		</URL>
+	</group>
+  </parameters>
+</request>
