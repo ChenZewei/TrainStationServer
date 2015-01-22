@@ -1,0 +1,31 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="utf-8" ?>
+<request command="AlarmResSubscribe">
+  <parameters>
+    <muId>000000</muId>
+    <muName>100</muName>
+    <action>1</action>
+    <group>
+        <URL>
+            <id>xxxxx1</id>
+            <type>1</type>
+        </URL>
+        <URL>
+            <id>xxxxx2</id>
+            <type>2</type>
+        </URL>
+        <URL>
+            <id>xxxxx3</id>
+            <type>3</type>
+        </URL>
+    </group>
+  </parameters>
+</request>

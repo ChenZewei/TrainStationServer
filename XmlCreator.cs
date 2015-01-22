@@ -53,8 +53,19 @@ namespace TrainStationServer
         public string GetInnerText(XmlDocument doc,string nodeName)
         {
             XmlNode node;
-            node = doc.SelectSingleNode("/request/parameters/muId");
+            node = doc.SelectSingleNode("//" + nodeName);
             return node.InnerText;
+        }
+
+        public List<string> GetInnerTextList(XmlDocument doc, string nodeName)
+        {
+            List<string> list = new List<string>();
+            XmlNodeList nodeList = doc.SelectNodes("//" + nodeName);
+            foreach (XmlNode tempNode in nodeList)
+            {
+                list.Add(tempNode.InnerText);
+            }
+            return list;
         }
     }
 }

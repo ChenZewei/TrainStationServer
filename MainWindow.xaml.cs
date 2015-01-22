@@ -222,6 +222,7 @@ namespace TrainStationServer
 
                 case "ControlFileBack":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ControlFileBack\n")));
+                    response = B.ControlFileBack(doc);
                     break;
                 case "StartHisLoad":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartHisLoad\n")));

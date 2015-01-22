@@ -11,67 +11,59 @@ namespace TrainStationServer
     {
         public XmlDocument AlarmResSubscribe(XmlDocument Doc)
         {
-            XmlDocument Response = new XmlDocument();
             XmlElement root,responseRoot;
             XmlNodeList nodeList;
             XmlNode node;
+            XmlCreator XmlOp = new XmlCreator();
+            XmlDocument Response = XmlOp.XmlCreate();
             string muId, muName;
             int action;
-            //string[] idURL;
-            //string[] typeURL;
             List<string> idURL = new List<string>();
             List<string> typeURL = new List<string>();
             root = Doc.DocumentElement;
+
+            muId = XmlOp.GetInnerText(Doc, "muId");
+            muName = XmlOp.GetInnerText(Doc, "muName");
+            action = Int16.Parse(XmlOp.GetInnerText(Doc, "action"));
+            idURL = XmlOp.GetInnerTextList(Doc, "id");
+            typeURL = XmlOp.GetInnerTextList(Doc, "type");
+
             
-            node = root.SelectSingleNode("/request/parameters/muId");
-            muId = node.InnerText;
-            node = root.SelectSingleNode("/request/parameters/muName");
-            muName = node.InnerText;
-            node = root.SelectSingleNode("/request/parameters/action");
-            action = Int16.Parse(node.InnerText);
-
-            nodeList = root.SelectNodes("/request/parameters/group/URL");
-            foreach (XmlNode tempNode in nodeList)
-            {
-                idURL.Add(tempNode.SelectSingleNode("id").InnerText);
-                typeURL.Add(tempNode.SelectSingleNode("type").InnerText);
-            }
-
-            XmlDeclaration dec = Response.CreateXmlDeclaration("1.0", "GB2312", "yes");
-            Response.AppendChild(dec);
-
-            responseRoot = Response.CreateElement("response");
-            responseRoot.SetAttribute("command", "AlarmResSubscribe");
-            Response.AppendChild(responseRoot);
-            XmlNode responseNode = Response.SelectSingleNode("response");
-            XmlElement result = Response.CreateElement("result");
-            result.SetAttribute("code", "0");
-            result.InnerText = "success";
-            responseNode.AppendChild(result);
-            XmlElement para = Response.CreateElement("parameters");
-            XmlElement responsemuId = Response.CreateElement("muId");
-            responsemuId.InnerText = muId;
-            para.AppendChild(responsemuId);
-            responseNode.AppendChild(para);
-
-            Response.Save("D://test1.xml");
-            XmlCreator test = new XmlCreator();
-            XmlDocument testdoc = test.XmlCreate();
-            test.ElementAdd(testdoc,null,"response");
-            test.SetNodeAttribute(testdoc, "response", 0, "command", "AlarmResSubscribe");
-            test.ElementAdd(testdoc, "response", "result");
-            test.SetNodeAttribute(testdoc, "result", 0, "code", "0");
-            test.SetNodeInnerText(testdoc, "result", 0, "success");
-            test.ElementAdd(testdoc, "response", "parameters");
-            test.ElementAdd(testdoc, "parameters", "muId");
-            test.SetNodeInnerText(testdoc, "muId", 0, muId);
-            testdoc.Save("D://test2.xml");
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "AlarmResSubscribe");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "muId");
+            XmlOp.SetNodeInnerText(Response, "muId", 0, muId);
+            Response.Save("D://AlarmResSubscribe-response.xml");
             return Response;
         }
 
-        XmlDocument ControlFileBack(XmlDocument Doc)
+        public XmlDocument ControlFileBack(XmlDocument Doc)
         {
-            XmlDocument Response = new XmlDocument();
+            XmlElement root, responseRoot;
+            XmlNodeList nodeList;
+            XmlNode node;
+            XmlCreator XmlOp = new XmlCreator();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string sessionId, resId, cmd;
+            int param;
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            cmd = XmlOp.GetInnerText(Doc, "cmd");
+            param = Int16.Parse(XmlOp.GetInnerText(Doc, "param"));
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ControlFileBack");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Response, "sessionId", 0, sessionId);
+            Response.Save("D://ControlFileBack-response.xml");
 
             return Response;
         }
