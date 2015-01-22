@@ -14,10 +14,10 @@ namespace TrainStationServer
         XmlDocument ControlPTZ(XmlDocument Doc);
         XmlDocument GetUserCurState(XmlDocument Doc);
         XmlDocument HisInfo(XmlDocument Doc);
-        XmlDocument HisLoadInfo(XmlDocument Doc);/*
+        XmlDocument HisLoadInfo(XmlDocument Doc);
         XmlDocument INFO(XmlDocument Doc);
         XmlDocument QueryAlarmRes(XmlDocument Doc);
-        XmlDocument QueryHistoryFiles(XmlDocument Doc);
+        XmlDocument QueryHistoryFiles(XmlDocument Doc);/*
         XmlDocument ReportAlarmInfo(XmlDocument Doc);
         XmlDocument ReqCamResState(XmlDocument Doc);
         XmlDocument ResChangeOrder(XmlDocument Doc);

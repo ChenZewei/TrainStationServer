@@ -112,6 +112,15 @@
   <ItemGroup>
     <Resource Include="SIP+XML\HisLoadInfo.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\INFO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\QueryAlarmRes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\QueryHistoryFiles.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

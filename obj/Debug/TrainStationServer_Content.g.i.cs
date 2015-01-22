@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("sip+xml/hisloadinfo.txt")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("sip+xml/queryhistoryfiles.txt")]
 
 

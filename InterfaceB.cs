@@ -170,5 +170,113 @@ namespace TrainStationServer
 
             return Response;
         }
+
+        public XmlDocument INFO(XmlDocument Doc)
+        {
+            XmlCreator XmlOp = new XmlCreator();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string sessionId, resId, userId, userLevel;
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            userId = XmlOp.GetInnerText(Doc, "userId");
+            userLevel = XmlOp.GetInnerText(Doc, "userLevel");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "INFO");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Response, "sessionId", 0, sessionId);
+            Response.Save("D://INFO-response.xml");
+
+            return Response;
+        }
+
+        public XmlDocument QueryAlarmRes(XmlDocument Doc)
+        {
+            XmlCreator XmlOp = new XmlCreator();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string muId, muName;
+            List<string> idURL = new List<string>();
+            List<string> typeURL = new List<string>();
+            muId = XmlOp.GetInnerText(Doc, "muId");
+            muName = XmlOp.GetInnerText(Doc, "muName");
+            idURL = XmlOp.GetInnerTextList(Doc, "id");
+            typeURL = XmlOp.GetInnerTextList(Doc, "type");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "QueryAlarmRes");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "group");
+            for (int i = 0; i < 5; i++ )
+            {
+                XmlOp.ElementAdd(Response, "group", "URL");
+                XmlOp.ElementAdd(Response, "URL", "id", i);
+                XmlOp.SetNodeInnerText(Response, "id", i, "00000" + i);
+                XmlOp.ElementAdd(Response, "URL", "type", i);
+                XmlOp.SetNodeInnerText(Response, "type", i, "00000" + i);
+                XmlOp.ElementAdd(Response, "URL", "time", i);
+                XmlOp.SetNodeInnerText(Response, "URL/time", i, DateTime.Today.ToString("yyyy-MM-dd hh:mm:ss"));
+                XmlOp.ElementAdd(Response, "URL", "state", i);
+                XmlOp.SetNodeInnerText(Response, "state", i, "0");
+                XmlOp.ElementAdd(Response, "URL", "alarmHisRecord", i);
+                XmlOp.SetNodeInnerText(Response, "alarmHisRecord", i, "0");
+                XmlOp.ElementAdd(Response, "URL", "url", i);
+                XmlOp.ElementAdd(Response, "url", "resId", i);
+                XmlOp.SetNodeInnerText(Response, "url/resId", i, "000000");
+                XmlOp.ElementAdd(Response, "url", "time", i);
+                XmlOp.SetNodeInnerText(Response, "url/time", i, DateTime.Today.ToString("yyyy-MM-dd hh:mm:ss"));
+            }
+            Response.Save("D://QueryAlarmRes-response.xml");
+
+            return Response;
+        }
+
+        public XmlDocument QueryHistoryFiles(XmlDocument Doc)
+        {
+            XmlCreator XmlOp = new XmlCreator();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string resId, userId, userLevel, cuId, fromDate, toDate;
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            userId = XmlOp.GetInnerText(Doc, "userId");
+            userLevel = XmlOp.GetInnerText(Doc, "userLevel");
+            cuId = XmlOp.GetInnerText(Doc, "cuId");
+            fromDate = XmlOp.GetInnerText(Doc, "fromDate");
+            toDate = XmlOp.GetInnerText(Doc, "toDate");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "QueryHistoryFiles");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Response, "resId", 0, resId);
+            XmlOp.ElementAdd(Response, "parameters", "cuId");
+            XmlOp.SetNodeInnerText(Response, "cuId", 0, cuId);
+            XmlOp.ElementAdd(Response, "parameters", "totalNumber");
+            XmlOp.SetNodeInnerText(Response, "totalNumber", 0, (100).ToString());
+            XmlOp.ElementAdd(Response, "parameters", "curNumber");
+            XmlOp.SetNodeInnerText(Response, "curNumber", 0, (50).ToString());
+            XmlOp.ElementAdd(Response, "parameters", "group");
+            for (int i = 0; i < 5; i++ )
+            {
+                XmlOp.ElementAdd(Response, "group", "URL");
+                XmlOp.ElementAdd(Response, "URL", "startTime",i);
+                XmlOp.SetNodeInnerText(Response, "startTime", i, DateTime.Today.ToString("yyyy-MM-dd hh:mm:ss"));
+                XmlOp.ElementAdd(Response, "URL", "endTime", i);
+                XmlOp.SetNodeInnerText(Response, "endTime", i, DateTime.Today.ToString("yyyy-MM-dd hh:mm:ss"));
+                XmlOp.ElementAdd(Response, "URL", "size", i);
+                XmlOp.SetNodeInnerText(Response, "size", i, (100*i).ToString());
+            }
+            Response.Save("D://QueryHistoryFiles-response.xml");
+
+            return Response;
+        }
     }
 }

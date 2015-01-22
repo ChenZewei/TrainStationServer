@@ -194,6 +194,7 @@ namespace TrainStationServer
                     break;
                 case "QueryHistoryFiles":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("QueryHistoryFiles\n")));
+                    B.QueryHistoryFiles(doc);
                     break;
                 case "MURegister":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("MURegister\n")));
@@ -207,6 +208,7 @@ namespace TrainStationServer
 
                 case "INFO"://DDU->DDU
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("INFO\n")));
+                    B.INFO(doc);
                     break;
 
                 case "StopMediaReq":
@@ -268,6 +270,7 @@ namespace TrainStationServer
                     break;
                 case "QueryAlarmRes":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("QueryAlarmRes\n")));
+                    B.QueryAlarmRes(doc);
                     break;
                 case "ReportAlarmInfo":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportAlarmInfo\n")));

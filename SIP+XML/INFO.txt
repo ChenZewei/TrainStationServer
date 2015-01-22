@@ -1,0 +1,18 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+Content-Type:RVSS/xml
+Content-Length:100
+
+<?xml version="1.0" encoding="utf-8" ?>
+<request command="INFO">
+  <parameters>
+    <sessionId>000000</sessionId>
+	<resId>000000</resId>
+	<userId>000000</userId>
+    <userLevel>000000</userLevel>
+  </parameters>
+</request>
