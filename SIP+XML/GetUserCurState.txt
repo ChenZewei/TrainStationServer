@@ -4,10 +4,11 @@ To:XX
 From:XX
 Max-Forwards:70
 Call-ID:XX
+CSeq:3415687 INVITE
 Content-Type:RVSS/xml
 Content-Length:100
 
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="GB2312" standalone="yes"?>
 <request command="GetUserCurState">
   <parameters>
     <muId>000000</muId>

@@ -16,6 +16,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Xml;
+using System.IO;
 
 namespace TrainStationServer
 {
@@ -81,33 +82,52 @@ namespace TrainStationServer
         private void ClientThread()//多线程法
         {
             Socket temp;
+            SIPTools sipTools;
             XmlDocument doc,sendxml;
+            /*
+            FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            sendbuf.Close();
+             */
             byte[] send = new byte[1024];
             temp = client;
             recv = new byte[1024];
-            while (true)
+            try
             {
-                try
-                {
-                    i = temp.Receive(recv);
-                }
-                catch (SocketException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                    return;
-                }
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
-                doc = XmlExtract(recv, i);
-                //doc.Save("D://test.xml");
-                sendxml = FuncDistribution(doc);
-                send = Encoding.ASCII.GetBytes("Received...\r\n");
-                temp.Send(send);
-                send = Encoding.ASCII.GetBytes(sendxml.OuterXml);
+                i = temp.Receive(recv);
+            }
+            catch (SocketException ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
+            sipTools = new SIPTools(recv, i);
+            doc = SIPTools.XmlExtract(recv, i);
+            sendxml = FuncDistribution(doc);
+            send = Encoding.ASCII.GetBytes(sipTools.SIPResponse(sendxml));
+            /*
+            sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
+            sendbuf.Write(send, 0, send.Length);
+            sendbuf.Close();
+             * */
+            try
+            {
                 temp.Send(send);
             }
-            //temp.Close();
+            catch(SocketException ex)
+            {
+                Console.Write(ex.Message);
+            }
+            try
+            {
+                temp.Close();
+            }
+            catch (SocketException ex)
+            {
+                Console.Write(ex.Message);
+            }
         }
-
+        /*
         private void onConnectRequest(IAsyncResult ar)//异步调用法
         {
             Socket Server = (Socket)ar.AsyncState;
@@ -120,60 +140,41 @@ namespace TrainStationServer
             Server.BeginAccept(new AsyncCallback(onConnectRequest), Server);
             recvThread = new Thread(RecvThread);
             recvThread.Start();
-            //Client.Close();
         }
 
         private void RecvThread()
         {
             Socket tempClient = client;
+            SIPTools sipTools;
+            XmlDocument doc, sendxml;
             recv = new byte[1024];
-            while (true)
+            byte[] send = new byte[2048];
+            try
             {
-                try
-                {
-                    i = tempClient.Receive(recv);
-                }
-                catch (SocketException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                    return;
-                }
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
-                XmlExtract(recv, i);
+                i = tempClient.Receive(recv);
             }
-        }
+            catch (SocketException ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i) + "\n")));
+            sipTools = new SIPTools(recv, i);
+            doc = SIPTools.XmlExtract(recv, i);
+            sendxml = FuncDistribution(doc);
+            send = Encoding.ASCII.GetBytes(sipTools.SIPResponse(sendxml));
 
-        private XmlDocument XmlExtract(byte[] buffer,int bufferlen)//Xml提取
-        {
-            XmlDocument xmlDoc;
-            int i = 0,index = 0;
-            byte[] bufferline;
-            byte[] length;
-            string strBuffer;
-            bufferline = new byte[100];
-            length = new byte[10];
-            if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("Content-Length"))) != -1)
+            try
             {
-                index++;
-                while ((index + i)<bufferlen)
-                {
-                    length[i] = buffer[index + i];
-                    i++;
-                    if ((buffer[index + i] == '\r') && (buffer[index + i + 1] == '\n'))
-                        break;
-                }
+                tempClient.Send(send);
             }
-            Console.Write(Encoding.UTF8.GetString(length,0,length.Length));
-            if((index = IndexOf(buffer, Encoding.ASCII.GetBytes("\r\n\r\n"))) != -1)
+            catch (SocketException ex)
             {
-                xmlDoc = new XmlDocument();
-                strBuffer = Encoding.UTF8.GetString(buffer, index, (bufferlen - index));
-                xmlDoc.LoadXml(strBuffer);
-                return xmlDoc;
+                Console.Write(ex.Message);
             }
-            return null;
+            tempClient.Close();
         }
-
+        */
         private XmlDocument FuncDistribution(XmlDocument doc)
         {
             InterfaceB B = new InterfaceB();
@@ -194,7 +195,7 @@ namespace TrainStationServer
                     break;
                 case "QueryHistoryFiles":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("QueryHistoryFiles\n")));
-                    B.QueryHistoryFiles(doc);
+                    response = B.QueryHistoryFiles(doc);
                     break;
                 case "MURegister":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("MURegister\n")));
@@ -204,26 +205,26 @@ namespace TrainStationServer
                     break;
                 case "StartMediaReq":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartMediaReq\n")));
-                    B.StartMediaReq(doc);
+                    response = B.StartMediaReq(doc);
                     break;
 
                 case "INFO"://DDU->DDU
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("INFO\n")));
-                    B.INFO(doc);
+                    response = B.INFO(doc);
                     break;
 
                 case "StopMediaReq":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StopMediaReq\n")));
-                    B.StopMediaReq(doc);
+                    response = B.StopMediaReq(doc);
                     break;
                 case "StartPlayBack":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartPlayBack\n")));
-                    B.StartPlayBack(doc);
+                    response = B.StartPlayBack(doc);
                     break;
 
                 case "HisInfo"://DDU->DDU
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("HisInfo\n")));
-                    B.HisInfo(doc);
+                    response = B.HisInfo(doc);
                     break;
 
                 case "ControlFileBack":
@@ -232,12 +233,12 @@ namespace TrainStationServer
                     break;
                 case "StartHisLoad":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("StartHisLoad\n")));
-                    B.StartHisLoad(doc);
+                    response = B.StartHisLoad(doc);
                     break;
 
                 case "HisLoadInfo"://DDU->DDU
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("HisLoadInfo\n")));
-                    B.HisLoadInfo(doc);
+                    response = B.HisLoadInfo(doc);
                     break;
 
                 case "ReportCamResState":
@@ -245,21 +246,21 @@ namespace TrainStationServer
                     break;
                 case "ReqCamResState":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReqCamResState\n")));
-                    B.ReqCamResState(doc);
+                    response = B.ReqCamResState(doc);
                     break;
                 case "UserResReport":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("UserResReport\n")));
                     break;
                 case "GetUserCurState":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("GetUserCurState\n")));
-                    B.GetUserCurState(doc);
+                    response = B.GetUserCurState(doc);
                     break;
                 case "UserResChange":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("UserResChange\n")));
                     break;
                 case "SetUserCamManage":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("SetUserCamManage\n")));
-                    B.SetUserCamManage(doc);
+                    response = B.SetUserCamManage(doc);
                     break;
                 case "AlarmResListReport":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("AlarmResListReport\n")));
@@ -276,11 +277,11 @@ namespace TrainStationServer
                     break;
                 case "QueryAlarmRes":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("QueryAlarmRes\n")));
-                    B.QueryAlarmRes(doc);
+                    response = B.QueryAlarmRes(doc);
                     break;
                 case "ReportAlarmInfo":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ReportAlarmInfo\n")));
-                    B.ReportAlarmInfo(doc);
+                    response = B.ReportAlarmInfo(doc);
                     break;
                 case "ControlPTZ":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ControlPTZ\n")));
@@ -288,11 +289,11 @@ namespace TrainStationServer
                     break;
                 case "ResTransOrder":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResTransOrder\n")));
-                    B.ResTransOrder(doc);
+                    response = B.ResTransOrder(doc);
                     break;
                 case "ResChangeOrder":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChangeOrder\n")));
-                    B.ResChangeOrder(doc);
+                    response = B.ResChangeOrder(doc);
                     break;
                 default:
                     response = new XmlDocument();
@@ -300,7 +301,7 @@ namespace TrainStationServer
             }
             return response;
         }
-
+        /*
         private int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
         {
             if (srcBytes == null) { return -1; }
@@ -323,11 +324,11 @@ namespace TrainStationServer
                         }
                     }
                     if (flag)
-                        return i+searchBytes.Length;
+                        return i + searchBytes.Length;
                 }
             }
             return -1;
         }
-
+        */
     }
 }
