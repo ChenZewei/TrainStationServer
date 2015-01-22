@@ -68,5 +68,12 @@ namespace TrainStationServer
             testdoc.Save("D://test2.xml");
             return Response;
         }
+
+        XmlDocument ControlFileBack(XmlDocument Doc)
+        {
+            XmlDocument Response = new XmlDocument();
+
+            return Response;
+        }
     }
 }

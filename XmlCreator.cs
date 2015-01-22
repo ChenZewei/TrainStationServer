@@ -49,5 +49,12 @@ namespace TrainStationServer
             XmlNode node = list.Item(index);
             node.InnerText = text;
         }
+
+        public string GetInnerText(XmlDocument doc,string nodeName)
+        {
+            XmlNode node;
+            node = doc.SelectSingleNode("/request/parameters/muId");
+            return node.InnerText;
+        }
     }
 }
