@@ -30,9 +30,11 @@ namespace TrainStationServer
         private Thread mainThread,recvThread,clientThread;
         byte[] recv;
         int i;
+        DataBase DB;
         public MainWindow()
         {
             InitializeComponent();
+            DB = new DataBase();
         }
 
         ~MainWindow()
@@ -84,10 +86,10 @@ namespace TrainStationServer
             Socket temp;
             SIPTools sipTools;
             XmlDocument doc,sendxml;
-            /*
+
             FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
-             */
+
             byte[] send = new byte[1024];
             temp = client;
             recv = new byte[1024];
@@ -105,11 +107,11 @@ namespace TrainStationServer
             doc = SIPTools.XmlExtract(recv, i);
             sendxml = FuncDistribution(doc);
             send = Encoding.ASCII.GetBytes(sipTools.SIPResponse(sendxml));
-            /*
+
             sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
             sendbuf.Write(send, 0, send.Length);
             sendbuf.Close();
-             * */
+
             try
             {
                 temp.Send(send);
