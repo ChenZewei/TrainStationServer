@@ -10,7 +10,8 @@ namespace TrainStationServer
 {
     class InterfaceC
     {
-        DataBase database;
+        static DataBase database;
+        static SIPTools sip;
         public InterfaceC()
         {
             database = new DataBase();
@@ -20,7 +21,72 @@ namespace TrainStationServer
         {
             database = Database;
         }
-        public XmlDocument SaRegister(XmlDocument Doc)
+
+        public static XmlDocument Response(XmlDocument doc)
+        {
+            XmlElement root;
+            XmlNodeList nodeList;
+            XmlNode node;
+            XmlDocument response = new XmlDocument();
+            root = doc.DocumentElement;
+            nodeList = root.SelectNodes("/request/@command");
+            node = nodeList.Item(0);
+            switch (node.InnerText)
+            {
+                case "SaRegister":
+                    response = SaRegister(doc);
+                    break;
+                case "SaKeepAlive":
+                    response = SaKeepAlive(doc);
+                    break;
+                case "ResReport":
+                    response = ResReport(doc);
+                    break;
+                default:
+                    response = new XmlDocument();
+                    break;
+            }
+            return response;
+        }
+
+        public static byte[] Response(byte[] recv,int i)
+        {
+            XmlDocument doc = new XmlDocument();
+            try
+            {
+                sip = new SIPTools(recv, i);
+                doc = SIPTools.XmlExtract(recv, i);
+            }
+            catch(XmlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            XmlElement root;
+            XmlNodeList nodeList;
+            XmlNode node;
+            XmlDocument response = new XmlDocument();
+            root = doc.DocumentElement;
+            nodeList = root.SelectNodes("/request/@command");
+            node = nodeList.Item(0);
+            switch (node.InnerText)
+            {
+                case "SaRegister":
+                    response = SaRegister(doc);
+                    break;
+                case "SaKeepAlive":
+                    response = SaKeepAlive(doc);
+                    break;
+                case "ResReport":
+                    response = ResReport(doc);
+                    break;
+                default:
+                    response = new XmlDocument();
+                    break;
+            }
+            return Encoding.UTF8.GetBytes(sip.SIPResponse(response));
+        }
+
+        public static XmlDocument SaRegister(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -35,9 +101,7 @@ namespace TrainStationServer
             manufactureName = XmlOp.GetInnerText(Doc, "manufactureName");
             productiveVersion = XmlOp.GetInnerText(Doc, "productiveVersion");
             softwareVersion = XmlOp.GetInnerText(Doc, "softwareVersion");
-
-
-
+            
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaRegister");
             XmlOp.ElementAdd(Response, "response", "result");
@@ -51,7 +115,28 @@ namespace TrainStationServer
             return Response;
         }
 
-        public XmlDocument ResReport(XmlDocument Doc)
+        public static XmlDocument SaKeepAlive(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string SaKeepAlive;
+
+            SaKeepAlive = XmlOp.GetInnerText(Doc, "SaKeepAlive");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaKeepAlive");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "60");
+            Response.Save("D://SaKeepAlive-response.xml");
+
+            return Response;
+        }
+
+        public static XmlDocument ResReport(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -92,41 +177,51 @@ namespace TrainStationServer
             return Response;
         }
 
-        public XmlDocument StartMediaReq(XmlDocument Doc)
+        public static string[] StartMediaReq(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
-            XmlDocument Response = XmlOp.XmlCreate();
-            string resId, userId, userLevel, mediaType, linkMode, targetIpAddr, targetPort, flag;
+            string sessionId, tcpIp, tcpPort;
+            string[] result = new string[3];
 
-            resId = XmlOp.GetInnerText(Doc, "resId");
-            userId = XmlOp.GetInnerText(Doc, "userId");
-            userLevel = XmlOp.GetInnerText(Doc, "userLevel");
-            mediaType = XmlOp.GetInnerText(Doc, "mediaType");
-            linkMode = XmlOp.GetInnerText(Doc, "linkMode");
-            targetIpAddr = XmlOp.GetInnerText(Doc, "targetIpAddr");
-            targetPort = XmlOp.GetInnerText(Doc, "targetPort");
-            flag = XmlOp.GetInnerText(Doc, "flag");
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+            tcpIp = XmlOp.GetInnerText(Doc, "tcpIp");
+            tcpPort = XmlOp.GetInnerText(Doc, "tcpPort");
+            
+            result[0] = sessionId;
+            result[1] = tcpIp;
+            result[2] = tcpPort;
 
-            XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaReq");
-            XmlOp.ElementAdd(Response, "response", "result");
-            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
-            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            XmlOp.ElementAdd(Response, "response", "parameters");
-            XmlOp.ElementAdd(Response, "parameters", "sessionId");
-            XmlOp.SetNodeInnerText(Response, "sessionId", 0, "XXXX");
-            XmlOp.ElementAdd(Response, "parameters", "tcpIp");
-            XmlOp.SetNodeInnerText(Response, "tcpIp", 0, "XXXX");
-            XmlOp.ElementAdd(Response, "parameters", "tcpPort");
-            XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "XXXX");
-            Response.Save("D://StartMediaReq-response.xml");
-
-            return Response;
+            return result;
         }
 
-        private void DataOp()
+        public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
 
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
+            XmlOp.ElementAdd(Request, "response", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "mediaType");
+            XmlOp.SetNodeInnerText(Request, "mediaType", 0, mediaType);
+            XmlOp.ElementAdd(Request, "parameters", "linkMode");
+            XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode);
+            XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
+            XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
+            XmlOp.ElementAdd(Request, "parameters", targetPort);
+            XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
+            XmlOp.ElementAdd(Request, "parameters", "flag");
+            XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
+            Request.Save("D://StartMediaReq-response.xml");
+
+            return Request;
         }
+
     }
 }

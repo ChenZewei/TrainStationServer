@@ -9,7 +9,7 @@ namespace TrainStationServer
 {
     class SIPTools
     {
-        private static string To, From, CSeq;
+        private  string To, From, CSeq;
 
         public SIPTools()
         {
@@ -30,9 +30,33 @@ namespace TrainStationServer
             From = from;
             CSeq = cseq;
         }
-        public string SIPRequest()
+        public string SIPRequest(XmlDocument doc)
         {
+            string sendBuffer = "";
+            sendBuffer += "SIP/2.0 200 OK\r\n";
+            sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
+            sendBuffer += "To:" + To + "\r\n";
+            sendBuffer += "From:" + From + "\r\n";
+            sendBuffer += "Call-ID:XX\r\n";
+            sendBuffer += "CSeq:" + CSeq + "\r\n";
+            sendBuffer += "Content-Type:RVSS/xml\r\n";
+            sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
+            sendBuffer += doc.OuterXml;
             return null;
+        }
+        public string SIPRequest(XmlDocument doc,string To,string From, string CSeq)
+        {
+            string sendBuffer = "";
+            sendBuffer += "SIP/2.0 200 OK\r\n";
+            sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
+            sendBuffer += "To:" + To + "\r\n";
+            sendBuffer += "From:" + From + "\r\n";
+            sendBuffer += "Call-ID:XX\r\n";
+            sendBuffer += "CSeq:" + CSeq + "\r\n";
+            sendBuffer += "Content-Type:RVSS/xml\r\n";
+            sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
+            sendBuffer += doc.OuterXml;
+            return sendBuffer;
         }
         public string SIPResponse(XmlDocument doc)
         {

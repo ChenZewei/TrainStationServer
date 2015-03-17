@@ -104,27 +104,27 @@ namespace TrainStationServer
             }
             this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
             sipTools = new SIPTools(recv, i);
-            doc = SIPTools.XmlExtract(recv, i);
-            sendxml = FuncDistribution(doc);
-            send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));
+            try
+            {
+                doc = SIPTools.XmlExtract(recv, i);
+                sendxml = FuncDistribution(doc);
+                send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));        
+            }
+            catch(XmlException e)
+            { 
+                Console.WriteLine(e.Message); 
+            }
 
-            sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(send, 0, send.Length);
-            sendbuf.Close();
+            //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
+            //sendbuf.Write(send, 0, send.Length);
+            //sendbuf.Close();
 
             try
             {
                 temp.Send(send);
-            }
-            catch(SocketException ex)
-            {
-                Console.Write(ex.Message);
-            }
-            try
-            {
                 temp.Close();
             }
-            catch (SocketException ex)
+            catch(SocketException ex)
             {
                 Console.Write(ex.Message);
             }
@@ -192,7 +192,7 @@ namespace TrainStationServer
             {
                 case "ResReport":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResReport\n")));
-                    response = C.ResReport(doc);
+                    response = InterfaceC.ResReport(doc);
                     break;
                 case "ResChange":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChange\n")));

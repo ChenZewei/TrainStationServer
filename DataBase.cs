@@ -15,7 +15,8 @@ namespace TrainStationServer
         private string cmd;
         private MySqlDataReader DataReader;
         private MySqlCommand Cmd;
-        public static MySqlConnection MySQLConnect = new MySqlConnection("server=192.168.80.13; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
+        public static MySqlConnection MySQLConnect = new MySqlConnection("server=localhost; user id=root; Password=000000; database=opensips; persist security info=False");
+        //public static MySqlConnection MySQLConnect = new MySqlConnection("server=192.168.80.13; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
         public DataBase()
         {
             try
@@ -68,6 +69,7 @@ namespace TrainStationServer
         {
             
             int len = columes.Length;
+            int state;
             if (values.Length != len || len <= 1)
                 return;
             cmd = "insert into " + database + "(" + columes[0];
@@ -85,11 +87,10 @@ namespace TrainStationServer
             try
             {
                 Cmd = new MySqlCommand(cmd, MySQLConnect);
-                DataReader = Cmd.ExecuteReader();
-                if (Cmd.ExecuteNonQuery() > 0)
-                {
+                state = Cmd.ExecuteNonQuery();
+                if (state == 1)
                     Console.WriteLine("数据插入成功！");
-                }
+
             }
             catch (MySqlException e)
             {

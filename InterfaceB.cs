@@ -544,5 +544,104 @@ namespace TrainStationServer
 
             return Response;
         }
+
+        private XmlDocument Response(XmlDocument doc)
+        {
+            XmlElement root;
+            XmlNodeList nodeList;
+            XmlNode node;
+            XmlDocument response = new XmlDocument();
+            root = doc.DocumentElement;
+            nodeList = root.SelectNodes("/request/@command");
+            node = nodeList.Item(0);
+            switch (node.InnerText)
+            {
+                case "ResReport":
+                    //response = C.ResReport(doc);
+                    break;
+                case "ResChange":
+                    break;
+                case "QueryHistoryFiles":
+                    response = QueryHistoryFiles(doc);
+                    break;
+                case "MURegister":
+                    break;
+                case "MUKeepAlive":
+                    break;
+                case "StartMediaReq":
+                    response = StartMediaReq(doc);
+                    break;
+
+                case "INFO"://DDU->DDU
+                    response = INFO(doc);
+                    break;
+
+                case "StopMediaReq":
+                    response = StopMediaReq(doc);
+                    break;
+                case "StartPlayBack":
+                    response = StartPlayBack(doc);
+                    break;
+
+                case "HisInfo"://DDU->DDU
+                    response = HisInfo(doc);
+                    break;
+
+                case "ControlFileBack":
+                    response = ControlFileBack(doc);
+                    break;
+                case "StartHisLoad":
+                    response = StartHisLoad(doc);
+                    break;
+
+                case "HisLoadInfo"://DDU->DDU
+                    response = HisLoadInfo(doc);
+                    break;
+
+                case "ReportCamResState":
+                    break;
+                case "ReqCamResState":
+                    response = ReqCamResState(doc);
+                    break;
+                case "UserResReport":
+                    break;
+                case "GetUserCurState":
+                    response = GetUserCurState(doc);
+                    break;
+                case "UserResChange":
+                    break;
+                case "SetUserCamManage":
+                    response = SetUserCamManage(doc);
+                    break;
+                case "AlarmResListReport":
+                    break;
+                case "AlarmResListChange":
+                    break;
+                case "AlarmResSubscribe":
+                    response = AlarmResSubscribe(doc);
+                    break;
+                case "ReportAlarmRes":
+                    break;
+                case "QueryAlarmRes":
+                    response = QueryAlarmRes(doc);
+                    break;
+                case "ReportAlarmInfo":
+                    response = ReportAlarmInfo(doc);
+                    break;
+                case "ControlPTZ":
+                    response = ControlPTZ(doc);
+                    break;
+                case "ResTransOrder":
+                    response = ResTransOrder(doc);
+                    break;
+                case "ResChangeOrder":
+                    response = ResChangeOrder(doc);
+                    break;
+                default:
+                    response = new XmlDocument();
+                    break;
+            }
+            return response;
+        }
     }
 }
