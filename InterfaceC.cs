@@ -300,43 +300,14 @@ namespace TrainStationServer
             return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
         }
 
-        public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
-        {
-            XmlTools XmlOp = new XmlTools();
-            XmlDocument Request = XmlOp.XmlCreate();
-
-            XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
-            XmlOp.ElementAdd(Request, "response", "parameters");
-            XmlOp.ElementAdd(Request, "parameters", "resId");
-            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
-            XmlOp.ElementAdd(Request, "parameters", "userId");
-            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
-            XmlOp.ElementAdd(Request, "parameters", "userLevel");
-            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            XmlOp.ElementAdd(Request, "parameters", "mediaType");
-            XmlOp.SetNodeInnerText(Request, "mediaType", 0, mediaType);
-            XmlOp.ElementAdd(Request, "parameters", "linkMode");
-            XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode);
-            XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
-            XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
-            XmlOp.ElementAdd(Request, "parameters", targetPort);
-            XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
-            XmlOp.ElementAdd(Request, "parameters", "flag");
-            XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
-            Request.Save("D://StartMediaReq-response.xml");
-
-            return Request;
-        }
-
-        //public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
+        //public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         //{
         //    XmlTools XmlOp = new XmlTools();
         //    XmlDocument Request = XmlOp.XmlCreate();
 
         //    XmlOp.ElementAdd(Request, null, "request");
         //    XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
-        //    XmlOp.ElementAdd(Request, "response", "parameters");
+        //    XmlOp.ElementAdd(Request, "request", "parameters");
         //    XmlOp.ElementAdd(Request, "parameters", "resId");
         //    XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
         //    XmlOp.ElementAdd(Request, "parameters", "userId");
@@ -355,8 +326,70 @@ namespace TrainStationServer
         //    XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
         //    Request.Save("D://StartMediaReq-response.xml");
 
-        //    return Encoding.UTF8.GetBytes(sip.SIPRequest(Request));
+        //    return Request;
         //}
+
+        public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "mediaType");
+            XmlOp.SetNodeInnerText(Request, "mediaType", 0, mediaType);
+            XmlOp.ElementAdd(Request, "parameters", "linkMode");
+            XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode);
+            XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
+            XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
+            XmlOp.ElementAdd(Request, "parameters", "targetPort");
+            XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
+            XmlOp.ElementAdd(Request, "parameters", "flag");
+            XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
+            Request.Save("D://StartMediaReq-response.xml");
+
+            return Encoding.UTF8.GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static byte[] test(byte[] recv, int i)//Only for test
+        {
+            XmlDocument Doc = new XmlDocument();
+            try
+            {
+                sip = new SIPTools(recv, i);
+                Doc = SIPTools.XmlExtract(recv, i);
+            }
+            catch (XmlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaReq");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Response, "sessionId", 0, "0001");
+            XmlOp.ElementAdd(Response, "parameters", "tcpIp");
+            XmlOp.SetNodeInnerText(Response, "tcpIp", 0, "127.0.0.1");
+            XmlOp.ElementAdd(Response, "parameters", "tcpPort");
+            XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "12001");
+            Response.Save("D://StartMediaReq-response.xml");
+
+            return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
+        }
 
         public static string[] StartMediaResponse(XmlDocument Doc)
         {

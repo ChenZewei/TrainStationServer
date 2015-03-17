@@ -42,7 +42,7 @@ namespace TrainStationServer
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
             sendBuffer += doc.OuterXml;
-            return null;
+            return sendBuffer;
         }
         public string SIPRequest(XmlDocument doc,string To,string From, string CSeq)
         {
