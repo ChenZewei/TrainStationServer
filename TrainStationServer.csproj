@@ -66,6 +66,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DataBase.cs" />
+    <Compile Include="InterfaceC.cs" />
     <Compile Include="SIPTools.cs" />
     <Compile Include="XmlTools.cs" />
     <Page Include="MainWindow.xaml">
@@ -111,59 +112,31 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="SIP+XML\AlarmResSubscribe.txt" />
-    <Resource Include="SIP+XML\ControlFileBack.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\ControlPTZ.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\GetUserCurState.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\HisInfo.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\HisLoadInfo.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\INFO.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\QueryAlarmRes.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\QueryHistoryFiles.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\ReportAlarmInfo.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\ReqCamResState.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\ResChangeOrder.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\ResTransOrder.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\SetUserCamManage.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\StartHisLoad.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\StartMediaReq.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\StartPlayBack.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="SIP+XML\StopMediaReq.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="SIP+XML\B\AlarmResSubscribe.txt" />
+    <Resource Include="SIP+XML\B\ControlFileBack.txt" />
+    <Resource Include="SIP+XML\B\ControlPTZ.txt" />
+    <Resource Include="SIP+XML\B\GetUserCurState.txt" />
+    <Resource Include="SIP+XML\B\HisInfo.txt" />
+    <Resource Include="SIP+XML\B\HisLoadInfo.txt" />
+    <Resource Include="SIP+XML\B\INFO.txt" />
+    <Resource Include="SIP+XML\B\QueryAlarmRes.txt" />
+    <Resource Include="SIP+XML\B\QueryHistoryFiles.txt" />
+    <Resource Include="SIP+XML\B\ReportAlarmInfo.txt" />
+    <Resource Include="SIP+XML\B\ReqCamResState.txt" />
+    <Resource Include="SIP+XML\B\ResChangeOrder.txt" />
+    <Resource Include="SIP+XML\B\ResTransOrder.txt" />
+    <Resource Include="SIP+XML\B\SetUserCamManage.txt" />
+    <Resource Include="SIP+XML\B\StartHisLoad.txt" />
+    <Resource Include="SIP+XML\B\StartMediaReq.txt" />
+    <Resource Include="SIP+XML\B\StartPlayBack.txt" />
+    <Resource Include="SIP+XML\B\StopMediaReq.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SIP+XML\C\ResReport.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

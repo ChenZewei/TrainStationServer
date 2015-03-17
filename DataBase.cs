@@ -13,6 +13,8 @@ namespace TrainStationServer
     class DataBase
     {
         private string cmd;
+        private MySqlDataReader DataReader;
+        private MySqlCommand Cmd;
         public static MySqlConnection MySQLConnect = new MySqlConnection("server=192.168.80.13; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
         public DataBase()
         {
@@ -21,6 +23,18 @@ namespace TrainStationServer
                 MySQLConnect.Open();
             }
             catch(MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        ~DataBase()
+        {
+            try
+            {
+                MySQLConnect.Close();
+            }
+            catch (MySqlException e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -49,5 +63,72 @@ namespace TrainStationServer
             }
             
         }
+
+        public void Insert(string database,string[] columes,string[] values)
+        {
+            
+            int len = columes.Length;
+            if (values.Length != len || len <= 1)
+                return;
+            cmd = "insert into " + database + "(" + columes[0];
+            for (int i = 1; i < columes.Length;i++ )
+            {
+                cmd += "," + columes[i];
+            }
+            cmd += ") values('" + values[0] + "'";
+            for (int i = 1; i < values.Length;i++ )
+            {
+                cmd += ",'" + values[i] + "'";
+            }
+            cmd += ");";
+            
+            try
+            {
+                Cmd = new MySqlCommand(cmd, MySQLConnect);
+                DataReader = Cmd.ExecuteReader();
+                if (Cmd.ExecuteNonQuery() > 0)
+                {
+                    Console.WriteLine("数据插入成功！");
+                }
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
+
+        //public void InsertList(string database, List<string> columes, List<string> values)
+        //{
+
+        //    int len = columes.Count;
+        //    if (values.Count != len || len <= 1)
+        //        return;
+        //    cmd = "insert into " + database + "(" + columes[0];
+        //    for (int i = 1; i < columes.Length; i++)
+        //    {
+        //        cmd += "," + columes[i];
+        //    }
+        //    cmd += ") values('" + values[0] + "'";
+        //    for (int i = 1; i < values.Length; i++)
+        //    {
+        //        cmd += ",'" + columes[i] + "'";
+        //    }
+        //    cmd += ");";
+        //    try
+        //    {
+        //        MySqlCommand Cmd = new MySqlCommand(cmd, MySQLConnect);
+        //        MySqlDataReader DataReader = Cmd.ExecuteReader();
+        //        if (Cmd.ExecuteNonQuery() > 0)
+        //        {
+        //            Console.WriteLine("数据插入成功！");
+        //        }
+        //    }
+        //    catch (MySqlException e)
+        //    {
+        //        Console.WriteLine(e.Message);
+        //    }
+
+        //}
     }
 }

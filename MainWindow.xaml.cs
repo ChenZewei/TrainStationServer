@@ -30,11 +30,10 @@ namespace TrainStationServer
         private Thread mainThread,recvThread,clientThread;
         byte[] recv;
         int i;
-        DataBase DB;
+        DataBase Database;
         public MainWindow()
         {
             InitializeComponent();
-            DB = new DataBase();
         }
 
         ~MainWindow()
@@ -61,6 +60,7 @@ namespace TrainStationServer
             client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
             socket.Listen(20);
+            Database = new DataBase();
             mainThread = new Thread(Listening);
             mainThread.IsBackground = true;
             mainThread.Start();
@@ -90,9 +90,9 @@ namespace TrainStationServer
             FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
 
-            byte[] send = new byte[1024];
+            byte[] send = new byte[2048];
             temp = client;
-            recv = new byte[1024];
+            recv = new byte[2048];
             try
             {
                 i = temp.Receive(recv);
@@ -106,7 +106,7 @@ namespace TrainStationServer
             sipTools = new SIPTools(recv, i);
             doc = SIPTools.XmlExtract(recv, i);
             sendxml = FuncDistribution(doc);
-            send = Encoding.ASCII.GetBytes(sipTools.SIPResponse(sendxml));
+            send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));
 
             sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
             sendbuf.Write(send, 0, send.Length);
@@ -180,6 +180,7 @@ namespace TrainStationServer
         private XmlDocument FuncDistribution(XmlDocument doc)
         {
             InterfaceB B = new InterfaceB();
+            InterfaceC C = new InterfaceC(Database);
             XmlElement root;
             XmlNodeList nodeList;
             XmlNode node;
@@ -191,6 +192,7 @@ namespace TrainStationServer
             {
                 case "ResReport":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResReport\n")));
+                    response = C.ResReport(doc);
                     break;
                 case "ResChange":
                     this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("ResChange\n")));
