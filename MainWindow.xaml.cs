@@ -53,6 +53,21 @@ namespace TrainStationServer
                 recvThread.Abort();
                 recvThread.Join();
             }
+            if(clientThread != null)
+            {
+                clientThread.Abort();
+                clientThread.Join();
+            }
+            if (testThread != null)
+            {
+                testThread.Abort();
+                testThread.Join();
+            }
+            if (testClientThread != null)
+            {
+                testClientThread.Abort();
+                testClientThread.Join();
+            }
         }
 
         private void Start_Click_1(object sender, RoutedEventArgs e)
@@ -416,7 +431,7 @@ namespace TrainStationServer
             sendbuf.Write(Encoding.UTF8.GetBytes(doc.OuterXml), 0, Encoding.UTF8.GetBytes(doc.OuterXml).Length);
             sendbuf.Close();
             result = InterfaceC.StartMediaResponse(doc);
-            Console.WriteLine(result[0] + " " + result[1] + " " + result[2]);
+            Console.WriteLine("sessionId:" + result[0] + ";tcpIp:" + result[1] + ";tcpPort: " + result[2]);
             this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
         }
         /*
