@@ -329,34 +329,34 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
-        {
-            XmlTools XmlOp = new XmlTools();
-            XmlDocument Request = XmlOp.XmlCreate();
+        //public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
+        //{
+        //    XmlTools XmlOp = new XmlTools();
+        //    XmlDocument Request = XmlOp.XmlCreate();
 
-            XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
-            XmlOp.ElementAdd(Request, "response", "parameters");
-            XmlOp.ElementAdd(Request, "parameters", "resId");
-            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
-            XmlOp.ElementAdd(Request, "parameters", "userId");
-            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
-            XmlOp.ElementAdd(Request, "parameters", "userLevel");
-            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            XmlOp.ElementAdd(Request, "parameters", "mediaType");
-            XmlOp.SetNodeInnerText(Request, "mediaType", 0, mediaType);
-            XmlOp.ElementAdd(Request, "parameters", "linkMode");
-            XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode);
-            XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
-            XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
-            XmlOp.ElementAdd(Request, "parameters", targetPort);
-            XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
-            XmlOp.ElementAdd(Request, "parameters", "flag");
-            XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
-            Request.Save("D://StartMediaReq-response.xml");
+        //    XmlOp.ElementAdd(Request, null, "request");
+        //    XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
+        //    XmlOp.ElementAdd(Request, "response", "parameters");
+        //    XmlOp.ElementAdd(Request, "parameters", "resId");
+        //    XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+        //    XmlOp.ElementAdd(Request, "parameters", "userId");
+        //    XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+        //    XmlOp.ElementAdd(Request, "parameters", "userLevel");
+        //    XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+        //    XmlOp.ElementAdd(Request, "parameters", "mediaType");
+        //    XmlOp.SetNodeInnerText(Request, "mediaType", 0, mediaType);
+        //    XmlOp.ElementAdd(Request, "parameters", "linkMode");
+        //    XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode);
+        //    XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
+        //    XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
+        //    XmlOp.ElementAdd(Request, "parameters", targetPort);
+        //    XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
+        //    XmlOp.ElementAdd(Request, "parameters", "flag");
+        //    XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
+        //    Request.Save("D://StartMediaReq-response.xml");
 
-            return Encoding.UTF8.GetBytes(sip.SIPRequest(Request));
-        }
+        //    return Encoding.UTF8.GetBytes(sip.SIPRequest(Request));
+        //}
 
         public static string[] StartMediaResponse(XmlDocument Doc)
         {
