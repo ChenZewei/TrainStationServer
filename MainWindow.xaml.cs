@@ -103,17 +103,20 @@ namespace TrainStationServer
                 return;
             }
             this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
-            sipTools = new SIPTools(recv, i);
-            try
-            {
-                doc = SIPTools.XmlExtract(recv, i);
-                sendxml = FuncDistribution(doc);
-                send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));        
-            }
-            catch(XmlException e)
-            { 
-                Console.WriteLine(e.Message); 
-            }
+            //sipTools = new SIPTools(recv, i);
+            //try
+            //{
+            //    doc = SIPTools.XmlExtract(recv, i);
+            //    sendxml = FuncDistribution(doc);
+            //    send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));        
+            //}
+            //catch(XmlException e)
+            //{ 
+            //    Console.WriteLine(e.Message); 
+            //}
+
+            InterfaceC C = new InterfaceC(Database);
+            send = InterfaceC.Response(recv, i);
 
             //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
             //sendbuf.Write(send, 0, send.Length);
