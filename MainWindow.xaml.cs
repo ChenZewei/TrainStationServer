@@ -84,8 +84,8 @@ namespace TrainStationServer
         private void ClientThread()//多线程法
         {
             Socket temp;
-            SIPTools sipTools;
-            XmlDocument doc,sendxml;
+            //SIPTools sipTools;
+            //XmlDocument doc,sendxml;
 
             FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
