@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Threading;
+using System.IO;
 
 namespace TrainStationServer
 {
@@ -63,6 +64,12 @@ namespace TrainStationServer
             {
                 Console.WriteLine(e.Message);
             }
+
+            FileStream sendbuf = new FileStream("D://test.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            sendbuf.Close();
+            sendbuf = new FileStream("D://test.txt", FileMode.Append, FileAccess.Write);
+            sendbuf.Write(Encoding.UTF8.GetBytes(doc.OuterXml), 0, Encoding.UTF8.GetBytes(doc.OuterXml).Length);
+            sendbuf.Close();
             XmlElement root;
             XmlNodeList nodeList;
             XmlNode node;
@@ -99,9 +106,9 @@ namespace TrainStationServer
             saSipPort = XmlOp.GetInnerText(Doc, "saSipPort");
             saName = XmlOp.GetInnerText(Doc, "saName");
             saPassword = XmlOp.GetInnerText(Doc, "saPassword");
-            manufactureId = XmlOp.GetInnerText(Doc, "manufactureId");
-            manufactureName = XmlOp.GetInnerText(Doc, "manufactureName");
-            productiveVersion = XmlOp.GetInnerText(Doc, "productiveVersion");
+            manufactureId = XmlOp.GetInnerText(Doc, "manufacturerId");
+            manufactureName = XmlOp.GetInnerText(Doc, "manufacturerName");
+            productiveVersion = XmlOp.GetInnerText(Doc, "productVersion");
             softwareVersion = XmlOp.GetInnerText(Doc, "softwareVersion");
 
             XmlOp.ElementAdd(Response, null, "response");
@@ -111,7 +118,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "60");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
             Response.Save("D://SaRegister-response.xml");
 
             return Response;
@@ -150,7 +157,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "60");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
             Response.Save("D://SaRegister-response.xml");
 
             return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
@@ -162,7 +169,7 @@ namespace TrainStationServer
             XmlDocument Response = XmlOp.XmlCreate();
             string SaKeepAlive;
 
-            SaKeepAlive = XmlOp.GetInnerText(Doc, "SaKeepAlive");
+            SaKeepAlive = XmlOp.GetInnerText(Doc, "saKeepAlivePeriod");
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaKeepAlive");
@@ -171,7 +178,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "60");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
             Response.Save("D://SaKeepAlive-response.xml");
 
             return Response;
@@ -193,7 +200,7 @@ namespace TrainStationServer
             XmlDocument Response = XmlOp.XmlCreate();
             string SaKeepAlive;
 
-            SaKeepAlive = XmlOp.GetInnerText(Doc, "SaKeepAlive");
+            SaKeepAlive = XmlOp.GetInnerText(Doc, "saKeepAlivePeriod");
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaKeepAlive");
@@ -202,7 +209,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "60");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
             Response.Save("D://SaKeepAlive-response.xml");
 
             return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
@@ -214,7 +221,8 @@ namespace TrainStationServer
             XmlDocument Response = XmlOp.XmlCreate();
             string saId, totalPacketNum, curPacketNum;
             string[] columes = { "id", "name", "location", "custom"};
-            string[] values = new string[4]; 
+            string[] values = new string[4];
+            int num = 2;
             List<string> resId;
             List<string> name;
             List<string> location;
@@ -232,11 +240,20 @@ namespace TrainStationServer
 
             for (int j = 0; j < resId.Count; j++)
             {
+                num = 2;
                 values[0] = resId[j];
                 values[1] = name[j];
-                values[2] = location[j];
-                values[3] = infomation[j];
-                database.Insert("ivms_resources", columes, values);
+                if (location.Count >= 1)
+                {
+                    values[2] = location[j];
+                    num++;
+                }
+                if (purpose.Count >= 1)
+                {
+                    values[3] = purpose[j];
+                    num++;
+                }
+                database.Insert("ivms_resources", columes, values, num);
             }
 
             XmlOp.ElementAdd(Response, null, "response");
@@ -266,6 +283,7 @@ namespace TrainStationServer
             string saId, totalPacketNum, curPacketNum;
             string[] columes = { "id", "name", "location", "custom" };
             string[] values = new string[4];
+            int num = 2;
             List<string> resId;
             List<string> name;
             List<string> location;
@@ -285,9 +303,17 @@ namespace TrainStationServer
             {
                 values[0] = resId[j];
                 values[1] = name[j];
-                values[2] = location[j];
-                values[3] = infomation[j];
-                database.Insert("ivms_resources", columes, values);
+                if (location.Count >= 1)
+                {
+                    values[2] = location[j];
+                    num++;
+                }
+                if (purpose.Count >= 1)
+                {
+                    values[3] = purpose[j];
+                    num++;
+                }
+                database.Insert("ivms_resources", columes, values, num);
             }
 
             XmlOp.ElementAdd(Response, null, "response");

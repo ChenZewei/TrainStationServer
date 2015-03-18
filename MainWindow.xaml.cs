@@ -127,48 +127,55 @@ namespace TrainStationServer
             //SIPTools sipTools;
             //XmlDocument doc,sendxml;
 
-            //FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
-            //sendbuf.Close();
+            
 
             byte[] send = new byte[2048];
             temp = client;
             recv = new byte[2048];
-            try
+            while(true)
             {
-                i = temp.Receive(recv);
-            }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
-            //sipTools = new SIPTools(recv, i);
-            //try
-            //{
-            //    doc = SIPTools.XmlExtract(recv, i);
-            //    sendxml = FuncDistribution(doc);
-            //    send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));        
-            //}
-            //catch(XmlException e)
-            //{ 
-            //    Console.WriteLine(e.Message); 
-            //}
+                try
+                {
+                    i = temp.Receive(recv);
+                }
+                catch (SocketException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(recv, 0, i))));
+                //sipTools = new SIPTools(recv, i);
+                //try
+                //{
+                //    doc = SIPTools.XmlExtract(recv, i);
+                //    sendxml = FuncDistribution(doc);
+                //    send = Encoding.UTF8.GetBytes(sipTools.SIPResponse(sendxml));        
+                //}
+                //catch(XmlException e)
+                //{ 
+                //    Console.WriteLine(e.Message); 
+                //}
+                FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                sendbuf.Close();
+                sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
+                sendbuf.Write(recv, 0, recv.Length);
+                sendbuf.Close();
 
-            send = InterfaceC.Response(recv, i);
+                send = InterfaceC.Response(recv, i);
 
-            //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
-            //sendbuf.Write(send, 0, send.Length);
-            //sendbuf.Close();
+                //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
+                //sendbuf.Write(send, 0, send.Length);
+                //sendbuf.Close();
 
-            try
-            {
-                temp.Send(send);
-                temp.Close();
-            }
-            catch(SocketException ex)
-            {
-                Console.Write(ex.Message);
+                try
+                {
+                    temp.Send(send);
+                    //temp.Close();
+                }
+                catch(SocketException ex)
+                {
+                    Console.Write(ex.Message);
+                }
             }
         }
 
@@ -201,6 +208,7 @@ namespace TrainStationServer
             {
                 Console.Write(ex.Message);
             }
+            
         }
 
         /*
