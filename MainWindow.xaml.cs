@@ -29,7 +29,7 @@ namespace TrainStationServer
         private Socket server;
         private IPEndPoint ipEnd, testIpEnd;
         private Thread mainThread, recvThread, clientThread, testThread, testClientThread;
-        byte[] recv;
+        //byte[] recv;
         int i;
         DataBase Database;
         InterfaceC C;
@@ -121,17 +121,22 @@ namespace TrainStationServer
             }
         }
 
+        void TimeOut(Object info)
+        {
+
+        }
+
         private void ClientThread()//多线程法
         {
             Socket temp;
+            temp = client;
             //SIPTools sipTools;
             //XmlDocument doc,sendxml;
-
             
+            //Timer timer = new Timer()
 
             byte[] send = new byte[2048];
-            temp = client;
-            recv = new byte[2048];
+            byte[] recv = new byte[2048];
             while(true)
             {
                 try
@@ -182,10 +187,9 @@ namespace TrainStationServer
         private void TestClientThread()//多线程法
         {
             Socket temp;
-
-            byte[] send = new byte[2048];
             temp = testClient;
-            recv = new byte[2048];
+            byte[] send = new byte[2048];
+            byte[] recv = new byte[2048];
             try
             {
                 i = temp.Receive(recv);

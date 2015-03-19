@@ -55,10 +55,16 @@ namespace TrainStationServer
         public static byte[] Response(byte[] recv,int i)
         {
             XmlDocument doc = new XmlDocument();
+            XmlElement root;
+            XmlNodeList nodeList;
+            XmlNode node;
+            XmlDocument response = new XmlDocument();
             try
             {
                 sip = new SIPTools(recv, i);
                 doc = SIPTools.XmlExtract(recv, i);
+                if (doc == null)
+                    return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(response));
             }
             catch(XmlException e)
             {
@@ -68,12 +74,9 @@ namespace TrainStationServer
             FileStream sendbuf = new FileStream("D://test.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
             sendbuf = new FileStream("D://test.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.UTF8.GetBytes(doc.OuterXml), 0, Encoding.UTF8.GetBytes(doc.OuterXml).Length);
+            sendbuf.Write(Encoding.GetEncoding("GB2312 ").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312 ").GetBytes(doc.OuterXml).Length);
             sendbuf.Close();
-            XmlElement root;
-            XmlNodeList nodeList;
-            XmlNode node;
-            XmlDocument response = new XmlDocument();
+            
             root = doc.DocumentElement;
             nodeList = root.SelectNodes("/request/@command");
             node = nodeList.Item(0);
@@ -92,7 +95,7 @@ namespace TrainStationServer
                     response = new XmlDocument();
                     break;
             }
-            return Encoding.UTF8.GetBytes(sip.SIPResponse(response));
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(response));
         }
 
         public static XmlDocument SaRegister(XmlDocument Doc)
@@ -160,7 +163,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
             Response.Save("D://SaRegister-response.xml");
 
-            return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(Response));
         }
 
         public static XmlDocument SaKeepAlive(XmlDocument Doc)
@@ -212,7 +215,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
             Response.Save("D://SaKeepAlive-response.xml");
 
-            return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(Response));
         }
 
         public static XmlDocument ResReport(XmlDocument Doc)
@@ -323,7 +326,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             Response.Save("D://ResReport-response.xml");
 
-            return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(Response));
         }
 
         //public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
@@ -381,7 +384,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
             Request.Save("D://StartMediaReq-response.xml");
 
-            return Encoding.UTF8.GetBytes(sip.SIPRequest(Request));
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
 
         public static byte[] test(byte[] recv, int i)//Only for test
