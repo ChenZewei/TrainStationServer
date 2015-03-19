@@ -25,7 +25,38 @@ namespace TrainStationServer
             sip = new SIPTools();
         }
 
-        public static XmlDocument Response(XmlDocument doc)
+        public static bool IsRequest(byte[] recv, int i)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement root;
+            XmlNodeList nodeList;
+            try
+            {
+                sip = new SIPTools(recv, i);
+                doc = SIPTools.XmlExtract(recv, i);
+                if (doc == null)
+                    return false;
+            }
+            catch (XmlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            FileStream sendbuf = new FileStream("D://recieve.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            sendbuf.Close();
+            sendbuf = new FileStream("D://recieve.txt", FileMode.Append, FileAccess.Write);
+            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
+            sendbuf.Close();
+
+            root = doc.DocumentElement;
+            nodeList = doc.GetElementsByTagName("request");
+            if (nodeList.Count > 0)
+                return true;
+            else
+                return false;
+        }
+
+        public static XmlDocument Request(XmlDocument doc)
         {
             XmlElement root;
             XmlNodeList nodeList;
@@ -52,19 +83,19 @@ namespace TrainStationServer
             return response;
         }
 
-        public static byte[] Response(byte[] recv,int i)
+        public static byte[] Request(byte[] recv, int i)
         {
             XmlDocument doc = new XmlDocument();
             XmlElement root;
             XmlNodeList nodeList;
             XmlNode node;
-            XmlDocument response = new XmlDocument();
+            XmlDocument request = new XmlDocument();
             try
             {
                 sip = new SIPTools(recv, i);
                 doc = SIPTools.XmlExtract(recv, i);
                 if (doc == null)
-                    return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(response));
+                    return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(request));
             }
             catch(XmlException e)
             {
@@ -74,28 +105,78 @@ namespace TrainStationServer
             FileStream sendbuf = new FileStream("D://test.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
             sendbuf = new FileStream("D://test.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.GetEncoding("GB2312 ").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312 ").GetBytes(doc.OuterXml).Length);
+            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
             sendbuf.Close();
             
             root = doc.DocumentElement;
-            nodeList = root.SelectNodes("/request/@command");
-            node = nodeList.Item(0);
-            switch (node.InnerText)
+            nodeList = doc.GetElementsByTagName("request");
+            if(nodeList.Count > 0)
             {
-                case "SaRegister":
-                    response = SaRegister(doc);
-                    break;
-                case "SaKeepAlive":
-                    response = SaKeepAlive(doc);
-                    break;
-                case "ResReport":
-                    response = ResReport(doc);
-                    break;
-                default:
-                    response = new XmlDocument();
-                    break;
+                nodeList = root.SelectNodes("/request/@command");
+                node = nodeList.Item(0);
+                switch (node.InnerText)
+                {
+                    case "SaRegister":
+                        request = SaRegister(doc);
+                        break;
+                    case "SaKeepAlive":
+                        request = SaKeepAlive(doc);
+                        break;
+                    case "ResReport":
+                        request = ResReport(doc);
+                        break;
+                    default:
+                        request = new XmlDocument();
+                        break;
+                }
             }
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(response));
+
+            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(request));
+        }
+
+        public static string[] Response(byte[] recv, int i)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement root;
+            XmlNodeList nodeList;
+            XmlNode node;
+            string[] result = null;
+            try
+            {
+                sip = new SIPTools(recv, i);
+                doc = SIPTools.XmlExtract(recv, i);
+                if (doc == null)
+                    return null;
+            }
+            catch (XmlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            FileStream sendbuf = new FileStream("D://response.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            sendbuf.Close();
+            sendbuf = new FileStream("D://response.txt", FileMode.Append, FileAccess.Write);
+            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
+            sendbuf.Close();
+
+            root = doc.DocumentElement;
+            nodeList = doc.GetElementsByTagName("response");
+            if (nodeList.Count > 0)
+            {
+                nodeList = root.SelectNodes("/response/@command");
+                node = nodeList.Item(0);
+                switch (node.InnerText)
+                {
+                    case "StartMediaReq":
+                        result = new string[3];
+                        result = StartMediaResponse(doc);
+                        break;
+                    default:
+                        result = null;
+                        break;
+                }
+            }
+            return result;
         }
 
         public static XmlDocument SaRegister(XmlDocument Doc)
@@ -163,7 +244,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
             Response.Save("D://SaRegister-response.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(Response));
+            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
 
         public static XmlDocument SaKeepAlive(XmlDocument Doc)
@@ -215,7 +296,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
             Response.Save("D://SaKeepAlive-response.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(Response));
+            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
 
         public static XmlDocument ResReport(XmlDocument Doc)
@@ -326,7 +407,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             Response.Save("D://ResReport-response.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPResponse(Response));
+            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
 
         //public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
@@ -384,7 +465,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
             Request.Save("D://StartMediaReq-response.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPRequest(Request));
         }
 
         public static byte[] test(byte[] recv, int i)//Only for test

@@ -130,6 +130,7 @@ namespace TrainStationServer
         {
             Socket temp;
             temp = client;
+            string[] result = new string[10];
             //SIPTools sipTools;
             //XmlDocument doc,sendxml;
             
@@ -166,21 +167,33 @@ namespace TrainStationServer
                 sendbuf.Write(recv, 0, recv.Length);
                 sendbuf.Close();
 
-                send = InterfaceC.Response(recv, i);
+                if (InterfaceC.IsRequest(recv, i))
+                {
+                    send = InterfaceC.Request(recv, i);
+                    try
+                    {
+                        temp.Send(send);
+                        //temp.Close();
+                    }
+                    catch(SocketException ex)
+                    {
+                        Console.Write(ex.Message);
+                    }
+                }
+                else
+                {
+                    result = InterfaceC.Response(recv, i);
+                    for (int k = 0; k < result.Length; k++)
+                        Console.WriteLine(result[k]);
+                }
+                    
+                
 
                 //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
                 //sendbuf.Write(send, 0, send.Length);
                 //sendbuf.Close();
 
-                try
-                {
-                    temp.Send(send);
-                    //temp.Close();
-                }
-                catch(SocketException ex)
-                {
-                    Console.Write(ex.Message);
-                }
+                
             }
         }
 
