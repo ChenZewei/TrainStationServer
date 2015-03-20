@@ -675,7 +675,7 @@ namespace TrainStationServer
         #endregion
 
         #region InfoOrder
-        public static XmlDocument StartMediaState(XmlDocument Doc)
+        public static XmlDocument InfoOrder(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -690,7 +690,7 @@ namespace TrainStationServer
             userLevel = XmlOp.GetInnerText(Doc, "userLevel");
 
             XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaState");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "InfoOrder");
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
@@ -698,7 +698,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Response, "sessionId", 0, "sessionId");
 
-            Response.Save("D://response-StartMediaState.xml");
+            Response.Save("D://response-InfoOrder.xml");
 
             return Response;
         }
