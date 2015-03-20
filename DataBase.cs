@@ -13,8 +13,6 @@ namespace TrainStationServer
     class DataBase
     {
         private string cmd;
-        private MySqlDataReader DataReader;
-        private MySqlCommand Cmd;
         public static MySqlConnection MySQLConnect = new MySqlConnection("server=localhost; user id=root; Password=000000; database=opensips; persist security info=False");
         //public static MySqlConnection MySQLConnect = new MySqlConnection("server=192.168.80.13; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
         public DataBase()
@@ -65,20 +63,18 @@ namespace TrainStationServer
             
         }
 
-        public void Insert(string database,string[] columes,string[] values)
+        public void Insert(string database,string[] columes,string[] values,int length)
         {
-            
-            int len = columes.Length;
             int state;
-            if (values.Length != len || len <= 1)
+            if (values.Length != length || columes.Length != length || length <= 1)
                 return;
             cmd = "insert into " + database + "(" + columes[0];
-            for (int i = 1; i < columes.Length;i++ )
+            for (int i = 1; i < length; i++)
             {
                 cmd += "," + columes[i];
             }
             cmd += ") values('" + values[0] + "'";
-            for (int i = 1; i < values.Length;i++ )
+            for (int i = 1; i < length; i++)
             {
                 cmd += ",'" + values[i] + "'";
             }
@@ -86,7 +82,7 @@ namespace TrainStationServer
             
             try
             {
-                Cmd = new MySqlCommand(cmd, MySQLConnect);
+                MySqlCommand Cmd = new MySqlCommand(cmd, MySQLConnect);
                 state = Cmd.ExecuteNonQuery();
                 if (state == 1)
                     Console.WriteLine("数据插入成功！");

@@ -42,7 +42,7 @@ namespace TrainStationServer
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
             sendBuffer += doc.OuterXml;
-            return null;
+            return sendBuffer;
         }
         public string SIPRequest(XmlDocument doc,string To,string From, string CSeq)
         {
@@ -96,7 +96,16 @@ namespace TrainStationServer
             if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("\r\n\r\n"))) != -1)
             {
                 xmlDoc = new XmlDocument();
-                strBuffer = Encoding.UTF8.GetString(buffer, index, (bufferlen - index));
+                strBuffer = "";
+                for (int j = 1;j<bufferlen ;j++ )
+                {
+                    if (buffer[bufferlen - j] != '0')
+                    {
+                        strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j));
+                        break;
+                    }
+                }
+
                 xmlDoc.LoadXml(strBuffer);
                 return xmlDoc;
             }
@@ -107,7 +116,7 @@ namespace TrainStationServer
         {
             int length = 0,index = 0;
             string info = null;
-            byte[] infoByte = new byte[20];
+            byte[] infoByte = new byte[1024];
             if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes(infoType))) != -1)
             {
                 index++;
