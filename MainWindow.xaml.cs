@@ -25,7 +25,7 @@ namespace TrainStationServer
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Socket socket, client, testSever, testClient;
+        private Socket socket, client, testSever, testClient, test;
         private Socket server;
         private IPEndPoint ipEnd, testIpEnd;
         private Thread mainThread, recvThread, clientThread, testThread, testClientThread;
@@ -77,20 +77,20 @@ namespace TrainStationServer
             client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
             socket.Listen(20);
-            testIpEnd = new IPEndPoint(IPAddress.Any, 10000);
-            testSever = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            testClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            testSever.Bind(testIpEnd);
-            testSever.Listen(20);
+            //testIpEnd = new IPEndPoint(IPAddress.Any, 10000);
+            //testSever = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //testClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //testSever.Bind(testIpEnd);
+            //testSever.Listen(20);
             Database = new DataBase();
             C = new InterfaceC(Database);
             mainThread = new Thread(Listening);
             mainThread.IsBackground = true;
             mainThread.Start();
             Result.AppendText("Start listening...\r\n");
-            testThread = new Thread(testListening);
-            testThread.IsBackground = true;
-            testThread.Start();
+            //testThread = new Thread(testListening);
+            //testThread.IsBackground = true;
+            //testThread.Start();
         }
 
         private void Listening()
@@ -107,29 +107,25 @@ namespace TrainStationServer
             }
         }
 
-        private void testListening()
-        {
-            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Wait for accepting...\r\n")));
-            //socket.BeginAccept(new AsyncCallback(onConnectRequest), socket);
-            while (true)
-            {
-                testClient = testSever.Accept();
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
-                testClientThread = new Thread(TestClientThread);
-                testClientThread.IsBackground = true;
-                testClientThread.Start();
-            }
-        }
-
-        void TimeOut(Object info)
-        {
-
-        }
+        //private void testListening()
+        //{
+        //    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Wait for accepting...\r\n")));
+        //    //socket.BeginAccept(new AsyncCallback(onConnectRequest), socket);
+        //    while (true)
+        //    {
+        //        testClient = testSever.Accept();
+        //        this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
+        //        testClientThread = new Thread(TestClientThread);
+        //        testClientThread.IsBackground = true;
+        //        testClientThread.Start();
+        //    }
+        //}
 
         private void ClientThread()//多线程法
         {
             Socket temp;
             temp = client;
+            test = client;
             string[] result = new string[10];
             //SIPTools sipTools;
             //XmlDocument doc,sendxml;
@@ -197,36 +193,36 @@ namespace TrainStationServer
             }
         }
 
-        private void TestClientThread()//多线程法
-        {
-            Socket temp;
-            temp = testClient;
-            byte[] send = new byte[2048];
-            byte[] recv = new byte[2048];
-            try
-            {
-                i = temp.Receive(recv);
-            }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
+        //private void TestClientThread()//多线程法
+        //{
+        //    Socket temp;
+        //    temp = testClient;
+        //    byte[] send = new byte[2048];
+        //    byte[] recv = new byte[2048];
+        //    try
+        //    {
+        //        i = temp.Receive(recv);
+        //    }
+        //    catch (SocketException ex)
+        //    {
+        //        MessageBox.Show(ex.Message);
+        //        return;
+        //    }
+        //    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
 
-            send = InterfaceC.test(recv, i);
+        //    send = InterfaceC.test(recv, i);
 
-            try
-            {
-                temp.Send(send);
-                temp.Close();
-            }
-            catch (SocketException ex)
-            {
-                Console.Write(ex.Message);
-            }
+        //    try
+        //    {
+        //        temp.Send(send);
+        //        temp.Close();
+        //    }
+        //    catch (SocketException ex)
+        //    {
+        //        Console.Write(ex.Message);
+        //    }
             
-        }
+        //}
 
         /*
         private void onConnectRequest(IAsyncResult ar)//异步调用法
@@ -407,58 +403,48 @@ namespace TrainStationServer
 
         private void Test_Click_1(object sender, RoutedEventArgs e)
         {
-            ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 10000);
-            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            Thread testThread;
-            try
-            {
-                server.Connect(ipEnd);
-            }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            server.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
-            testThread = new Thread(TestThread);
-            testThread.IsBackground = true;
-            testThread.Start();
+            //Thread testThread;
+
+            test.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
+            //testThread = new Thread(TestThread);
+            //testThread.IsBackground = true;
+            //testThread.Start();
         }
 
-        private void TestThread()
-        {
-            byte[] recv;
-            string[] result = new string[3];
-            SIPTools sipTools;
-            XmlDocument doc = new XmlDocument();
-            FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
-            sendbuf.Close();
-            recv = new byte[2048];
-            try
-            {
-                i = server.Receive(recv);
-            }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            sipTools = new SIPTools(recv, i);
-            try
-            {
-                doc = SIPTools.XmlExtract(recv, i);
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            sendbuf = new FileStream("D://test.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.UTF8.GetBytes(doc.OuterXml), 0, Encoding.UTF8.GetBytes(doc.OuterXml).Length);
-            sendbuf.Close();
-            result = InterfaceC.StartMediaResponse(doc);
-            Console.WriteLine("sessionId:" + result[0] + ";tcpIp:" + result[1] + ";tcpPort: " + result[2]);
-            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
-        }
+        //private void TestThread()
+        //{
+        //    byte[] recv;
+        //    string[] result = new string[3];
+        //    SIPTools sipTools;
+        //    XmlDocument doc = new XmlDocument();
+        //    FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
+        //    sendbuf.Close();
+        //    recv = new byte[2048];
+        //    try
+        //    {
+        //        i = server.Receive(recv);
+        //    }
+        //    catch (SocketException ex)
+        //    {
+        //        MessageBox.Show(ex.Message);
+        //        return;
+        //    }
+        //    sipTools = new SIPTools(recv, i);
+        //    try
+        //    {
+        //        doc = SIPTools.XmlExtract(recv, i);
+        //    }
+        //    catch (XmlException e)
+        //    {
+        //        Console.WriteLine(e.Message);
+        //    }
+        //    sendbuf = new FileStream("D://test.txt", FileMode.Append, FileAccess.Write);
+        //    sendbuf.Write(Encoding.UTF8.GetBytes(doc.OuterXml), 0, Encoding.UTF8.GetBytes(doc.OuterXml).Length);
+        //    sendbuf.Close();
+        //    result = InterfaceC.StartMediaResponse(doc);
+        //    Console.WriteLine("sessionId:" + result[0] + ";tcpIp:" + result[1] + ";tcpPort: " + result[2]);
+        //    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.UTF8.GetString(recv, 0, i))));
+        //}
         /*
         private int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
         {

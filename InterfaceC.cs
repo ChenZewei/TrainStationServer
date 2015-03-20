@@ -439,6 +439,7 @@ namespace TrainStationServer
         //    return Request;
         //}
 
+        #region StartMediaReq
         public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         {
             XmlTools XmlOp = new XmlTools();
@@ -544,5 +545,161 @@ namespace TrainStationServer
 
             return result;
         }
+        #endregion
+
+        #region ControlPTZ
+        public static byte[] ControlPTZ(string resId, string userId, string userLevel, string cmd, string param, string speed)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ControlPTZ");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "cmd");
+            XmlOp.SetNodeInnerText(Request, "cmd", 0, cmd);
+            XmlOp.ElementAdd(Request, "parameters", "param");
+            XmlOp.SetNodeInnerText(Request, "param", 0, param);
+            XmlOp.ElementAdd(Request, "parameters", "speed");
+            XmlOp.SetNodeInnerText(Request, "speed", 0, speed);
+            Request.Save("D://ControlPTZ-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+        #endregion
+
+        #region StopMediaReq
+        public static byte[] StopMediaReq(string sessionId, string resId, string stopFlag)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StopMediaReq");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "stopFlag");
+            XmlOp.SetNodeInnerText(Request, "stopFlag", 0, stopFlag);
+            Request.Save("D://StopMediaReq-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+        #endregion
+
+        #region QueryHistoryFiles
+        public static byte[] QueryHistoryFiles(string resId, string userId, string userLevel, string cuId, string fromDate, string toDate)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "QueryHistoryFiles");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "cuId");
+            XmlOp.SetNodeInnerText(Request, "cuId", 0, cuId);
+            XmlOp.ElementAdd(Request, "parameters", "fromDate");
+            XmlOp.SetNodeInnerText(Request, "fromDate", 0, fromDate);
+            XmlOp.ElementAdd(Request, "parameters", "toDate");
+            XmlOp.SetNodeInnerText(Request, "toDate", 0, toDate);
+            Request.Save("D://QueryHistoryFiles-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] QueryHistoryFilesResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string resId, cuId, totalNumber, currentNumber;
+            string[] result = new string[4];
+            List<string> startTime = new List<string>();
+            List<string> endTime = new List<string>();
+            List<string> size = new List<string>();
+
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            cuId = XmlOp.GetInnerText(Doc, "cuId");
+            totalNumber = XmlOp.GetInnerText(Doc, "totalNumber");
+            currentNumber = XmlOp.GetInnerText(Doc, "currentNumber");
+
+            startTime = XmlOp.GetInnerTextList(Doc, "startTime");
+            endTime = XmlOp.GetInnerTextList(Doc, "endTime");
+            size = XmlOp.GetInnerTextList(Doc, "size");
+
+            result[0] = resId;
+            result[1] = cuId;
+            result[2] = totalNumber;
+            result[3] = currentNumber;
+
+            return result;
+        }
+        #endregion
+
+        #region StartPlayBack
+        public static byte[] StartPlayBack(string resId, string userId, string userLevel, string startTime, string endTime, int LinkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartPlayBack");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "startTime");
+            XmlOp.SetNodeInnerText(Request, "startTime", 0, startTime);
+            XmlOp.ElementAdd(Request, "parameters", "endTime");
+            XmlOp.SetNodeInnerText(Request, "endTime", 0, endTime);
+            XmlOp.ElementAdd(Request, "parameters", "LinkMode");
+            XmlOp.SetNodeInnerText(Request, "LinkMode", 0, LinkMode.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
+            XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
+            XmlOp.ElementAdd(Request, "parameters", "targetPort");
+            XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
+            XmlOp.ElementAdd(Request, "parameters", "flag");
+            XmlOp.SetNodeInnerText(Request, "flag", 0, flag.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "locationFlag");
+            XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
+            Request.Save("D://StartPlayBack-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] StartPlayBackResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId, tcpIp, tcpPort;
+            string[] result = new string[3];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+            tcpIp = XmlOp.GetInnerText(Doc, "tcpIp");
+            tcpPort = XmlOp.GetInnerText(Doc, "tcpPort");
+
+            result[0] = sessionId;
+            result[1] = tcpIp;
+            result[2] = tcpPort;
+
+            return result;
+        }
+        #endregion
+
+
     }
 }
