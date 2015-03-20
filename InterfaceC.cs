@@ -187,6 +187,8 @@ namespace TrainStationServer
         }
 
         #region Down 2 Up
+
+        #region SaRegister
         public static XmlDocument SaRegister(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
@@ -254,7 +256,9 @@ namespace TrainStationServer
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
+        #endregion
 
+        #region SaKeepAlive
         public static XmlDocument SaKeepAlive(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
@@ -306,7 +310,9 @@ namespace TrainStationServer
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
+        #endregion
 
+        #region ResReport
         public static XmlDocument ResReport(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
@@ -417,7 +423,9 @@ namespace TrainStationServer
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
-
+        #endregion
+        
+        #region ResChange
         public static XmlDocument ResChange(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
@@ -469,6 +477,278 @@ namespace TrainStationServer
 
             return Response;
         }
+        #endregion
+
+        #region ReportCamResState
+        public static XmlDocument ReportCamResState(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId;
+            List<string> resId;
+            List<string> state;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            resId = XmlOp.GetInnerTextList(Doc, "resId");
+            state = XmlOp.GetInnerTextList(Doc, "state");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ReportCamResState");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            for (int i = 0; i < 3;i++ )
+            {
+                XmlOp.ElementAdd(Response, "parameters", "URL");
+                XmlOp.ElementAdd(Response, "URL", "resId", i);
+                XmlOp.SetNodeInnerText(Response, "resId", i, "test");
+            }
+            
+            Response.Save("D://response-ReportCamResState.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region UserResReport
+        public static XmlDocument UserResReport(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId, saName, totalPkt, pktNum;
+            List<string> id;
+            List<string> name;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            saName = XmlOp.GetInnerText(Doc, "saName");
+            totalPkt = XmlOp.GetInnerText(Doc, "totalPkt");
+            pktNum = XmlOp.GetInnerText(Doc, "pktNum");
+            id = XmlOp.GetInnerTextList(Doc, "ip");
+            name = XmlOp.GetInnerTextList(Doc, "name");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "UserResReport");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+
+            Response.Save("D://response-UserResReport.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region UserResChange
+        public static XmlDocument UserResChange(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId, totalPkt, pktNum, cmd;
+            List<string> id;
+            List<string> name;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            totalPkt = XmlOp.GetInnerText(Doc, "totalPkt");
+            pktNum = XmlOp.GetInnerText(Doc, "pktNum");
+            cmd = XmlOp.GetInnerText(Doc, "cmd");
+            id = XmlOp.GetInnerTextList(Doc, "ip");
+            name = XmlOp.GetInnerTextList(Doc, "name");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "UserResChange");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+
+            Response.Save("D://response-UserResChange.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region AlarmResListReport
+        public static XmlDocument AlarmResListReport(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId, saName, totalPkt, pktNum;
+            List<string> id;
+            List<string> name;
+            List<string> discription;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            saName = XmlOp.GetInnerText(Doc, "saName");
+            totalPkt = XmlOp.GetInnerText(Doc, "totalPkt");
+            pktNum = XmlOp.GetInnerText(Doc, "pktNum");
+            id = XmlOp.GetInnerTextList(Doc, "ip");
+            name = XmlOp.GetInnerTextList(Doc, "name");
+            discription = XmlOp.GetInnerTextList(Doc, "discription");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "AlarmResListReport");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Response, "saId", 0, "saId");
+
+            Response.Save("D://response-AlarmResListReport.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region AlarmResListChange
+        public static XmlDocument AlarmResListChange(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId, saName, num, totalPkt, pktNum, cmd;
+            List<string> id;
+            List<string> name;
+            List<string> type;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            saName = XmlOp.GetInnerText(Doc, "saName");
+            num = XmlOp.GetInnerText(Doc, "num");
+            totalPkt = XmlOp.GetInnerText(Doc, "totalPkt");
+            pktNum = XmlOp.GetInnerText(Doc, "pktNum");
+            cmd = XmlOp.GetInnerText(Doc, "cmd");
+            id = XmlOp.GetInnerTextList(Doc, "ip");
+            name = XmlOp.GetInnerTextList(Doc, "name");
+            type = XmlOp.GetInnerTextList(Doc, "type");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "AlarmResListChange");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Response, "saId", 0, "saId");
+
+            Response.Save("D://response-AlarmResListChange.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region StartMediaState
+        public static XmlDocument StartMediaState(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string resId, userId, userName, userLevel, mediaType, linkMode, targetIpAddr, targetPort, flag;
+            List<string> id;
+            List<string> name;
+            List<string> type;
+
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            userId = XmlOp.GetInnerText(Doc, "userId");
+            userName = XmlOp.GetInnerText(Doc, "userName");
+            userLevel = XmlOp.GetInnerText(Doc, "userLevel");
+            mediaType = XmlOp.GetInnerText(Doc, "mediaType");
+            linkMode = XmlOp.GetInnerText(Doc, "linkMode");
+            targetIpAddr = XmlOp.GetInnerText(Doc, "targetIpAddr");
+            targetPort = XmlOp.GetInnerText(Doc, "targetPort");
+            flag = XmlOp.GetInnerText(Doc, "flag");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaState");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Response, "sessionId", 0, "sessionId");
+            XmlOp.ElementAdd(Response, "parameters", "tcpIp");
+            XmlOp.SetNodeInnerText(Response, "tcpIp", 0, "tcpIp");
+            XmlOp.ElementAdd(Response, "parameters", "tcpPort");
+            XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "tcpPort");
+
+            Response.Save("D://response-StartMediaState.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region InfoOrder
+        public static XmlDocument StartMediaState(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string sessionId, resId, userId, userLevel;
+            List<string> id;
+            List<string> name;
+            List<string> type;
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+            resId = XmlOp.GetInnerText(Doc, "resId");
+            userId = XmlOp.GetInnerText(Doc, "userId");
+            userLevel = XmlOp.GetInnerText(Doc, "userLevel");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaState");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Response, "sessionId", 0, "sessionId");
+
+            Response.Save("D://response-StartMediaState.xml");
+
+            return Response;
+        }
+        #endregion
+
+        #region ReportAlarmRes
+        public static XmlDocument ReportAlarmRes(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId, saName;
+            List<string> id;
+            List<string> type;
+            List<string> startTime;
+            List<string> endTime;
+            List<string> targetInfo;
+            List<string> level;
+            List<string> state;
+            List<string> description;
+            List<string> alarmHisRecord;
+            List<string> resId;
+            List<string> time;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            saName = XmlOp.GetInnerText(Doc, "saName");
+            id = XmlOp.GetInnerTextList(Doc, "id");
+            type = XmlOp.GetInnerTextList(Doc, "type");
+            startTime = XmlOp.GetInnerTextList(Doc, "startTime");
+            endTime = XmlOp.GetInnerTextList(Doc, "endTime");
+            targetInfo = XmlOp.GetInnerTextList(Doc, "targetInfo");
+            level = XmlOp.GetInnerTextList(Doc, "level");
+            state = XmlOp.GetInnerTextList(Doc, "state");
+            description = XmlOp.GetInnerTextList(Doc, "description");
+            alarmHisRecord = XmlOp.GetInnerTextList(Doc, "alarmHisRecord");
+            resId = XmlOp.GetInnerTextList(Doc, "resId");
+            time = XmlOp.GetInnerTextList(Doc, "time");
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ReportAlarmRes");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            XmlOp.ElementAdd(Response, "response", "parameters");
+            XmlOp.ElementAdd(Response, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Response, "saId", 0, "saId");
+            Response.Save("D://response-ReportAlarmRes.xml");
+
+            return Response;
+        }
+        #endregion
 
         #endregion
 
