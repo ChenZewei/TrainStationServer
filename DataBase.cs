@@ -95,6 +95,39 @@ namespace TrainStationServer
 
         }
 
+        public void Update(string table, string[] columes, string[] values, string[] locColumes,string[] locValues, int length, int locLength)
+        {
+            int state;
+            if (values.Length != length || columes.Length != length || length <= 1)
+                return;
+            cmd = "update " + table + " set " + columes[0] + "='" + values[0] + "'";
+            for (int i = 1; i < length; i++)
+            {
+                cmd += ", " + columes[i] + "='" + values[i] + "'";
+            }
+
+            cmd += " where " + locColumes[0] + "='" + locValues[0] + "'";
+
+            for(int i = 1; i < locLength; i++)
+            {
+                cmd += ", " + locColumes[i] + "='" + locValues[i] + "'";
+            }
+
+            try
+            {
+                MySqlCommand Cmd = new MySqlCommand(cmd, MySQLConnect);
+                state = Cmd.ExecuteNonQuery();
+                if (state == 1)
+                    Console.WriteLine("数据插入成功！");
+
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
+
         //public void InsertList(string database, List<string> columes, List<string> values)
         //{
 

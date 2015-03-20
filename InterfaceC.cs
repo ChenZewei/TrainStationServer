@@ -125,6 +125,9 @@ namespace TrainStationServer
                     case "ResReport":
                         request = ResReport(doc);
                         break;
+                    case "ResChange":
+                        request = ResChange(doc);
+                        break;
                     default:
                         request = new XmlDocument();
                         break;
@@ -171,6 +174,10 @@ namespace TrainStationServer
                         result = new string[3];
                         result = StartMediaResponse(doc);
                         break;
+                    case "QueryAlarmRes":
+                        result = new string[3];
+                        result = QueryAlarmResResponse(doc);
+                        break;
                     default:
                         result = null;
                         break;
@@ -179,6 +186,7 @@ namespace TrainStationServer
             return result;
         }
 
+        #region Down 2 Up
         public static XmlDocument SaRegister(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
@@ -203,7 +211,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
-            Response.Save("D://SaRegister-response.xml");
+            Response.Save("D://SaRegister-request.xml");
 
             return Response;
         }
@@ -242,7 +250,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
-            Response.Save("D://SaRegister-response.xml");
+            Response.Save("D://SaRegister-request.xml");
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
@@ -263,7 +271,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
-            Response.Save("D://SaKeepAlive-response.xml");
+            Response.Save("D://SaKeepAlive-request.xml");
 
             return Response;
         }
@@ -294,7 +302,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
-            Response.Save("D://SaKeepAlive-response.xml");
+            Response.Save("D://SaKeepAlive-request.xml");
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
@@ -345,7 +353,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            Response.Save("D://ResReport-response.xml");
+            Response.Save("D://ResReport-request.xml");
 
             return Response;
         }
@@ -405,10 +413,66 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            Response.Save("D://ResReport-response.xml");
+            Response.Save("D://ResReport-request.xml");
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
+
+        public static XmlDocument ResChange(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+            string saId, cmd;
+            string[] columes = { "name", "location", "custom" };
+            string[] values = new string[3];
+            string[] locColumes = { "id" };
+            string[] locValues = new string[1];
+            int num = 2;
+            List<string> resId;
+            List<string> name;
+            List<string> location;
+            List<string> purpose;
+            List<string> infomation;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            cmd = XmlOp.GetInnerText(Doc, "cmd");
+            resId = XmlOp.GetInnerTextList(Doc, "resId");
+            name = XmlOp.GetInnerTextList(Doc, "name");
+            location = XmlOp.GetInnerTextList(Doc, "location");
+            purpose = XmlOp.GetInnerTextList(Doc, "purpose");
+            infomation = XmlOp.GetInnerTextList(Doc, "infomation");
+
+            for (int j = 0; j < resId.Count; j++)
+            {
+                num = 1;
+                locValues[0] = resId[j];
+                values[0] = name[j];
+                if (location.Count >= 1)
+                {
+                    values[1] = location[j];
+                    num++;
+                }
+                if (purpose.Count >= 1)
+                {
+                    values[2] = purpose[j];
+                    num++;
+                }
+                database.Update("ivms_resources", columes, values, locColumes, locValues, num, locValues.Length);
+            }
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ResChange");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
+            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
+            Response.Save("D://ResChange-response.xml");
+
+            return Response;
+        }
+
+        #endregion
+
+        #region Up 2 Down
 
         //public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         //{
@@ -649,7 +713,7 @@ namespace TrainStationServer
         #endregion
 
         #region StartPlayBack
-        public static byte[] StartPlayBack(string resId, string userId, string userLevel, string startTime, string endTime, int LinkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
+        public static byte[] StartPlayBack(string resId, string userId, string userLevel, string startTime, string endTime, int linkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -667,8 +731,8 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "startTime", 0, startTime);
             XmlOp.ElementAdd(Request, "parameters", "endTime");
             XmlOp.SetNodeInnerText(Request, "endTime", 0, endTime);
-            XmlOp.ElementAdd(Request, "parameters", "LinkMode");
-            XmlOp.SetNodeInnerText(Request, "LinkMode", 0, LinkMode.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "linkMode");
+            XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode.ToString());
             XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
             XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
             XmlOp.ElementAdd(Request, "parameters", "targetPort");
@@ -700,6 +764,569 @@ namespace TrainStationServer
         }
         #endregion
 
+        #region StartHisLoad
+        public static byte[] StartHisLoad(string resId, string userId, string userLevel, string startTime, string endTime, int linkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
 
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartPlayBack");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "startTime");
+            XmlOp.SetNodeInnerText(Request, "startTime", 0, startTime);
+            XmlOp.ElementAdd(Request, "parameters", "endTime");
+            XmlOp.SetNodeInnerText(Request, "endTime", 0, endTime);
+            XmlOp.ElementAdd(Request, "parameters", "linkMode");
+            XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
+            XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
+            XmlOp.ElementAdd(Request, "parameters", "targetPort");
+            XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
+            XmlOp.ElementAdd(Request, "parameters", "flag");
+            XmlOp.SetNodeInnerText(Request, "flag", 0, flag.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "locationFlag");
+            XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
+            Request.Save("D://StartHisLoad-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] StartHisLoadResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId, tcpIp, tcpPort;
+            string[] result = new string[3];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+            tcpIp = XmlOp.GetInnerText(Doc, "tcpIp");
+            tcpPort = XmlOp.GetInnerText(Doc, "tcpPort");
+
+            result[0] = sessionId;
+            result[1] = tcpIp;
+            result[2] = tcpPort;
+
+            return result;
+        }
+        #endregion
+
+        #region HisLoadInfo
+        public static byte[] HisLoadInfo(string sessionId, string resId, string userId, string userLevel)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartPlayBack");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            Request.Save("D://HisLoadInfo-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] HisLoadInfoResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId;
+            string[] result = new string[1];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+
+            result[0] = sessionId;
+
+            return result;
+        }
+        #endregion
+
+        #region INFO
+        public static byte[] INFO(string sessionId, string resId, string userId, string userLevel)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "INFO");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            Request.Save("D://INFO-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] INFOResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId;
+            string[] result = new string[1];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+
+            result[0] = sessionId;
+
+            return result;
+        }
+        #endregion
+
+        #region HisInfo
+        public static byte[] HisInfo(string sessionId, string resId, string userId, string userLevel)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "HisInfo");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            Request.Save("D://HisInfo-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] HisInfoResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId;
+            string[] result = new string[1];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+
+            result[0] = sessionId;
+
+            return result;
+        }
+        #endregion
+
+        #region ControlFileBack
+        public static byte[] ControlFileBack(string sessionId, string resId, string cmd, int param)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ControlFileBack");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "sessionId");
+            XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
+            XmlOp.ElementAdd(Request, "parameters", "resId");
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "cmd");
+            XmlOp.SetNodeInnerText(Request, "cmd", 0, cmd);
+            XmlOp.ElementAdd(Request, "parameters", "param");
+            XmlOp.SetNodeInnerText(Request, "param", 0, param.ToString());
+            Request.Save("D://ControlFileBack-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] ControlFileBackResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId;
+            string[] result = new string[1];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+
+            result[0] = sessionId;
+
+            return result;
+        }
+        #endregion
+
+        #region ReqCamResState
+        public static byte[] ReqCamResState(string saId, string[] resId, int resNum)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ReqCamResState");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < resNum;i++ )
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "resId", i);
+                XmlOp.SetNodeInnerText(Request, "resId", i, resId[i]);
+            }
+            Request.Save("D://ReqCamResState-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] ReqCamResStateResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            List<string> resId = new List<string>();
+            List<string> state = new List<string>();
+            string[] result = new string[1];
+
+            resId = XmlOp.GetInnerTextList(Doc, "resId");
+            state = XmlOp.GetInnerTextList(Doc, "state");
+
+            return result;
+        }
+        #endregion
+
+        #region GetUserCurState
+        public static byte[] GetUserCurState(string saId, string curUserId)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "GetUserCurState");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
+            XmlOp.ElementAdd(Request, "parameters", "curUserId");
+            XmlOp.SetNodeInnerText(Request, "curUserId", 0, curUserId);
+            Request.Save("D://GetUserCurState-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] GetUserCurStateResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string saId, curUserId, userIp, userState;
+            List<string> camId = new List<string>();
+            List<string> camName = new List<string>();
+            string[] result = new string[4];
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+            curUserId = XmlOp.GetInnerText(Doc, "curUserId");
+            userIp = XmlOp.GetInnerText(Doc, "userIp");
+            userState = XmlOp.GetInnerText(Doc, "userState");
+
+            camId = XmlOp.GetInnerTextList(Doc, "camId");
+            camName = XmlOp.GetInnerTextList(Doc, "camName");
+
+            return result;
+        }
+        #endregion
+
+        #region SetUserCamManage
+        public static byte[] SetUserCamManage(string cuId, string cuLevel, int action, string startTime, string endTime, string schduleCreatTime, string[] cameId, int cameIdNum, string[] id, int idNum)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "SetUserCamManage");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "cuId");
+            XmlOp.SetNodeInnerText(Request, "cuId", 0, cuId);
+            XmlOp.ElementAdd(Request, "parameters", "cuLevel");
+            XmlOp.SetNodeInnerText(Request, "cuLevel", 0, cuLevel);
+            XmlOp.ElementAdd(Request, "parameters", "action");
+            XmlOp.SetNodeInnerText(Request, "action", 0, action.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "startTime");
+            XmlOp.SetNodeInnerText(Request, "startTime", 0, startTime);
+            XmlOp.ElementAdd(Request, "parameters", "endTime");
+            XmlOp.SetNodeInnerText(Request, "endTime", 0, endTime);
+            XmlOp.ElementAdd(Request, "parameters", "schduleCreatTime");
+            XmlOp.SetNodeInnerText(Request, "schduleCreatTime", 0, schduleCreatTime);
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < cameIdNum;i++ )
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "cameId", i);
+                XmlOp.SetNodeInnerText(Request, "cameId", i, cameId[i]);
+            }
+            XmlOp.ElementAdd(Request, "parameters", "whiteUser");
+            for (int i = 0; i < cameIdNum; i++)
+            {
+                XmlOp.ElementAdd(Request, "whiteUser", "URL");
+                XmlOp.ElementAdd(Request, "URL", "id", i);
+                XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
+            }
+
+            Request.Save("D://SetUserCamManage-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] SetUserCamManageResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string[] result = null;                   
+
+            return result;
+        }
+        #endregion
+
+        #region AlarmResSubscribe
+        public static byte[] AlarmResSubscribe(string saId, string saName, int action, string[] id, string[] type, int num)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "AlarmResSubscribe");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
+            XmlOp.ElementAdd(Request, "parameters", "saName");
+            XmlOp.SetNodeInnerText(Request, "saName", 0, saName);
+            XmlOp.ElementAdd(Request, "parameters", "action");
+            XmlOp.SetNodeInnerText(Request, "action", 0, action.ToString());
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < num; i++)
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "id", i);
+                XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
+                XmlOp.ElementAdd(Request, "URL", "type", i);
+                XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
+            }
+
+            Request.Save("D://AlarmResSubscribe-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] AlarmResSubscribeResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string saId;
+            string[] result = new string[1];
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+
+            result[0] = saId;
+
+            return result;
+        }
+        #endregion
+
+        #region QueryAlarmRes
+        public static byte[] QueryAlarmRes(string saId, string saName, string[] id, string[] type, int num)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "QueryAlarmRes");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
+            XmlOp.ElementAdd(Request, "parameters", "saName");
+            XmlOp.SetNodeInnerText(Request, "saName", 0, saName);
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < num; i++)
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "id", i);
+                XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
+                XmlOp.ElementAdd(Request, "URL", "type", i);
+                XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
+            }
+
+            Request.Save("D://QueryAlarmRes-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] QueryAlarmResResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            List<string> id = new List<string>();
+            List<string> type = new List<string>();
+            List<string> time = new List<string>();
+            List<string> state = new List<string>();
+            List<string> alarmHisRecord = new List<string>();
+            List<string> resId = new List<string>();
+            List<string> time2 = new List<string>();
+            string[] result = null;
+
+            id = XmlOp.GetInnerTextList(Doc, "id");
+            type = XmlOp.GetInnerTextList(Doc, "type");
+            time = XmlOp.GetInnerTextListByPath(Doc, "/response/parameters/group/URL/time");
+            state = XmlOp.GetInnerTextList(Doc, "state");
+            alarmHisRecord = XmlOp.GetInnerTextList(Doc, "alarmHisRecord");
+            resId = XmlOp.GetInnerTextList(Doc, "resId");
+            time2 = XmlOp.GetInnerTextListByPath(Doc, "/response/parameters/group/URL/url/time");
+
+
+            return result;
+        }
+        #endregion
+
+        #region ReportAlarmInfo
+        public static byte[] ReportAlarmInfo(string muId, string muName, string[] id, string[] type, string[] startTime, string[] endTime, int num)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ReportAlarmInfo");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "muId");
+            XmlOp.SetNodeInnerText(Request, "muId", 0, muId);
+            XmlOp.ElementAdd(Request, "parameters", "muName");
+            XmlOp.SetNodeInnerText(Request, "muName", 0, muName);
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < num; i++)
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "id", i);
+                XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
+                XmlOp.ElementAdd(Request, "URL", "type", i);
+                XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
+                XmlOp.ElementAdd(Request, "URL", "startTime", i);
+                XmlOp.SetNodeInnerText(Request, "startTime", i, startTime[i]);
+                XmlOp.ElementAdd(Request, "URL", "endTime", i);
+                XmlOp.SetNodeInnerText(Request, "endTime", i, endTime[i]);
+            }
+
+            Request.Save("D://ReportAlarmInfo-response.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] ReportAlarmInfoResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string muId;
+            List<string> id = new List<string>();
+            List<string> type = new List<string>();
+            List<string> startTime = new List<string>();
+            List<string> endTime = new List<string>();
+            List<string> message = new List<string>();
+            string[] result = null;
+
+            muId = XmlOp.GetInnerText(Doc, "muId");
+            id = XmlOp.GetInnerTextList(Doc, "id");
+            type = XmlOp.GetInnerTextList(Doc, "type");
+            startTime = XmlOp.GetInnerTextList(Doc, "startTime");
+            endTime = XmlOp.GetInnerTextList(Doc, "endTime");
+            message = XmlOp.GetInnerTextList(Doc, "message");
+
+            return result;
+        }
+        #endregion
+
+        #region ResTransOrder
+        public static byte[] ResTransOrder(string saId, string totalPacketNum, string curPacketNum, string[] resId, string[] name, string[] location, string[] purpose, string[] infomation, int num)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ResTransOrder");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
+            XmlOp.ElementAdd(Request, "parameters", "totalPacketNum");
+            XmlOp.SetNodeInnerText(Request, "totalPacketNum", 0, totalPacketNum);
+            XmlOp.ElementAdd(Request, "parameters", "curPacketNum");
+            XmlOp.SetNodeInnerText(Request, "curPacketNum", 0, curPacketNum);
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < num; i++)
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "resId", i);
+                XmlOp.SetNodeInnerText(Request, "resId", i, resId[i]);
+                XmlOp.ElementAdd(Request, "URL", "name", i);
+                XmlOp.SetNodeInnerText(Request, "name", i, name[i]);
+                XmlOp.ElementAdd(Request, "URL", "location", i);
+                XmlOp.SetNodeInnerText(Request, "location", i, location[i]);
+                XmlOp.ElementAdd(Request, "URL", "purpose", i);
+                XmlOp.SetNodeInnerText(Request, "purpose", i, purpose[i]);
+                XmlOp.ElementAdd(Request, "URL", "infomation", i);
+                XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
+            }
+
+            Request.Save("D://request-ResTransOrder.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] ResTransOrderResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string saId;
+            string[] result = null;
+
+            saId = XmlOp.GetInnerText(Doc, "saId");
+
+            return result;
+        }
+        #endregion
+
+        #region ResChangeOrder
+        public static byte[] ResChangeOrder(string saId, string cmd, string[] resId, string[] name, string[] location, string[] purpose, string[] infomation, int num)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ResChangeOrder");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
+            XmlOp.ElementAdd(Request, "parameters", "cmd");
+            XmlOp.SetNodeInnerText(Request, "cmd", 0, cmd);
+            XmlOp.ElementAdd(Request, "parameters", "group");
+            for (int i = 0; i < num; i++)
+            {
+                XmlOp.ElementAdd(Request, "group", "URL");
+                XmlOp.ElementAdd(Request, "URL", "resId", i);
+                XmlOp.SetNodeInnerText(Request, "resId", i, resId[i]);
+                XmlOp.ElementAdd(Request, "URL", "name", i);
+                XmlOp.SetNodeInnerText(Request, "name", i, name[i]);
+                XmlOp.ElementAdd(Request, "URL", "location", i);
+                XmlOp.SetNodeInnerText(Request, "location", i, location[i]);
+                XmlOp.ElementAdd(Request, "URL", "purpose", i);
+                XmlOp.SetNodeInnerText(Request, "purpose", i, purpose[i]);
+                XmlOp.ElementAdd(Request, "URL", "infomation", i);
+                XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
+            }
+
+            Request.Save("D://request-ResChangeOrder.xml");
+
+            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+        }
+
+        public static string[] ResChangeOrderResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string[] result = null;
+
+            return result;
+        }
+        #endregion
+
+        #endregion
     }
 }

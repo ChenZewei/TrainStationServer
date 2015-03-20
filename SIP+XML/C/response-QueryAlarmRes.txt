@@ -1,0 +1,50 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+CSeq:3415687 INVITE
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="GB2312" standalone="yes"?>
+<response command="QueryAlarmRes">
+  <parameters>
+    <group>
+        <URL>
+	    <id>6000000000000001</id>
+            <type>1</type>
+            <time>1</time>
+	    <state>1</state>
+	    <alarmHisRecord>1</alarmHisRecord>
+	    <url>
+		<resId>1111</resId>
+		<time>01</time>
+	    </url>
+        </URL>
+        <URL>
+            <id>6000000000000002</id>
+            <type>2</type>
+            <time>2</time>
+	    <state>2</state>
+	    <alarmHisRecord>2</alarmHisRecord>
+	    <url>
+		<resId>2222</resId>
+		<time>02</time>
+	    </url>
+        </URL>
+        <URL>
+            <id>6000000000000001</id>
+            <type>3</type>
+            <time>3</time>
+	    <state>3</state>
+	    <alarmHisRecord>3</alarmHisRecord>
+	    <url>
+		<resId>3333</resId>
+		<time>03</time>
+	    </url>
+        </URL>
+    </group>
+  </parameters>
+</response>

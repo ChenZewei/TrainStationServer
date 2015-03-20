@@ -84,5 +84,32 @@ namespace TrainStationServer
             }
             return list;
         }
+
+        public List<string> GetInnerTextList(XmlDocument doc, string fatherNode, string nodeName)
+        {
+            List<string> list = new List<string>();
+            XmlNodeList fatherNodeList = doc.SelectNodes("//" + fatherNode);
+            XmlNodeList nodeList;
+            foreach (XmlNode tempFatherNode in fatherNodeList)
+            {
+                nodeList = tempFatherNode.SelectNodes("//" + nodeName);
+                foreach (XmlNode tempNode in nodeList)
+                {
+                    list.Add(tempNode.InnerText);
+                }
+            }
+            return list;
+        }
+
+        public List<string> GetInnerTextListByPath(XmlDocument doc, string path)
+        {
+            List<string> list = new List<string>();
+            XmlNodeList nodeList = doc.SelectNodes(path);
+            foreach (XmlNode tempNode in nodeList)
+            {
+                list.Add(tempNode.InnerText);
+            }
+            return list;
+        }
     }
 }

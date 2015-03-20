@@ -179,8 +179,9 @@ namespace TrainStationServer
                 else
                 {
                     result = InterfaceC.Response(recv, i);
-                    for (int k = 0; k < result.Length; k++)
-                        Console.WriteLine(result[k]);
+                    if(result != null)
+                        for (int k = 0; k < result.Length; k++)
+                            Console.WriteLine(result[k]);
                 }
                     
                 

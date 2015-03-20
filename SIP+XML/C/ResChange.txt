@@ -1,0 +1,40 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+CSeq:3415687 INVITE
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="GB2312" standalone="yes"?>
+<request command="ResChange">
+  <parameters>
+    <saId>000000</saId>
+    <cmd>100</cmd>
+    <group>
+        <URL>
+            <resId>6000000000000001</resId>
+            <name>隧道01</name>
+	    <location>内勤</location>
+	    <purpose>test01</purpose>
+	    <infomation>test01</infomation>
+        </URL>
+        <URL>
+            <resId>6000000000000002</resId>
+            <name>隧道02</name>
+	    <location>内勤</location>
+	    <purpose>test02</purpose>
+	    <infomation>test02</infomation>
+        </URL>
+        <URL>
+            <resId>6000000000000003</resId>
+            <name>隧道03</name>
+	    <location>内勤</location>
+	    <purpose>test03</purpose>
+	    <infomation>test03</infomation>
+        </URL>
+    </group>
+  </parameters>
+</request>
