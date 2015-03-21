@@ -65,7 +65,7 @@ namespace TrainStationServer
             
         }
         /// <summary>
-        /// 向数据库插入多列单行数据
+        /// 向数据库插入n列1行数据
         /// </summary>
         /// <param name="database"></param>
         /// <param name="columes"></param>
@@ -94,7 +94,7 @@ namespace TrainStationServer
 
         }
         /// <summary>
-        /// 向数据库插入多列多行数据（重载方法）
+        /// 向数据库插入n列n行数据（重载方法）
         /// </summary>
         /// <example> 
         /// string database = “ivms_sourse”;
@@ -146,12 +146,12 @@ namespace TrainStationServer
         //}
 
         /// <summary>
-        /// 构造向数据库插入n列1行数据的语句
+        /// 构造向数据库插入n列1行数据的sql语句
         /// </summary>
         /// <param name="database"></param>
         /// <param name="columes"></param>
         /// <param name="values"></param>
-        /// <returns>构造完成的语句</returns>
+        /// <returns>构造完成的insert语句</returns>
         public static string cmdInsertBuilder(string database, string[] columes, string[] values)
         {
             string cmdText = "insert into " + database + "(";
@@ -181,12 +181,12 @@ namespace TrainStationServer
             return cmdText;
         }
         /// <summary>
-        /// 构造向数据库插入n列n行数据的语句（重载方法）
+        /// 构造向数据库插入n列n行数据的sql语句（重载方法）
         /// </summary>
         /// <param name="database"></param>
         /// <param name="columes"></param>
         /// <param name="values"></param>
-        /// <returns>构造完成的语句</returns>
+        /// <returns>构造完成的insert语句</returns>
         public static string cmdInsertBuilder(string database, string[] columes, List<string>[] values)
         {
 
@@ -226,12 +226,12 @@ namespace TrainStationServer
             return cmdText;
         }
         /// <summary>
-        /// 1列n行数据
+        /// 构造向数据库插入n列n行数据的sql语句（重载方法）
         /// </summary>
         /// <param name="database"></param>
         /// <param name="columes"></param>
         /// <param name="values"></param>
-        /// <returns></returns>
+        /// <returns>构造完成的insert语句</returns>
         public static string cmdInsertBuilder(string database, string colume, List<string> values)
         {
             string cmdText = "insert into " + database + "(" + colume + ")";
