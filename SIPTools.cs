@@ -99,7 +99,7 @@ namespace TrainStationServer
                 strBuffer = "";
                 for (int j = 1;j<bufferlen ;j++ )
                 {
-                    if (buffer[bufferlen - j] != '0')
+                    if (buffer[bufferlen - j] != '0' && buffer[bufferlen - j] != '\0')
                     {
                         strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j));
                         break;

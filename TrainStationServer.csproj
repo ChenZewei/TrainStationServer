@@ -167,7 +167,9 @@
     <Resource Include="SIP+XML\B\StopMediaReq.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="SIP+XML\C\ResReport.txt" />
+    <Resource Include="SIP+XML\C\request-ResChange.txt" />
+    <Resource Include="SIP+XML\C\request-ResReport.txt" />
+    <Resource Include="SIP+XML\C\response-QueryAlarmRes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
