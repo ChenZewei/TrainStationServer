@@ -1,12 +1,12 @@
-INVITE sip:XX SIP/2.0
-Via:SIP/2.0/TCP XX
-To:XX
-From:XX
-Max-Forwards:70
-Call-ID:XX
-CSeq:3415687 INVITE
-Content-Type:RVSS/xml
-Content-Length:200
+INVITE sip:6100002008000001 SIP/2.0
+Via: SIP/2.0/TCP 
+To: CREAL6100002007000001@192.168.1.114
+From: CREAL6100002008000001@192.168.1.113
+Max-Forwards: 70
+Call-ID: 6100002008000001
+CSeq: 3 INVITE
+Content-Type: RVSS/xml
+Content-Length: 1129
 
 <?xml version="1.0" encoding="GB2312" standalone="yes"?>
 <request command="ResReport">

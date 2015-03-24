@@ -9,10 +9,11 @@ namespace TrainStationServer
 {
     class SIPTools
     {
-        private  string To, From, CSeq;
-
+        private string To, From, CSeq;
+        public string Id;
         public SIPTools()
         {
+            Id = "XX";
             To = "XX";
             From = "XX";
             CSeq = "XX INVITE";
@@ -20,6 +21,7 @@ namespace TrainStationServer
 
         public SIPTools(byte[] buffer, int bufferlen)
         {
+            Id = GetSIPInfo(buffer, bufferlen, "sip");
             To = GetSIPInfo(buffer, bufferlen, "From");
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
@@ -124,7 +126,7 @@ namespace TrainStationServer
                 {
                     infoByte[length] = buffer[index + length];
                     length++;
-                    if ((buffer[index + length] == '\r') && (buffer[index + length + 1] == '\n'))
+                    if (((buffer[index + length] == '\r') && (buffer[index + length + 1] == '\n')) || buffer[index + length] == ' ')
                         break;
                 }
             }

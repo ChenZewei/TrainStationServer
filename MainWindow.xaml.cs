@@ -33,16 +33,14 @@ namespace TrainStationServer
             public byte[] send;
             public int recvLen;
             public bool isClosed = false;
-            public StringBuilder sb = new StringBuilder();
         }
-        private Socket socket, client, testSever, testClient, test;
-        private Socket server;
-        private IPEndPoint ipEnd, testIpEnd;
-        private Thread mainThread, recvThread, clientThread, testThread, testClientThread;
-        //byte[] recv;
-        int i;
-        DataBase Database;
-        InterfaceC C;
+        private Socket socket, client;
+        private IPEndPoint ipEnd;
+        private Thread clientThread;
+        private byte[] recv = new byte[2048], send = new byte[2048];
+        private DataBase Database;
+        private InterfaceC C;
+        private SocketBound bound;
         public MainWindow()
         {
             InitializeComponent();
@@ -51,35 +49,18 @@ namespace TrainStationServer
         ~MainWindow()
         {
             if(socket != null)
+            {
                 socket.Close();
-            if (mainThread != null)
-            {
-                mainThread.Abort();
-                mainThread.Join();
-            }
-            if (recvThread != null)
-            {
-                recvThread.Abort();
-                recvThread.Join();
+                socket.Dispose();
             }
             if(clientThread != null)
             {
                 clientThread.Abort();
                 clientThread.Join();
             }
-            if (testThread != null)
-            {
-                testThread.Abort();
-                testThread.Join();
-            }
-            if (testClientThread != null)
-            {
-                testClientThread.Abort();
-                testClientThread.Join();
-            }
         }
 
-        private void Start_Click_1(object sender, RoutedEventArgs e)
+        private void Start_Click_1(object sender, RoutedEventArgs e)//绑定套接字等初始化
         {
             ipEnd = new IPEndPoint(IPAddress.Any, 15000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -88,10 +69,28 @@ namespace TrainStationServer
             socket.Listen(20);
             Database = new DataBase();
             C = new InterfaceC(Database);
-            mainThread = new Thread(Listening);
-            mainThread.IsBackground = true;
-            mainThread.Start();
+            stateobject mainObject = new stateobject();
+            mainObject.socket = socket;
+            socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
             Result.AppendText("Start listening...\r\n");
+        }
+
+        private void AsyncAccept(IAsyncResult ar)//异步Accept
+        {
+            stateobject mainObject = (stateobject)ar.AsyncState;
+            stateobject clientObject = new stateobject();
+            Socket client;
+            client = mainObject.socket.EndAccept(ar);
+            mainObject.socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
+            clientObject.socket = client;
+            clientObject.recv = recv;
+            clientObject.send = send;
+            client.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc), clientObject);
+            
+            //clientThread = new Thread(ClientThread);
+            //clientThread.IsBackground = true;
+            //clientThread.Start(client);
         }
 
         private void Listening()
@@ -107,7 +106,7 @@ namespace TrainStationServer
             }
         }
 
-        void recvProc(IAsyncResult ar)
+        void recvProc(IAsyncResult ar)//异步Receive
         {
             stateobject state = (stateobject)ar.AsyncState;
             if (state.isClosed)
@@ -117,6 +116,7 @@ namespace TrainStationServer
                 state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 int i = state.socket.EndReceive(ar);
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
+                SocketBound.Add(state.socket, new SIPTools(state.recv,i));
                 string[] result;
                 if (InterfaceC.IsRequest(state.recv, i))
                 {
@@ -146,10 +146,9 @@ namespace TrainStationServer
       
         }
 
-        private void ClientThread()//多线程法
+        private void ClientThread(Object client)//多线程客户端
         {
-            Socket temp;
-            temp = client;
+            Socket temp = (Socket)client;
             byte[] send = new byte[2048];
             byte[] recv = new byte[2048];
             string[] result = new string[10];
@@ -173,6 +172,8 @@ namespace TrainStationServer
                 if (so.isClosed == true)
                     return;
                 Thread.Sleep(10);
+
+
                 //FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
                 //sendbuf.Close();
                 //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
@@ -181,9 +182,9 @@ namespace TrainStationServer
             }
         }
 
-        private void Test_Click_1(object sender, RoutedEventArgs e)
+        private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
         {
-            test.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
+            //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
         }
     }
 }
