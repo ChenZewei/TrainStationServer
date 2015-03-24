@@ -114,6 +114,7 @@ namespace TrainStationServer
                 return;
             try
             {
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 int i = state.socket.EndReceive(ar);
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 string[] result;
@@ -133,6 +134,7 @@ namespace TrainStationServer
             catch(SocketException e)
             {
                 state.isClosed = true;
+                state.socket.Dispose();
                 Console.WriteLine(e.Message);
                 return;
             }
@@ -140,7 +142,8 @@ namespace TrainStationServer
             {
                 Console.WriteLine(e.Message);
                 return;
-            }            
+            }      
+      
         }
 
         private void ClientThread()//多线程法
@@ -154,31 +157,27 @@ namespace TrainStationServer
             so.socket = temp;
             so.recv = recv;
             so.send = send;
+            try
+            {
+                //i = temp.Receive(recv);
+                temp.BeginReceive(so.recv, 0, so.BufferSize, 0, new AsyncCallback(recvProc), so);
+            }
+            catch (SocketException ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
             while(true)
             {
-                
-                try
-                {
-                    //i = temp.Receive(recv);
-                    temp.BeginReceive(so.recv, 0, so.BufferSize, 0, new AsyncCallback(recvProc), so);
-                    if (so.isClosed)
-                        return;
-                }
-                catch (SocketException ex)
-                {
-                    MessageBox.Show(ex.Message);
+                if (so.isClosed == true)
                     return;
-                }
-                
                 Thread.Sleep(10);
                 //FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
                 //sendbuf.Close();
                 //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
                 //sendbuf.Write(recv, 0, recv.Length);
-                //sendbuf.Close();
-
-                
-   
+                //sendbuf.Close();   
             }
         }
 
