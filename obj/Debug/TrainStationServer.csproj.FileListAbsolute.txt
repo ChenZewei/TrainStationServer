@@ -63,16 +63,6 @@ C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.g.resources
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.Properties.Resources.resources
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\Debug\TrainStationServer.exe.config
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.exe
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.pdb
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\Debug\TrainStationServer.exe
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\Debug\TrainStationServer.pdb
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.csprojResolveAssemblyReference.cache
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\MainWindow.baml
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\MainWindow.g.cs
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\App.g.cs
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer_MarkupCompile.cache
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.g.resources
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.Properties.Resources.resources
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache
+C:\Users\宇烈\Documents\GitHub\TrainStationServer\bin\Debug\TrainStationServer.exe.config
+C:\Users\宇烈\Documents\GitHub\TrainStationServer\obj\Debug\TrainStationServer.exe
+C:\Users\宇烈\Documents\GitHub\TrainStationServer\obj\Debug\TrainStationServer.pdb
