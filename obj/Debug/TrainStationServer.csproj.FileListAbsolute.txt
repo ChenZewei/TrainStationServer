@@ -63,3 +63,6 @@ C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.g.resources
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.Properties.Resources.resources
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache
+C:\Users\宇烈\Documents\GitHub\TrainStationServer\bin\Debug\TrainStationServer.exe.config
+C:\Users\宇烈\Documents\GitHub\TrainStationServer\obj\Debug\TrainStationServer.exe
+C:\Users\宇烈\Documents\GitHub\TrainStationServer\obj\Debug\TrainStationServer.pdb
