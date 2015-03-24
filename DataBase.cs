@@ -65,29 +65,62 @@ namespace TrainStationServer
             
         }
 
-        //public void Insert(string database, string[] columes, string[] values)
-        //{
+        public void Update(string table, string[] columes, string[] values, string[] locColumes, string[] locValues, int length, int locLength)
+        {
+            int state;
+            if (values.Length != length || columes.Length != length || length <= 1)
+                return;
+            cmd = "update " + table + " set " + columes[0] + "='" + values[0] + "'";
+            for (int i = 1; i < length; i++)
+            {
+                cmd += ", " + columes[i] + "='" + values[i] + "'";
+            }
 
-        //    int len = columes.Length;
-        //    int state;
-        //    if (values.Length != len || len <= 1)
-        //        return;
-        //    cmd = buildCmd("insert into",database, columes, values);
+            cmd += " where " + locColumes[0] + "='" + locValues[0] + "'";
 
-        //    try
-        //    {
-        //        Cmd = new MySqlCommand(cmd, MySQLConnect);
-        //        state = Cmd.ExecuteNonQuery();
-        //        if (state == 1)
-        //            Console.WriteLine("数据插入成功！");
+            for (int i = 1; i < locLength; i++)
+            {
+                cmd += ", " + locColumes[i] + "='" + locValues[i] + "'";
+            }
 
-        //    }
-        //    catch (MySqlException e)
-        //    {
-        //        Console.WriteLine(e.Message);
-        //    }
+            try
+            {
+                MySqlCommand Cmd = new MySqlCommand(cmd, MySQLConnect);
+                state = Cmd.ExecuteNonQuery();
+                if (state == 1)
+                    Console.WriteLine("数据插入成功！");
 
-        //}
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
+
+        public void Insert(string database, string[] columes, string[] values)
+        {
+
+            int len = columes.Length;
+            int state;
+            if (values.Length != len || len <= 1)
+                return;
+            cmd = buildInsertCmd(database, columes, values);
+
+            try
+            {
+                Cmd = new MySqlCommand(cmd, MySQLConnect);
+                state = Cmd.ExecuteNonQuery();
+                if (state == 1)
+                    Console.WriteLine("数据插入成功！");
+
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
         /// <summary>
         /// 向数据库插入n列n行数据（重载方法）
         /// </summary>
@@ -115,7 +148,7 @@ namespace TrainStationServer
         /// <param name="database"></param>
         /// <param name="columes"></param>
         /// <param name="values"></param>
-        public void Insert<T>(string database, string[] columes,params T[] values)
+        public void Insert(string database, string[] columes,params List<string>[] values)
         {
             int len = columes.Length;
             int state;
@@ -124,7 +157,7 @@ namespace TrainStationServer
             
             try
             {
-                cmd = buildCmd("insert into", database, columes, values);
+                cmd = buildInsertCmd(database, columes, values);
                 Cmd = new MySqlCommand(cmd, MySQLConnect);
                 state = Cmd.ExecuteNonQuery();
                 if (state == 1)
@@ -145,38 +178,38 @@ namespace TrainStationServer
         /// <param name="columes"></param>
         /// <param name="values"></param>
         /// <returns>返回构造好的sql语句</returns>
-        public static string buildCmd<T>(string operation, string database, string[] columes, params T[] values)
-        {
-            string cmdText = operation.ToLower();
+        //public static string buildCmd<T>(string operation, string database, string[] columes, params T[] values)
+        //{
+        //    string cmdText = operation.ToLower();
             
-            switch (cmdText)
-            {
-                case "insert into":
-                    return buildInsertCmd(database, columes, values);
-                case "update":
-                    break;
-                case "select":
-                    break;
-                case "replace":
-                    break;
-                default:
-                    break;
-            }
-            return null;
-        }
+        //    switch (cmdText)
+        //    {
+        //        case "insert into":
+        //            return buildInsertCmd(database, columes, values);
+        //        case "update":
+        //            break;
+        //        case "select":
+        //            break;
+        //        case "replace":
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //    return null;
+        //}
         //public static string buildCmd<T>(string operation, string database, string[] columes, T value)
         //{
         //    T[] values = {value};
         //    return buildCmd(operation, database, columes, values);
         //}
 
-        public static string buildInsertCmd<T>(string database, string[] coluemes, params T[] values)
-        {
-            Console.WriteLine("未处理参数类型values：");
-            Console.WriteLine(values.GetType().ToString());
-            return null;
+        //public static string buildInsertCmd<T>(string database, string[] coluemes, params T[] values)
+        //{
+        //    Console.WriteLine("未处理参数类型values：");
+        //    Console.WriteLine(values.GetType().ToString());
+        //    return null;
 
-        }
+        //}
 
         /// <summary>
         /// 构造向数据库插入n列1行数据的sql语句
@@ -227,7 +260,7 @@ namespace TrainStationServer
         /// <param name="columes"></param>
         /// <param name="values"></param>
         /// <returns>构造完成的insert语句</returns>
-        public static string cmdInsertBuilder(string database, string[] columes, params List<string>[] values)
+        public static string buildInsertCmd(string database, string[] columes, params List<string>[] values)
         {
 
             string cmdText = "insert into " + database + "(";
