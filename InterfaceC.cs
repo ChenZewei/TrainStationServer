@@ -788,7 +788,7 @@ namespace TrainStationServer
         //}
 
         #region StartMediaReq
-        public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
+        public static byte[] StartMediaReq(string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();

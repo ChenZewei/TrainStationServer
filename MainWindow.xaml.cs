@@ -17,6 +17,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Xml;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace TrainStationServer
 {
@@ -36,7 +37,8 @@ namespace TrainStationServer
         }
         private Socket socket, client;
         private IPEndPoint ipEnd;
-        private Thread clientThread;
+        private eXosip exosip;
+        private Thread clientThread, snoopThread;
         private byte[] recv = new byte[2048], send = new byte[2048];
         private DataBase Database;
         private InterfaceC C;
@@ -73,7 +75,107 @@ namespace TrainStationServer
             mainObject.socket = socket;
             socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
             Result.AppendText("Start listening...\r\n");
+            //exosip = new eXosip();
+            //snoopThread = new Thread(Snoop);
+            //snoopThread.IsBackground = true;
+            //snoopThread.Start();
         }
+
+        void Snoop()
+        {
+            eXosip.Init();
+            eXosip.ListenAddr(ProtocolType.Udp, null, 0, AddressFamily.InterNetwork, 0);
+            while(true)
+            {
+                IntPtr je = eXosip.Event.Wait(0, 1);
+                if (je == IntPtr.Zero) break;
+                eXosip.Lock();
+                eXosip.AutomaticAction();
+                eXosip.Unlock();
+                eXosip.Event eXosipEvent = (eXosip.Event)Marshal.PtrToStructure(je, typeof(eXosip.Event));
+                Console.WriteLine(eXosipEvent.textinfo);
+                switch (eXosipEvent.type)
+                {
+                    case eXosip.EventType.EXOSIP_CALL_INVITE:
+                        osipCallInvite(eXosipEvent);
+                        break;
+                    case eXosip.EventType.EXOSIP_CALL_CLOSED:
+                        break;
+                    default:
+                        break;
+                }
+                eXosip.Event.Free(je);
+                Thread.Sleep(100);
+            }
+            eXosip.Quit();
+
+        }
+
+        private void osipCallInvite(eXosip.Event eXosipEvent)
+        {
+            Socket exoSocket;
+            eXosip.Lock();
+            int len;
+            byte[] recv = new byte[2048];
+            //string tcpIp, tcpPort;
+            string[] result = new string[10];
+            eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
+            IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
+            if (sdp == IntPtr.Zero)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
+            //osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            string name = osip.URI.ToString(pTo.url);
+            string id = name.Substring(4, name.IndexOf('@') - 4);
+            if ( (exoSocket = SocketBound.FindSocket(id)) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            exoSocket.Send(InterfaceC.StartMediaReq("","","","1","0","","","1"));
+            len = exoSocket.Receive(recv);
+            if (!InterfaceC.IsRequest(recv, len))
+            {
+                result = InterfaceC.StartMediaResponse(recv, len);
+                if (result != null)
+                    for (int k = 0; k < result.Length; k++)
+                        Console.WriteLine(result[k]);
+            }
+            string sessionId = osip.SdpMessage.GetSessionId(sdp);
+            string sessionVersion = osip.SdpMessage.GetSessionVersion(sdp);
+            IntPtr answer = eXosip.Call.BuildAnswer(eXosipEvent.tid, 200);
+            if (answer != IntPtr.Zero)
+            {
+                string tmp = string.Format(
+                    "v=0\r\n" +
+                    "o={0} {1} {2} IN IP4 {3}\r\n" +
+                    "s=RealTime\r\n" +
+                    "c=IN IP4 {3}\r\n" +
+                    "t=0 0\r\n" +
+                    "a=sendonly\r\n" +
+                    "m=video {4} TCP H264\r\n" +
+                    "a=setup:passive\r\n" +
+                    "a=connection:new\r\n" +
+                    "m=audio {4} TCP PCMA\r\n" +
+                    "a=setup:passive\r\n" +
+                    "a=connection:new\r\n",
+                    id,
+                    sessionId,
+                    sessionVersion,
+                    result[0],
+                    result[1]);
+                osip.Message.SetBody(answer, tmp);
+                osip.Message.SetContentType(answer, "application/sdp");
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 200, answer);
+                eXosip.Unlock();
+            }
+        }
+
 
         private void AsyncAccept(IAsyncResult ar)//异步Accept
         {
@@ -184,6 +286,7 @@ namespace TrainStationServer
 
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
         {
+
             //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
         }
     }
