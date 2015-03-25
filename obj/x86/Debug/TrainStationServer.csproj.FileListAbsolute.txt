@@ -1,0 +1,13 @@
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\x86\Debug\TrainStationServer.exe.config
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\x86\Debug\TrainStationServer.exe
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\x86\Debug\TrainStationServer.pdb
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\MainWindow.baml
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\MainWindow.g.cs
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\App.g.cs
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer_MarkupCompile.cache
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.g.resources
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.Properties.Resources.resources
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.csproj.GenerateResource.Cache
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.exe
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.pdb
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.csprojResolveAssemblyReference.cache

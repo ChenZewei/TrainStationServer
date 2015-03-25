@@ -14,6 +14,7 @@ namespace TrainStationServer
         {
             public Socket socket;
             public SIPTools sip;
+            public string[] result;
         }
         private static List<SipSocket> sipsocket = new List<SipSocket>();
 
@@ -42,6 +43,54 @@ namespace TrainStationServer
                     return null; 
             }
                 return null;
+        }
+
+        public static void InsertResult(Socket socket, string[] result)
+        {
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.socket.Equals(socket))
+                {
+                    temp.result = new string[result.Length];
+                    for (int i = 0; i < result.Length; i++)
+                        temp.result[i] = result[i];
+                }
+                else
+                    return;
+            }
+            return;
+        }
+
+        public static string[] GetResult(Socket socket)
+        {
+            string[] r;
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.socket.Equals(socket))
+                {
+                    r = temp.result;
+                    temp.result = null;
+                    return r;
+                }
+                else
+                    return null;
+            }
+            return null;
+        }
+
+        public static void CleanResult(Socket socket)
+        {
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.socket.Equals(socket))
+                {
+                    temp.result = null;
+                    return ;
+                }
+                else
+                    return;
+            }
+            return;
         }
     }
 }

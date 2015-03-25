@@ -35,7 +35,7 @@ namespace TrainStationServer
             public int recvLen;
             public bool isClosed = false;
         }
-        private Socket socket, client;
+        private Socket socket, client, testsocket;
         private IPEndPoint ipEnd;
         private eXosip exosip;
         private Thread clientThread, snoopThread;
@@ -43,6 +43,7 @@ namespace TrainStationServer
         private DataBase Database;
         private InterfaceC C;
         private SocketBound bound;
+        private bool timeout = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -75,20 +76,20 @@ namespace TrainStationServer
             mainObject.socket = socket;
             socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
             Result.AppendText("Start listening...\r\n");
-            //exosip = new eXosip();
-            //snoopThread = new Thread(Snoop);
-            //snoopThread.IsBackground = true;
-            //snoopThread.Start();
+            exosip = new eXosip();
+            snoopThread = new Thread(Snoop);
+            snoopThread.IsBackground = true;
+            snoopThread.Start();
         }
 
         void Snoop()
         {
             eXosip.Init();
-            eXosip.ListenAddr(ProtocolType.Udp, null, 0, AddressFamily.InterNetwork, 0);
+            eXosip.ListenAddr(ProtocolType.Udp, null, 5060, AddressFamily.InterNetwork, 0);
             while(true)
             {
                 IntPtr je = eXosip.Event.Wait(0, 1);
-                if (je == IntPtr.Zero) break;
+                if (je == IntPtr.Zero) continue;
                 eXosip.Lock();
                 eXosip.AutomaticAction();
                 eXosip.Unlock();
@@ -138,13 +139,27 @@ namespace TrainStationServer
                 return;
             }
             exoSocket.Send(InterfaceC.StartMediaReq("","","","1","0","","","1"));
-            len = exoSocket.Receive(recv);
-            if (!InterfaceC.IsRequest(recv, len))
+            System.Timers.Timer timer = new System.Timers.Timer(5000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
+            timer.Enabled = true;
+            while(true)
             {
-                result = InterfaceC.StartMediaResponse(recv, len);
-                if (result != null)
-                    for (int k = 0; k < result.Length; k++)
-                        Console.WriteLine(result[k]);
+                if (timeout)
+                {
+                    timeout = false;
+                    result = null;
+                    break;
+                }
+                if ((result = SocketBound.GetResult(exoSocket)) != null)
+                    break;
+                Thread.Sleep(100);
+            }
+            timer.Enabled = false;
+            if (result == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
             }
             string sessionId = osip.SdpMessage.GetSessionId(sdp);
             string sessionVersion = osip.SdpMessage.GetSessionVersion(sdp);
@@ -167,15 +182,14 @@ namespace TrainStationServer
                     id,
                     sessionId,
                     sessionVersion,
-                    result[0],
-                    result[1]);
+                    result[1],
+                    result[2]);
                 osip.Message.SetBody(answer, tmp);
                 osip.Message.SetContentType(answer, "application/sdp");
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 200, answer);
                 eXosip.Unlock();
             }
         }
-
 
         private void AsyncAccept(IAsyncResult ar)//异步Accept
         {
@@ -189,7 +203,7 @@ namespace TrainStationServer
             clientObject.recv = recv;
             clientObject.send = send;
             client.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc), clientObject);
-            
+            testsocket = client;
             //clientThread = new Thread(ClientThread);
             //clientThread.IsBackground = true;
             //clientThread.Start(client);
@@ -229,8 +243,12 @@ namespace TrainStationServer
                 {
                     result = InterfaceC.Response(state.recv, i);
                     if (result != null)
+                    {
+                        SocketBound.InsertResult(state.socket, result);
                         for (int k = 0; k < result.Length; k++)
                             Console.WriteLine(result[k]);
+                    }
+                        
                 }
             }
             catch(SocketException e)
@@ -286,8 +304,36 @@ namespace TrainStationServer
 
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
         {
-
+            byte[] recv = new byte[2048];
+            string[] result = new string[10];
+            stateobject temp = new stateobject();
+            System.Timers.Timer timer = new System.Timers.Timer(5000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
+            SocketBound.CleanResult(testsocket);
+            testsocket.Send(InterfaceC.StartMediaReq("", "", "", "1", "0", "", "", "1"));
+            timer.Enabled = true;
+            while (true)
+            {
+                if(timeout)
+                {
+                    timeout = false;
+                    result = null;
+                    break;
+                }
+                if ((result = SocketBound.GetResult(testsocket)) != null)
+                    break;
+                Thread.Sleep(100);
+            }
+            timer.Enabled = false;
+            if(result != null)
+                for (int k = 0; k < result.Length; k++)
+                    Console.WriteLine(result[k]);
             //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
+        }
+
+        private void Tick(object source, System.Timers.ElapsedEventArgs e)
+        {
+            timeout = true;
         }
     }
 }

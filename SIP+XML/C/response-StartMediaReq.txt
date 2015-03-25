@@ -1,0 +1,18 @@
+INVITE sip:XX SIP/2.0
+Via:SIP/2.0/TCP XX
+To:XX
+From:XX
+Max-Forwards:70
+Call-ID:XX
+CSeq:3415687 INVITE
+Content-Type:RVSS/xml
+Content-Length:200
+
+<?xml version="1.0" encoding="GB2312" standalone="yes"?>
+<response command="StartMediaReq">
+  <parameters>
+	<sessionId>000001</sessionId>
+	<tcpIp>192.168.1.104</tcpIp>
+	<tcpPort>10000</tcpPort>
+  </parameters>
+</response>
