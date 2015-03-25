@@ -336,23 +336,25 @@ namespace TrainStationServer
             purpose = XmlOp.GetInnerTextList(Doc, "purpose");
             infomation = XmlOp.GetInnerTextList(Doc, "infomation");
 
-            for (int j = 0; j < resId.Count; j++)
-            {
-                num = 2;
-                values[0] = resId[j];
-                values[1] = name[j];
-                if (location.Count >= 1)
-                {
-                    values[2] = location[j];
-                    num++;
-                }
-                if (purpose.Count >= 1)
-                {
-                    values[3] = purpose[j];
-                    num++;
-                }
-                database.Insert("ivms_resources", columes, values, num);
-            }
+            database.Insert("ivms_resources", columes, resId, name, location, purpose);
+
+            //for (int j = 0; j < resId.Count; j++)
+            //{
+            //    num = 2;
+            //    values[0] = resId[j];
+            //    values[1] = name[j];
+            //    if (location.Count >= 1)
+            //    {
+            //        values[2] = location[j];
+            //        num++;
+            //    }
+            //    if (purpose.Count >= 1)
+            //    {
+            //        values[3] = purpose[j];
+            //        num++;
+            //    }
+            //    database.Insert("ivms_resources", columes, values, num);
+            //}
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ResReport");
@@ -397,22 +399,24 @@ namespace TrainStationServer
             purpose = XmlOp.GetInnerTextList(Doc, "purpose");
             infomation = XmlOp.GetInnerTextList(Doc, "infomation");
 
-            for (int j = 0; j < resId.Count; j++)
-            {
-                values[0] = resId[j];
-                values[1] = name[j];
-                if (location.Count >= 1)
-                {
-                    values[2] = location[j];
-                    num++;
-                }
-                if (purpose.Count >= 1)
-                {
-                    values[3] = purpose[j];
-                    num++;
-                }
-                database.Insert("ivms_resources", columes, values, num);
-            }
+            database.Insert("ivms_resources", columes, resId, name, location, purpose);
+
+            //for (int j = 0; j < resId.Count; j++)
+            //{
+            //    values[0] = resId[j];
+            //    values[1] = name[j];
+            //    if (location.Count >= 1)
+            //    {
+            //        values[2] = location[j];
+            //        num++;
+            //    }
+            //    if (purpose.Count >= 1)
+            //    {
+            //        values[3] = purpose[j];
+            //        num++;
+            //    }
+            //    database.Insert("ivms_resources", columes, values, num);
+            //}
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ResReport");
@@ -784,7 +788,7 @@ namespace TrainStationServer
         //}
 
         #region StartMediaReq
-        public static byte[] StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
+        public static byte[] StartMediaReq(string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
