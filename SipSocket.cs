@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.Xml;
 
 namespace TrainStationServer
 {
     class SipSocket
     {
         public Socket socket;
-        SIPTools sip;
-        //string tcpIp, tcpPort, sessionId;
-        private string[] result;
+        public SIPTools sip;
+        public string[] result;
 
         private SipSocket()
         {
@@ -22,6 +22,12 @@ namespace TrainStationServer
         public SipSocket(Socket skt)
         {
             socket = skt;
+        }
+
+        public SipSocket(Socket skt, SIPTools s)
+        {
+            socket = skt;
+            sip = s;
         }
 
         public SipSocket(AddressFamily af, SocketType st, ProtocolType pt)
@@ -49,6 +55,11 @@ namespace TrainStationServer
             string[] temp = result;
             result = null;
             return temp;
+        }
+
+        public int Send(XmlDocument doc)
+        {
+            return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPRequest(doc)));
         }
 
         public IAsyncResult BeginAccept(AsyncCallback callback, object obj)

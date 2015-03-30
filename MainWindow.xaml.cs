@@ -68,7 +68,7 @@ namespace TrainStationServer
         {
             ipEnd = new IPEndPoint(IPAddress.Any, 15000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
             socket.Listen(20);
             //test = new SipSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -207,6 +207,9 @@ namespace TrainStationServer
         {
             IntPtr ptr;
             XmlDocument TempDoc = new XmlDocument();
+            XmlDocument Request;
+            Socket exoSocket;
+            SipSocket temp;
             ptr = osip.Message.GetContentType(eXosipEvent.request);
             if (ptr == IntPtr.Zero) return;
             osip.ContentType content = (osip.ContentType)Marshal.PtrToStructure(ptr, typeof(osip.ContentType));
@@ -219,14 +222,36 @@ namespace TrainStationServer
             string xml = Marshal.PtrToStringAnsi(data.body);
             Console.Write(xml);
             TempDoc.LoadXml(xml);
-
+            Request = InterfaceC.Translate(TempDoc);
+            eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
+            IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
+            if (sdp == IntPtr.Zero)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
+            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            string name = osip.URI.ToString(pTo.url);
+            string id = name.Substring(4, name.IndexOf('@') - 4);
+            id = "6100002008000001";
+            if ((exoSocket = SocketBound.FindSocket(id)) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            SocketBound.CleanResult(exoSocket);
+            temp = SocketBound.FindSipSocket(exoSocket);
+            temp.Send(Request);
         }
 
         private void AsyncAccept(IAsyncResult ar)//异步Accept
         {
             stateobject mainObject = (stateobject)ar.AsyncState;
             stateobject clientObject = new stateobject();
-            Socket client = mainObject.socket.EndAccept(ar);
+            client = mainObject.socket.EndAccept(ar);
             mainObject.socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
             this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
             clientObject.socket = client;

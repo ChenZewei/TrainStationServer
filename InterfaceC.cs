@@ -29,17 +29,6 @@ namespace TrainStationServer
         {
             XmlElement root;
             XmlNodeList nodeList;
-            //try
-            //{
-            //    sip = new SIPTools(recv, i);
-            //    doc = SIPTools.XmlExtract(recv, i);
-            //    if (doc == null)
-            //        return false;
-            //}
-            //catch (XmlException e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //}
 
             FileStream sendbuf = new FileStream("D://recieve.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
@@ -192,6 +181,21 @@ namespace TrainStationServer
                 }
             }
             return result;
+        }
+
+        public static XmlDocument Translate(XmlDocument doc)
+        {
+            XmlDocument request = new XmlDocument();
+            XmlNode node = doc.SelectSingleNode("//");
+            switch(node.Name)
+            {
+                case "ControlPTZ":
+                    request = ControlPTZTranslate(doc);
+                    break;
+                default:
+                    break;
+            }
+            return request;
         }
 
         #region Down 2 Up
@@ -903,7 +907,7 @@ namespace TrainStationServer
         #endregion
 
         #region ControlPTZ
-        public static byte[] ControlPTZ(string resId, string userId, string userLevel, string cmd, string param, string speed)
+        public static XmlDocument ControlPTZ(string resId, string userId, string userLevel, string cmd, string param, string speed)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -925,7 +929,16 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "speed", 0, speed);
             Request.Save("D://ControlPTZ-response.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
+        }
+
+        public static XmlDocument ControlPTZTranslate(XmlDocument doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string[] parameters;
+            string[] paraNames = { "resId", "userId", "userLevel", "cmd", "param", "speed" };
+            parameters = XmlOp.GetAttribute(doc, "ControlPTZ", paraNames);
+            return ControlPTZ(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);
         }
         #endregion
 

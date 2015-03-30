@@ -5,17 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Xml;
 
 namespace TrainStationServer
 {
     class SocketBound
     {
-        private class SipSocket
-        {
-            public Socket socket;
-            public SIPTools sip;
-            public string[] result;
-        }
+        //private class SipSocket
+        //{
+        //    public Socket socket;
+        //    public SIPTools sip;
+        //    public string[] result;
+        //}
         private static List<SipSocket> sipsocket = new List<SipSocket>();
 
         public static void Add(Socket socket,SIPTools sip)
@@ -25,9 +26,7 @@ namespace TrainStationServer
                 if (ss.socket.Equals(socket))
                     return;
             }
-            SipSocket temp = new SipSocket(); ;
-            temp.socket = socket;
-            temp.sip = sip;
+            SipSocket temp = new SipSocket(socket,sip); 
             sipsocket.Add(temp);
         }
 
@@ -52,6 +51,34 @@ namespace TrainStationServer
                 if (temp.socket.Equals(socket))
                 {
                     return temp.sip;
+                }
+                else
+                    return null;
+            }
+            return null;
+        }
+
+        public static SipSocket FindSipSocket(Socket socket)
+        {
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.socket.Equals(socket))
+                {
+                    return temp;
+                }
+                else
+                    return null;
+            }
+            return null;
+        }
+
+        public static SipSocket FindSipSocket(string id)
+        {
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.sip.Id.Equals(id))
+                {
+                    return temp;
                 }
                 else
                     return null;
@@ -105,6 +132,11 @@ namespace TrainStationServer
                     return;
             }
             return;
+        }
+
+        public static int Send(Socket socket, XmlDocument doc)
+        {
+            return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(SocketBound.FindSip(socket).SIPRequest(doc)));
         }
     }
 }
