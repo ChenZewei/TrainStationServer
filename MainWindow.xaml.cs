@@ -86,12 +86,76 @@ namespace TrainStationServer
             snoopThread.IsBackground = true;
             snoopThread.Start();
         }
+        
+        private void AsyncAccept(IAsyncResult ar)//异步Accept
+        {
+            stateobject mainObject = (stateobject)ar.AsyncState;
+            stateobject clientObject = new stateobject();
+            client = mainObject.socket.EndAccept(ar);
+            mainObject.socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
+            clientObject.socket = client;
+            clientObject.recv = recv;
+            clientObject.send = send;
+            client.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc), clientObject);
+            testsocket = client;
+        }
+
+        void recvProc(IAsyncResult ar)//异步Receive
+        {
+            stateobject state = (stateobject)ar.AsyncState;
+            XmlDocument Doc = new XmlDocument();
+            string sendbuffer;
+            if (state.isClosed)
+                return;
+            try
+            {
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
+                int i = state.socket.EndReceive(ar);
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
+                SocketBound.Add(state.socket, new SIPTools(state.recv, i));
+                string[] result;
+                Doc = SIPTools.XmlExtract(recv, i);
+                if (Doc == null)
+                    return;
+                if (InterfaceC.IsRequest(Doc))
+                {
+                    sendbuffer = SocketBound.FindSip(testsocket).SIPRequest(InterfaceC.Request(Doc));
+                    state.send = Encoding.GetEncoding("GB2312").GetBytes(sendbuffer);
+                    state.socket.Send(state.send);
+                }
+                else
+                {
+                    result = InterfaceC.Response(state.recv, i);
+                    if (result != null)
+                    {
+                        SocketBound.InsertResult(state.socket, result);
+                        for (int k = 0; k < result.Length; k++)
+                            Console.WriteLine(result[k]);
+                    }
+                        
+                }
+            }
+            catch(SocketException e)
+            {
+                state.isClosed = true;
+                state.socket.Dispose();
+                Console.WriteLine(e.Message);
+                return;
+            }
+            catch(XmlException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }      
+      
+        }
 
         void Snoop()
         {
             eXosip.Init();
             eXosip.ListenAddr(ProtocolType.Udp, null, 5060, AddressFamily.InterNetwork, 0);
-            while(true)
+            while (true)
             {
                 IntPtr je = eXosip.Event.Wait(0, 1);
                 if (je == IntPtr.Zero) continue;
@@ -216,22 +280,15 @@ namespace TrainStationServer
             osip.ContentType content = (osip.ContentType)Marshal.PtrToStructure(ptr, typeof(osip.ContentType));
             ptr = osip.Message.GetBody(eXosipEvent.request);
             if (ptr == IntPtr.Zero) return;
-            osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
-            if (Marshal.PtrToStringAnsi(content.type) != "application" ||
-                Marshal.PtrToStringAnsi(content.subtype) != "xml")
-                return;
-            string xml = Marshal.PtrToStringAnsi(data.body);
-            Console.Write(xml);
-            TempDoc.LoadXml(xml);
-            Request = InterfaceC.Translate(TempDoc);
-            eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
-            IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
-            if (sdp == IntPtr.Zero)
-            {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
-            }
+
+            //eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
+            //IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
+            //if (sdp == IntPtr.Zero)
+            //{
+            //    eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
+            //    eXosip.Unlock();
+            //    return;
+            //}
             osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
             osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
             string name = osip.URI.ToString(pTo.url);
@@ -243,125 +300,19 @@ namespace TrainStationServer
                 eXosip.Unlock();
                 return;
             }
+
+            osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
+            if (Marshal.PtrToStringAnsi(content.type) != "application" ||
+                Marshal.PtrToStringAnsi(content.subtype) != "xml")
+                return;
+            string xml = Marshal.PtrToStringAnsi(data.body);
+            Console.Write(xml);
+            /*----------------------------分割线-----------------------------*/
+            TempDoc.LoadXml(xml);
+            Request = InterfaceC.Translate(TempDoc);//提取参数并转为C类接口格式
             SocketBound.CleanResult(exoSocket);
             temp = SocketBound.FindSipSocket(exoSocket);
             temp.Send(Request);
-        }
-
-        private void AsyncAccept(IAsyncResult ar)//异步Accept
-        {
-            stateobject mainObject = (stateobject)ar.AsyncState;
-            stateobject clientObject = new stateobject();
-            client = mainObject.socket.EndAccept(ar);
-            mainObject.socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
-            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
-            clientObject.socket = client;
-            clientObject.recv = recv;
-            clientObject.send = send;
-            client.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc), clientObject);
-            testsocket = client;
-            //clientThread = new Thread(ClientThread);
-            //clientThread.IsBackground = true;
-            //clientThread.Start(client);
-        }
-
-        //private void Listening()
-        //{
-        //    this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Wait for accepting...\r\n")));
-        //    while (true)
-        //    {
-        //        client = socket.Accept();
-        //        this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
-        //        clientThread = new Thread(ClientThread);
-        //        clientThread.IsBackground = true;
-        //        clientThread.Start();
-        //    }
-        //}
-
-        void recvProc(IAsyncResult ar)//异步Receive
-        {
-            stateobject state = (stateobject)ar.AsyncState;
-            XmlDocument Doc = new XmlDocument();
-            string sendbuffer;
-            if (state.isClosed)
-                return;
-            try
-            {
-                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
-                int i = state.socket.EndReceive(ar);
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
-                SocketBound.Add(state.socket, new SIPTools(state.recv, i));
-                string[] result;
-                Doc = SIPTools.XmlExtract(recv, i);
-                if (Doc == null)
-                    return;
-                if (InterfaceC.IsRequest(Doc))
-                {
-                    sendbuffer = SocketBound.FindSip(testsocket).SIPRequest(InterfaceC.Request(Doc));
-                    state.send = Encoding.GetEncoding("GB2312").GetBytes(sendbuffer);
-                    state.socket.Send(state.send);
-                }
-                else
-                {
-                    result = InterfaceC.Response(state.recv, i);
-                    if (result != null)
-                    {
-                        SocketBound.InsertResult(state.socket, result);
-                        for (int k = 0; k < result.Length; k++)
-                            Console.WriteLine(result[k]);
-                    }
-                        
-                }
-            }
-            catch(SocketException e)
-            {
-                state.isClosed = true;
-                state.socket.Dispose();
-                Console.WriteLine(e.Message);
-                return;
-            }
-            catch(XmlException e)
-            {
-                Console.WriteLine(e.Message);
-                return;
-            }      
-      
-        }
-
-        private void ClientThread(Object client)//多线程客户端
-        {
-            Socket temp = (Socket)client;
-            byte[] send = new byte[2048];
-            byte[] recv = new byte[2048];
-            string[] result = new string[10];
-            stateobject so = new stateobject();
-            so.socket = temp;
-            so.recv = recv;
-            so.send = send;
-            try
-            {
-                //i = temp.Receive(recv);
-                temp.BeginReceive(so.recv, 0, so.BufferSize, 0, new AsyncCallback(recvProc), so);
-            }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-
-            while(true)
-            {
-                if (so.isClosed == true)
-                    return;
-                Thread.Sleep(10);
-
-
-                //FileStream sendbuf = new FileStream("D://Response.txt", FileMode.OpenOrCreate, FileAccess.Write);
-                //sendbuf.Close();
-                //sendbuf = new FileStream("D://Response.txt", FileMode.Append, FileAccess.Write);
-                //sendbuf.Write(recv, 0, recv.Length);
-                //sendbuf.Close();   
-            }
         }
 
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
