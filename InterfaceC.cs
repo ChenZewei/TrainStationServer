@@ -153,12 +153,6 @@ namespace TrainStationServer
                 Console.WriteLine(e.Message);
             }
 
-            FileStream sendbuf = new FileStream("D://response.txt", FileMode.OpenOrCreate, FileAccess.Write);
-            sendbuf.Close();
-            sendbuf = new FileStream("D://response.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
-            sendbuf.Close();
-
             root = doc.DocumentElement;
             nodeList = doc.GetElementsByTagName("response");
             if (nodeList.Count > 0)
@@ -174,6 +168,9 @@ namespace TrainStationServer
                     case "QueryAlarmRes":
                         result = new string[3];
                         result = QueryAlarmResResponse(doc);
+                        break;
+                    case "ControlPTZ":
+                        result = null;
                         break;
                     default:
                         result = null;
