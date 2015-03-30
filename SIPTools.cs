@@ -21,7 +21,7 @@ namespace TrainStationServer
 
         public SIPTools(byte[] buffer, int bufferlen)
         {
-            Id = GetSIPInfo(buffer, bufferlen, "sip");
+            Id = GetSIPInfo(buffer, bufferlen, "sip").Substring(0,16);
             To = GetSIPInfo(buffer, bufferlen, "From");
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
@@ -126,7 +126,7 @@ namespace TrainStationServer
                 {
                     infoByte[length] = buffer[index + length];
                     length++;
-                    if (((buffer[index + length] == '\r') && (buffer[index + length + 1] == '\n')) || buffer[index + length] == ' ')
+                    if (((buffer[index + length] == '\r') && (buffer[index + length + 1] == '\n')))
                         break;
                 }
             }

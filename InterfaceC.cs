@@ -25,22 +25,21 @@ namespace TrainStationServer
             sip = new SIPTools();
         }
 
-        public static bool IsRequest(byte[] recv, int i)
+        public static bool IsRequest(XmlDocument doc)
         {
-            XmlDocument doc = new XmlDocument();
             XmlElement root;
             XmlNodeList nodeList;
-            try
-            {
-                sip = new SIPTools(recv, i);
-                doc = SIPTools.XmlExtract(recv, i);
-                if (doc == null)
-                    return false;
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            //try
+            //{
+            //    sip = new SIPTools(recv, i);
+            //    doc = SIPTools.XmlExtract(recv, i);
+            //    if (doc == null)
+            //        return false;
+            //}
+            //catch (XmlException e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //}
 
             FileStream sendbuf = new FileStream("D://recieve.txt", FileMode.OpenOrCreate, FileAccess.Write);
             sendbuf.Close();
@@ -62,24 +61,33 @@ namespace TrainStationServer
             XmlNodeList nodeList;
             XmlNode node;
             XmlDocument response = new XmlDocument();
+
             root = doc.DocumentElement;
-            nodeList = root.SelectNodes("/request/@command");
-            node = nodeList.Item(0);
-            switch (node.InnerText)
+            nodeList = doc.GetElementsByTagName("request");
+            if (nodeList.Count > 0)
             {
-                case "SaRegister":
-                    response = SaRegister(doc);
-                    break;
-                case "SaKeepAlive":
-                    response = SaKeepAlive(doc);
-                    break;
-                case "ResReport":
-                    response = ResReport(doc);
-                    break;
-                default:
-                    response = new XmlDocument();
-                    break;
+                nodeList = root.SelectNodes("/request/@command");
+                node = nodeList.Item(0);
+                switch (node.InnerText)
+                {
+                    case "SaRegister":
+                        response = SaRegister(doc);
+                        break;
+                    case "SaKeepAlive":
+                        response = SaKeepAlive(doc);
+                        break;
+                    case "ResReport":
+                        response = ResReport(doc);
+                        break;
+                    case "ResChange":
+                        response = ResChange(doc);
+                        break;
+                    default:
+                        response = new XmlDocument();
+                        break;
+                }
             }
+
             return response;
         }
 
@@ -89,13 +97,13 @@ namespace TrainStationServer
             XmlElement root;
             XmlNodeList nodeList;
             XmlNode node;
-            XmlDocument request = new XmlDocument();
+            XmlDocument response = new XmlDocument();
             try
             {
                 sip = new SIPTools(recv, i);
                 doc = SIPTools.XmlExtract(recv, i);
                 if (doc == null)
-                    return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(request));
+                    return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(response));
             }
             catch(XmlException e)
             {
@@ -117,24 +125,24 @@ namespace TrainStationServer
                 switch (node.InnerText)
                 {
                     case "SaRegister":
-                        request = SaRegister(doc);
+                        response = SaRegister(doc);
                         break;
                     case "SaKeepAlive":
-                        request = SaKeepAlive(doc);
+                        response = SaKeepAlive(doc);
                         break;
                     case "ResReport":
-                        request = ResReport(doc);
+                        response = ResReport(doc);
                         break;
                     case "ResChange":
-                        request = ResChange(doc);
+                        response = ResChange(doc);
                         break;
                     default:
-                        request = new XmlDocument();
+                        response = new XmlDocument();
                         break;
                 }
             }
 
-            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(request));
+            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(response));
         }
 
         public static string[] Response(byte[] recv, int i)
@@ -788,7 +796,7 @@ namespace TrainStationServer
         //}
 
         #region StartMediaReq
-        public static byte[] StartMediaReq(string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
+        public static XmlDocument StartMediaReq(string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -813,8 +821,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Request, "parameters", "flag");
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
             Request.Save("D://StartMediaReq-response.xml");
-
-            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static byte[] test(byte[] recv, int i)//Only for test

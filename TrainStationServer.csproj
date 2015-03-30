@@ -103,6 +103,7 @@
     <Compile Include="DataBase.cs" />
     <Compile Include="InterfaceC.cs" />
     <Compile Include="osip.cs" />
+    <Compile Include="SipSocket.cs" />
     <Compile Include="SIPTools.cs" />
     <Compile Include="SocketBound.cs" />
     <Compile Include="XmlTools.cs" />

@@ -45,6 +45,20 @@ namespace TrainStationServer
                 return null;
         }
 
+        public static SIPTools FindSip(Socket socket)
+        {
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.socket.Equals(socket))
+                {
+                    return temp.sip;
+                }
+                else
+                    return null;
+            }
+            return null;
+        }
+
         public static void InsertResult(Socket socket, string[] result)
         {
             foreach (SipSocket temp in sipsocket)
