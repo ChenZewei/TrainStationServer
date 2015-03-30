@@ -68,7 +68,7 @@ namespace TrainStationServer
         {
             ipEnd = new IPEndPoint(IPAddress.Any, 15000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
             socket.Listen(20);
             //test = new SipSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -78,7 +78,7 @@ namespace TrainStationServer
             C = new InterfaceC(Database);
             stateobject mainObject = new stateobject();
             //mainSocket = new SipSocket(socket);
-            //mainObject.sipSocket = mainSocket;
+            mainObject.socket = socket;
             socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
             Result.AppendText("Start listening...\r\n");
             exosip = new eXosip();
@@ -126,7 +126,8 @@ namespace TrainStationServer
             eXosip.Lock();
             int len;
             byte[] recv = new byte[2048];
-            string sendbuffer;
+            XmlDocument Request;
+            SipSocket temp;
             //string tcpIp, tcpPort;
             string[] result = new string[10];
             eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
@@ -138,41 +139,41 @@ namespace TrainStationServer
                 return;
             }
             osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
-            //osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
             string name = osip.URI.ToString(pTo.url);
             string id = name.Substring(4, name.IndexOf('@') - 4);
-            //id = "6100002008000001";
-            //if ( (exoSocket = SocketBound.FindSocket(id)) == null)
-            //{
-            //    eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-            //    eXosip.Unlock();
-            //    return;
-            //}
-            //sendbuffer = SocketBound.FindSip(testsocket).SIPRequest(InterfaceC.StartMediaReq("", "", "", "1", "0", "", "", "1"));
-            //testsocket.Send(Encoding.GetEncoding("GB2312").GetBytes(sendbuffer));
-            //exoSocket.Send(InterfaceC.StartMediaReq("","","","1","0","","","1"));
-            //System.Timers.Timer timer = new System.Timers.Timer(5000);
-            //timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
-            //timer.Enabled = true;
-            //while(true)
-            //{
-            //    if (timeout)
-            //    {
-            //        timeout = false;
-            //        result = null;
-            //        break;
-            //    }
-            //    if ((result = SocketBound.GetResult(exoSocket)) != null)
-            //        break;
-            //    Thread.Sleep(100);
-            //}
-            //timer.Enabled = false;
-            //if (result == null)
-            //{
-            //    eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-            //    eXosip.Unlock();
-            //    return;
-            //}
+            id = "6100002008000001";
+            if ((exoSocket = SocketBound.FindSocket(id)) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            Request = InterfaceC.StartMediaReq("", "", "", "1", "0", "", "", "1");
+            temp = SocketBound.FindSipSocket(exoSocket);
+            temp.Send(Request);
+            System.Timers.Timer timer = new System.Timers.Timer(5000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
+            timer.Enabled = true;
+            while (true)
+            {
+                if (timeout)
+                {
+                    timeout = false;
+                    result = null;
+                    break;
+                }
+                if ((result = SocketBound.GetResult(exoSocket)) != null)
+                    break;
+                Thread.Sleep(100);
+            }
+            timer.Enabled = false;
+            if (result == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
             string sessionId = osip.SdpMessage.GetSessionId(sdp);
             string sessionVersion = osip.SdpMessage.GetSessionVersion(sdp);
             IntPtr answer = eXosip.Call.BuildAnswer(eXosipEvent.tid, 200);
