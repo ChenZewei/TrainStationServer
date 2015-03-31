@@ -105,7 +105,6 @@
     <Compile Include="osip.cs" />
     <Compile Include="SipSocket.cs" />
     <Compile Include="SIPTools.cs" />
-    <Compile Include="SocketBound.cs" />
     <Compile Include="XmlTools.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

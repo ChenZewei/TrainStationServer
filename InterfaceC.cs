@@ -180,7 +180,7 @@ namespace TrainStationServer
             return result;
         }
 
-        public static XmlDocument Translate(XmlDocument doc, params string[] parameters)
+        public static XmlDocument CallMessageTranslate(XmlDocument doc, params string[] parameters)
         {
             XmlDocument request = new XmlDocument();
             XmlNode node = doc.SelectSingleNode("//*");
@@ -767,35 +767,6 @@ namespace TrainStationServer
 
         #region Up 2 Down
 
-        //public static XmlDocument StartMediaReq(string tcpIp, string tcpPort, string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
-        //{
-        //    XmlTools XmlOp = new XmlTools();
-        //    XmlDocument Request = XmlOp.XmlCreate();
-
-        //    XmlOp.ElementAdd(Request, null, "request");
-        //    XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartMediaReq");
-        //    XmlOp.ElementAdd(Request, "request", "parameters");
-        //    XmlOp.ElementAdd(Request, "parameters", "resId");
-        //    XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
-        //    XmlOp.ElementAdd(Request, "parameters", "userId");
-        //    XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
-        //    XmlOp.ElementAdd(Request, "parameters", "userLevel");
-        //    XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-        //    XmlOp.ElementAdd(Request, "parameters", "mediaType");
-        //    XmlOp.SetNodeInnerText(Request, "mediaType", 0, mediaType);
-        //    XmlOp.ElementAdd(Request, "parameters", "linkMode");
-        //    XmlOp.SetNodeInnerText(Request, "linkMode", 0, linkMode);
-        //    XmlOp.ElementAdd(Request, "parameters", "targetIpAddr");
-        //    XmlOp.SetNodeInnerText(Request, "targetIpAddr", 0, targetIpAddr);
-        //    XmlOp.ElementAdd(Request, "parameters", targetPort);
-        //    XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
-        //    XmlOp.ElementAdd(Request, "parameters", "flag");
-        //    XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
-        //    Request.Save("D://StartMediaReq-response.xml");
-
-        //    return Request;
-        //}
-
         #region StartMediaReq
         public static XmlDocument StartMediaReq(string resId, string userId, string userLevel, string mediaType, string linkMode, string targetIpAddr, string targetPort, string flag)
         {
@@ -821,7 +792,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
             XmlOp.ElementAdd(Request, "parameters", "flag");
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
-            Request.Save("D://StartMediaReq-response.xml");
+            Request.Save("D://request-StartMediaReq.xml");
             return Request;
         }
 
@@ -853,7 +824,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "tcpIp", 0, "127.0.0.1");
             XmlOp.ElementAdd(Response, "parameters", "tcpPort");
             XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "12001");
-            Response.Save("D://StartMediaReq-response.xml");
+            Response.Save("D://request-StartMediaReq.xml");
 
             return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
         }
@@ -968,13 +939,13 @@ namespace TrainStationServer
         #endregion
 
         #region StopMediaReq
-        public static byte[] StopMediaReq(string sessionId, string resId, string stopFlag)
+        public static XmlDocument StopMediaReq(string sessionId, string resId, string stopFlag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StopMediaReq");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "StopMediaReq");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
@@ -982,9 +953,9 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
             XmlOp.ElementAdd(Request, "parameters", "stopFlag");
             XmlOp.SetNodeInnerText(Request, "stopFlag", 0, stopFlag);
-            Request.Save("D://StopMediaReq-response.xml");
+            Request.Save("D://request-StopMediaReq.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
         #endregion
 
@@ -995,7 +966,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "QueryHistoryFiles");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "QueryHistoryFiles");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "resId");
             XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
@@ -1009,7 +980,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "fromDate", 0, fromDate);
             XmlOp.ElementAdd(Request, "parameters", "toDate");
             XmlOp.SetNodeInnerText(Request, "toDate", 0, toDate);
-            Request.Save("D://QueryHistoryFiles-response.xml");
+            Request.Save("D://request-QueryHistoryFiles.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1048,7 +1019,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartPlayBack");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "StartPlayBack");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "resId");
             XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
@@ -1070,7 +1041,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag.ToString());
             XmlOp.ElementAdd(Request, "parameters", "locationFlag");
             XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
-            Request.Save("D://StartPlayBack-response.xml");
+            Request.Save("D://request-StartPlayBack.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1100,7 +1071,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartPlayBack");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "StartPlayBack");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "resId");
             XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
@@ -1122,7 +1093,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag.ToString());
             XmlOp.ElementAdd(Request, "parameters", "locationFlag");
             XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
-            Request.Save("D://StartHisLoad-response.xml");
+            Request.Save("D://request-StartHisLoad.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1152,7 +1123,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "StartPlayBack");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "StartPlayBack");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
@@ -1162,7 +1133,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
             XmlOp.ElementAdd(Request, "parameters", "userLevel");
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            Request.Save("D://HisLoadInfo-response.xml");
+            Request.Save("D://request-HisLoadInfo.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1188,7 +1159,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "INFO");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "INFO");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
@@ -1198,7 +1169,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
             XmlOp.ElementAdd(Request, "parameters", "userLevel");
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            Request.Save("D://INFO-response.xml");
+            Request.Save("D://request-INFO.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1224,7 +1195,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "HisInfo");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "HisInfo");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
@@ -1234,7 +1205,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
             XmlOp.ElementAdd(Request, "parameters", "userLevel");
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            Request.Save("D://HisInfo-response.xml");
+            Request.Save("D://request-HisInfo.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1260,7 +1231,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ControlFileBack");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ControlFileBack");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Request, "sessionId", 0, sessionId);
@@ -1270,7 +1241,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "cmd", 0, cmd);
             XmlOp.ElementAdd(Request, "parameters", "param");
             XmlOp.SetNodeInnerText(Request, "param", 0, param.ToString());
-            Request.Save("D://ControlFileBack-response.xml");
+            Request.Save("D://request-ControlFileBack.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1296,7 +1267,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ReqCamResState");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ReqCamResState");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "saId");
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
@@ -1307,7 +1278,7 @@ namespace TrainStationServer
                 XmlOp.ElementAdd(Request, "URL", "resId", i);
                 XmlOp.SetNodeInnerText(Request, "resId", i, resId[i]);
             }
-            Request.Save("D://ReqCamResState-response.xml");
+            Request.Save("D://request-ReqCamResState.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1333,13 +1304,13 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "GetUserCurState");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "GetUserCurState");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "saId");
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
             XmlOp.ElementAdd(Request, "parameters", "curUserId");
             XmlOp.SetNodeInnerText(Request, "curUserId", 0, curUserId);
-            Request.Save("D://GetUserCurState-response.xml");
+            Request.Save("D://request-GetUserCurState.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1371,7 +1342,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "SetUserCamManage");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "SetUserCamManage");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "cuId");
             XmlOp.SetNodeInnerText(Request, "cuId", 0, cuId);
@@ -1400,7 +1371,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
             }
 
-            Request.Save("D://SetUserCamManage-response.xml");
+            Request.Save("D://request-SetUserCamManage.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1421,7 +1392,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "AlarmResSubscribe");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "AlarmResSubscribe");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "saId");
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
@@ -1439,7 +1410,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
             }
 
-            Request.Save("D://AlarmResSubscribe-response.xml");
+            Request.Save("D://request-AlarmResSubscribe.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1465,7 +1436,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "QueryAlarmRes");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "QueryAlarmRes");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "saId");
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
@@ -1481,7 +1452,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
             }
 
-            Request.Save("D://QueryAlarmRes-response.xml");
+            Request.Save("D://request-QueryAlarmRes.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1518,7 +1489,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ReportAlarmInfo");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ReportAlarmInfo");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "muId");
             XmlOp.SetNodeInnerText(Request, "muId", 0, muId);
@@ -1538,7 +1509,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "endTime", i, endTime[i]);
             }
 
-            Request.Save("D://ReportAlarmInfo-response.xml");
+            Request.Save("D://request-ReportAlarmInfo.xml");
 
             return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
         }
@@ -1572,7 +1543,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ResTransOrder");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ResTransOrder");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "saId");
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
@@ -1620,7 +1591,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "response", 0, "command", "ResChangeOrder");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ResChangeOrder");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "saId");
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
