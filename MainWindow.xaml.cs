@@ -116,7 +116,6 @@ namespace TrainStationServer
         {
             Socket exoSocket;
             eXosip.Lock();
-            int len;
             byte[] recv = new byte[2048];
             //string tcpIp, tcpPort;
             string[] result = new string[10];
@@ -327,8 +326,7 @@ namespace TrainStationServer
             timer.Enabled = false;
             if(result != null)
                 for (int k = 0; k < result.Length; k++)
-                    Console.WriteLine(result[k]);
-            //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
+                    Console.WriteLine(result[k]);  
         }
 
         private void Tick(object source, System.Timers.ElapsedEventArgs e)
