@@ -172,6 +172,9 @@ namespace TrainStationServer
                     case eXosip.EventType.EXOSIP_CALL_MESSAGE_NEW:
                         osipCallMessage(eXosipEvent);
                         break;
+                    case eXosip.EventType.EXOSIP_MESSAGE_NEW:
+                        osipMessage(eXosipEvent);
+                        break;
                     case eXosip.EventType.EXOSIP_CALL_CLOSED:
                         break;
                     default:
@@ -202,18 +205,24 @@ namespace TrainStationServer
                 eXosip.Unlock();
                 return;
             }
-            osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
-            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
+            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
+            osip.URI uriTo = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            osip.URI uriFrom = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pFrom.url), typeof(osip.URI));
             string name = osip.URI.ToString(pTo.url);
-            string id = name.Substring(4, name.IndexOf('@') - 4);
-            id = "6100002008000001";
-            if ((exoSocket = SocketBound.FindSocket(id)) == null)
+            string name2 = osip.URI.ToString(pFrom.url);
+            string resId = name.Substring(4, name.IndexOf('@') - 4);
+            string userId = name2.Substring(4, name2.IndexOf('@') - 4);
+            //id = "6100002008000001";
+            if ((exoSocket = SocketBound.FindSocket(resId.Substring(0, 6))) == null)//*问题*不应该执行if里面的语句。此处之所以找不到对应的套接字，主要是因为CU这边连接的套接字没有加入SocketBound对象的表中
             {
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
                 eXosip.Unlock();
                 return;
             }
-            Request = InterfaceC.StartMediaReq("", "", "", "1", "0", "", "", "1");
+
+            Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
             temp = SocketBound.FindSipSocket(exoSocket);
             temp.Send(Request);
             System.Timers.Timer timer = new System.Timers.Timer(5000);
@@ -256,11 +265,11 @@ namespace TrainStationServer
                     "m=audio {4} TCP PCMA\r\n" +
                     "a=setup:passive\r\n" +
                     "a=connection:new\r\n",
-                    id,
+                    resId,
                     sessionId,
                     sessionVersion,
-                    "192.168.1.100",
-                    "8888");
+                    result[1],
+                    result[2]);
                 osip.Message.SetBody(answer, tmp);
                 osip.Message.SetContentType(answer, "application/sdp");
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 200, answer);
@@ -289,12 +298,16 @@ namespace TrainStationServer
             //    eXosip.Unlock();
             //    return;
             //}
-            osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
-            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
+            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
+            osip.URI uriTo = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            osip.URI uriFrom = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pFrom.url), typeof(osip.URI));
             string name = osip.URI.ToString(pTo.url);
-            string id = name.Substring(4, name.IndexOf('@') - 4);
-            id = "6100002008000001";
-            if ((exoSocket = SocketBound.FindSocket(id)) == null)
+            string name2 = osip.URI.ToString(pFrom.url);
+            string resId = name.Substring(4, name.IndexOf('@') - 4);
+            string userId = name2.Substring(4, name2.IndexOf('@') - 4);
+            //userId = "6101012008000001 ";
+            if ((exoSocket = SocketBound.FindSocket(resId.Substring(0, 6))) == null)
             {
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
                 eXosip.Unlock();
@@ -309,10 +322,61 @@ namespace TrainStationServer
             Console.Write(xml);
             /*----------------------------分割线-----------------------------*/
             TempDoc.LoadXml(xml);
-            Request = InterfaceC.Translate(TempDoc);//提取参数并转为C类接口格式
+            Request = InterfaceC.Translate(TempDoc, resId, userId);//提取参数并转为C类接口格式
             SocketBound.CleanResult(exoSocket);
             temp = SocketBound.FindSipSocket(exoSocket);
-            temp.Send(Request);
+            temp.Send(Request); 
+        }
+
+        void osipMessage(eXosip.Event eXosipEvent)
+        {
+            IntPtr ptr;
+            XmlDocument TempDoc = new XmlDocument();
+            XmlDocument Request;
+            Socket exoSocket;
+            SipSocket temp;
+            ptr = osip.Message.GetContentType(eXosipEvent.request);
+            if (ptr == IntPtr.Zero) return;
+            osip.ContentType content = (osip.ContentType)Marshal.PtrToStructure(ptr, typeof(osip.ContentType));
+            ptr = osip.Message.GetBody(eXosipEvent.request);
+            if (ptr == IntPtr.Zero) return;
+
+            //eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
+            //IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
+            //if (sdp == IntPtr.Zero)
+            //{
+            //    eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
+            //    eXosip.Unlock();
+            //    return;
+            //}
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
+            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
+            osip.URI uriTo = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            osip.URI uriFrom = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pFrom.url), typeof(osip.URI));
+            string name = osip.URI.ToString(pTo.url);
+            string name2 = osip.URI.ToString(pFrom.url);
+            string resId = name.Substring(4, name.IndexOf('@') - 4);
+            string userId = name2.Substring(4, name2.IndexOf('@') - 4);
+            //userId = "6101012008000001 ";
+            if ((exoSocket = SocketBound.FindSocket(resId.Substring(0, 6))) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+
+            osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
+            if (Marshal.PtrToStringAnsi(content.type) != "application" ||
+                Marshal.PtrToStringAnsi(content.subtype) != "xml")
+                return;
+            string xml = Marshal.PtrToStringAnsi(data.body);
+            Console.Write(xml);
+            /*----------------------------分割线-----------------------------*/
+            TempDoc.LoadXml(xml);
+            Request = InterfaceC.Translate(TempDoc, resId, userId);//提取参数并转为C类接口格式
+            //SocketBound.CleanResult(exoSocket);
+            //temp = SocketBound.FindSipSocket(exoSocket);
+            //temp.Send(Request); 
         }
 
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用

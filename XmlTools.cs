@@ -120,7 +120,8 @@ namespace TrainStationServer
             XmlNodeList nodeList = doc.GetElementsByTagName(nodeName);
             foreach(XmlElement temp in nodeList)
             {
-                result[i++] = temp.GetAttribute(attributeName[i]);
+                for (i = 0; i < attributeName.Length; i++)
+                    result[i] = temp.GetAttribute(attributeName[i]);
             }
             return result;
         }
