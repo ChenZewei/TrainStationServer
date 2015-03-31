@@ -30,11 +30,11 @@ namespace TrainStationServer
             XmlElement root;
             XmlNodeList nodeList;
 
-            FileStream sendbuf = new FileStream("D://recieve.txt", FileMode.OpenOrCreate, FileAccess.Write);
-            sendbuf.Close();
-            sendbuf = new FileStream("D://recieve.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
-            sendbuf.Close();
+            //FileStream sendbuf = new FileStream("D://recieve.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            //sendbuf.Close();
+            //sendbuf = new FileStream("D://recieve.txt", FileMode.Append, FileAccess.Write);
+            //sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
+            //sendbuf.Close();
 
             root = doc.DocumentElement;
             nodeList = doc.GetElementsByTagName("request");
@@ -183,14 +183,23 @@ namespace TrainStationServer
         public static XmlDocument Translate(XmlDocument doc)
         {
             XmlDocument request = new XmlDocument();
-            XmlNode node = doc.SelectSingleNode("//");
-            switch(node.Name)
+            XmlNode node;
+            try
             {
-                case "ControlPTZ":
-                    request = ControlPTZTranslate(doc);
-                    break;
-                default:
-                    break;
+                node = doc.SelectSingleNode("//*");
+                switch (node.Name)
+                {
+                    case "PTZControl"://收到的信息为PTZControl
+                        request = ControlPTZTranslate(doc);
+                        break;
+                    default:
+                        break;
+                }
+                
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex);
             }
             return request;
         }
@@ -284,7 +293,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
-            Response.Save("D://SaKeepAlive-request.xml");
+            //Response.Save("D://SaKeepAlive-request.xml");
 
             return Response;
         }
@@ -928,14 +937,41 @@ namespace TrainStationServer
 
             return Request;
         }
+        public static XmlDocument ControlPTZ(string userLevel, string cmd, string param)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Request = XmlOp.XmlCreate();
+            //*测试*直接对resId，userId，speed赋值
+            string resId = "1111111", userId = "22222222", speed = "7777";
+            XmlOp.ElementAdd(Request, null, "request");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ControlPTZ");
+            XmlOp.ElementAdd(Request, "request", "parameters");
+            XmlOp.ElementAdd(Request, "parameters", "resId");//test
+            XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
+            XmlOp.ElementAdd(Request, "parameters", "userId");//test
+            XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
+            XmlOp.ElementAdd(Request, "parameters", "userLevel");
+            XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
+            XmlOp.ElementAdd(Request, "parameters", "cmd");
+            XmlOp.SetNodeInnerText(Request, "cmd", 0, cmd);
+            XmlOp.ElementAdd(Request, "parameters", "param");
+            XmlOp.SetNodeInnerText(Request, "param", 0, param);
+            XmlOp.ElementAdd(Request, "parameters", "speed");
+            XmlOp.SetNodeInnerText(Request, "speed", 0, speed);
+            Request.Save("D://ControlPTZ-response.xml");
+
+            return Request;
+        }
 
         public static XmlDocument ControlPTZTranslate(XmlDocument doc)
         {
             XmlTools XmlOp = new XmlTools();
             string[] parameters;
-            string[] paraNames = { "resId", "userId", "userLevel", "cmd", "param", "speed" };
-            parameters = XmlOp.GetAttribute(doc, "ControlPTZ", paraNames);
-            return ControlPTZ(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);
+            //string[] paraNames = { "resId", "userId", "userLevel", "cmd", "param", "speed" };//原
+            string[] paraNames = { "level", "cmd", "parameter"};
+            parameters = XmlOp.GetAttribute(doc, "PTZControl", paraNames);
+            //return ControlPTZ(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);//原
+            return ControlPTZ(parameters[0], parameters[1], parameters[2]);
         }
         #endregion
 

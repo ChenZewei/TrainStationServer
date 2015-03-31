@@ -79,3 +79,17 @@ C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\D
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.g.resources
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.Properties.Resources.resources
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\bin\Debug\TrainStationServer.exe.config
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer.exe
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer.pdb
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\bin\Debug\TrainStationServer.exe
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\bin\Debug\TrainStationServer.pdb
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\bin\Debug\MySql.Data.Entity.dll
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer.csprojResolveAssemblyReference.cache
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\MainWindow.baml
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\MainWindow.g.cs
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\App.g.cs
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer_MarkupCompile.cache
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer.g.resources
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer.Properties.Resources.resources
+E:\Project\C#\成都铁路综合监控系统项目\TrainStationServer-SipSocket\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache

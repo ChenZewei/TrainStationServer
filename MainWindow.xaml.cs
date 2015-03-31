@@ -113,14 +113,14 @@ namespace TrainStationServer
                 state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 int i = state.socket.EndReceive(ar);
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
-                SocketBound.Add(state.socket, new SIPTools(state.recv, i));
+                SocketBound.Add(state.socket, new SIPTools(state.recv, i));//将新连接的套接字放入SocketBound对象的sipsocket列表中
                 string[] result;
-                Doc = SIPTools.XmlExtract(recv, i);
+                Doc = SIPTools.XmlExtract(recv, i);//去Sip头
                 if (Doc == null)
                     return;
                 if (InterfaceC.IsRequest(Doc))
                 {
-                    sendbuffer = SocketBound.FindSip(testsocket).SIPRequest(InterfaceC.Request(Doc));
+                    sendbuffer = SocketBound.FindSip(testsocket).SIPRequest(InterfaceC.Request(Doc));//处理请求消息并返回string格式的响应消息(Sip+Xml)
                     state.send = Encoding.GetEncoding("GB2312").GetBytes(sendbuffer);
                     state.socket.Send(state.send);
                 }
@@ -205,9 +205,9 @@ namespace TrainStationServer
             osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
             osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
             string name = osip.URI.ToString(pTo.url);
-            string id = name.Substring(4, name.IndexOf('@') - 4);
-            id = "6100002008000001";
-            if ((exoSocket = SocketBound.FindSocket(id)) == null)
+            string id = name.Substring(4, name.IndexOf('@') - 4);//仅需判断前六位号
+            //goto loop;
+            if ((exoSocket = SocketBound.FindSocket(id.Substring(0,6))) == null)//*问题*不应该执行if里面的语句。此处之所以找不到对应的套接字，主要是因为CU这边连接的套接字没有加入SocketBound对象的表中
             {
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
                 eXosip.Unlock();
@@ -238,6 +238,7 @@ namespace TrainStationServer
                 eXosip.Unlock();
                 return;
             }
+            //loop:
             string sessionId = osip.SdpMessage.GetSessionId(sdp);
             string sessionVersion = osip.SdpMessage.GetSessionVersion(sdp);
             IntPtr answer = eXosip.Call.BuildAnswer(eXosipEvent.tid, 200);
@@ -281,20 +282,12 @@ namespace TrainStationServer
             ptr = osip.Message.GetBody(eXosipEvent.request);
             if (ptr == IntPtr.Zero) return;
 
-            //eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
-            //IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
-            //if (sdp == IntPtr.Zero)
-            //{
-            //    eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
-            //    eXosip.Unlock();
-            //    return;
-            //}
-            osip.From pTo = osip.Message.GetTo(eXosipEvent.response);
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
             osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
             string name = osip.URI.ToString(pTo.url);
             string id = name.Substring(4, name.IndexOf('@') - 4);
-            id = "6100002008000001";
-            if ((exoSocket = SocketBound.FindSocket(id)) == null)
+            //id = "6100002008000001";
+            if ((exoSocket = SocketBound.FindSocket(id.Substring(0, 6))) == null)
             {
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
                 eXosip.Unlock();
@@ -310,9 +303,10 @@ namespace TrainStationServer
             /*----------------------------分割线-----------------------------*/
             TempDoc.LoadXml(xml);
             Request = InterfaceC.Translate(TempDoc);//提取参数并转为C类接口格式
-            SocketBound.CleanResult(exoSocket);
+            
             temp = SocketBound.FindSipSocket(exoSocket);
             temp.Send(Request);
+            SocketBound.CleanResult(exoSocket);
         }
 
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用

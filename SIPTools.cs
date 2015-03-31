@@ -21,7 +21,7 @@ namespace TrainStationServer
 
         public SIPTools(byte[] buffer, int bufferlen)
         {
-            Id = GetSIPInfo(buffer, bufferlen, "sip").Substring(0,16);
+            Id = GetSIPInfo(buffer, bufferlen, "sip")/*.Substring(0,16)*/;
             To = GetSIPInfo(buffer, bufferlen, "From");
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
@@ -32,10 +32,12 @@ namespace TrainStationServer
             From = from;
             CSeq = cseq;
         }
-        public string SIPRequest(XmlDocument doc)
+
+        public string SIPRequest(XmlDocument doc)//为请求消息加上Sip头
         {
             string sendBuffer = "";
-            sendBuffer += "SIP/2.0 200 OK\r\n";
+            sendBuffer += "SIP/2.0 200 OK\r\n";//原
+            //sendBuffer += "INVIT sip:XX SIP/2.0\r\n";
             sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
             sendBuffer += "To:" + To + "\r\n";
             sendBuffer += "From:" + From + "\r\n";
@@ -60,7 +62,7 @@ namespace TrainStationServer
             sendBuffer += doc.OuterXml;
             return sendBuffer;
         }
-        public string SIPResponse(XmlDocument doc)
+        public string SIPResponse(XmlDocument doc)//为响应消息加上Sip头
         {
             string sendBuffer = "";
             sendBuffer += "SIP/2.0 200 OK\r\n";
@@ -103,7 +105,7 @@ namespace TrainStationServer
                 {
                     if (buffer[bufferlen - j] != '0' && buffer[bufferlen - j] != '\0')
                     {
-                        strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j));
+                        strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j+1));
                         break;
                     }
                 }

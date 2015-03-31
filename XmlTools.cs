@@ -118,10 +118,15 @@ namespace TrainStationServer
             int i = 0;
             XmlNode node = doc.SelectSingleNode("//" + nodeName);
             XmlNodeList nodeList = doc.GetElementsByTagName(nodeName);
-            foreach(XmlElement temp in nodeList)
+            //foreach(XmlElement temp in nodeList)
+            //{
+            //    result[i++] = temp.GetAttribute(attributeName[i]);
+            //}//原
+            for (; i < attributeName.Length; i++)
             {
-                result[i++] = temp.GetAttribute(attributeName[i]);
+                result[i] = node.Attributes[i].Value.ToString();
             }
+            
             return result;
         }
     }

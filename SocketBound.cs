@@ -30,21 +30,19 @@ namespace TrainStationServer
             sipsocket.Add(temp);
         }
 
-        public static Socket FindSocket(string id)
+        public static Socket FindSocket(string prefix)//确认sipsocket列表中是否已经存在指定id的Socket
         {
             foreach (SipSocket temp in sipsocket)
             {
-                if (temp.sip.Id.Equals(id))
+               if (temp.sip.Id.StartsWith(prefix))
                 {
                     return temp.socket;
-                }
-                else
-                    return null; 
+                } 
             }
-                return null;
+            return null;
         }
 
-        public static SIPTools FindSip(Socket socket)
+        public static SIPTools FindSip(Socket socket)//确认sipsocket列表中是否已经存在指定id的SIPTools
         {
             foreach (SipSocket temp in sipsocket)
             {
@@ -72,7 +70,7 @@ namespace TrainStationServer
             return null;
         }
 
-        public static SipSocket FindSipSocket(string id)
+        public static SipSocket FindSipSocket(string id)//寻找sipsocket列表中与id相同的SipSocket对象
         {
             foreach (SipSocket temp in sipsocket)
             {
@@ -119,7 +117,7 @@ namespace TrainStationServer
             return null;
         }
 
-        public static void CleanResult(Socket socket)
+        public static void CleanResult(Socket socket)//清除
         {
             foreach (SipSocket temp in sipsocket)
             {
