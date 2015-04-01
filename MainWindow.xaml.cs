@@ -79,7 +79,7 @@ namespace TrainStationServer
             stateobject mainObject = new stateobject();
             //mainSocket = new SipSocket(socket);
             mainObject.socket = socket;
-            socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
+            socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);//开启异步监听委托，仍然是一个委托程序只处理一个连接请求
             Result.AppendText("Start listening...\r\n");
             exosip = new eXosip();
             snoopThread = new Thread(Snoop);
@@ -173,6 +173,7 @@ namespace TrainStationServer
                         osipCallMessage(eXosipEvent);
                         break;
                     case eXosip.EventType.EXOSIP_CALL_CLOSED:
+                        osipCallClose(eXosipEvent);
                         break;
                     default:
                         break;
@@ -182,6 +183,39 @@ namespace TrainStationServer
             }
             eXosip.Quit();
 
+        }
+
+        void osipCallClose(eXosip.Event eXosipEvent)
+        {
+            IntPtr ptr;
+            XmlDocument Request;
+            Socket exoSocket;
+            SipSocket temp;
+            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
+            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            string name = osip.URI.ToString(pTo.url);
+            string id = name.Substring(4, name.IndexOf('@') - 4);
+            if ((exoSocket = SocketBound.FindSocket(id.Substring(0, 6))) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            /*----------------------------分割线-----------------------------*/
+            Request = InterfaceC.StopMediaReq("aaaaaaa","11111111","sad");//提取参数并转为C类接口格式
+
+            temp = SocketBound.FindSipSocket(exoSocket);
+            try
+            {
+                temp.Send(Request);
+            }
+            catch (SocketException ex)
+            {
+                System.Console.WriteLine(ex);
+            }
+            
+            SocketBound.CleanResult(exoSocket);
         }
 
         private void osipCallInvite(eXosip.Event eXosipEvent)
@@ -213,7 +247,20 @@ namespace TrainStationServer
                 eXosip.Unlock();
                 return;
             }
-            Request = InterfaceC.StartMediaReq("", "", "", "1", "0", "", "", "1");
+            string sessionname = osip.SdpMessage.GetSessionName(sdp);
+            //以下的接口中的数据均为伪造，未测试版本，缺失提取Xml信息的步骤
+            if (sessionname == "RealTime")
+            {
+                Request = InterfaceC.StartMediaReq("", "", "", "1", "0", "", "", "1");
+            }
+            else if (sessionname == "PlayBack")
+            {
+                Request = InterfaceC.StartPlayBack("1111111", "1111111", "1111111", "1990-03-22 22:33:22", "1990-03-22 23:33:22", 0, "192.168.1.1", "15000", 1, 0);
+            }
+            else //if (sessionname == "DownLoad")
+            {
+                Request = InterfaceC.StartHisLoad("1111111", "1111111", "1111111", "1990-03-22 22:33:22", "1990-03-22 23:33:22", 0, "192.168.1.1", "15000", 1, 0);//测试
+            }
             temp = SocketBound.FindSipSocket(exoSocket);
             temp.Send(Request);
             System.Timers.Timer timer = new System.Timers.Timer(5000);
@@ -244,24 +291,71 @@ namespace TrainStationServer
             IntPtr answer = eXosip.Call.BuildAnswer(eXosipEvent.tid, 200);
             if (answer != IntPtr.Zero)
             {
-                string tmp = string.Format(
-                    "v=0\r\n" +
-                    "o={0} {1} {2} IN IP4 {3}\r\n" +
-                    "s=RealTime\r\n" +
-                    "c=IN IP4 {3}\r\n" +
-                    "t=0 0\r\n" +
-                    "a=sendonly\r\n" +
-                    "m=video {4} TCP H264\r\n" +
-                    "a=setup:passive\r\n" +
-                    "a=connection:new\r\n" +
-                    "m=audio {4} TCP PCMA\r\n" +
-                    "a=setup:passive\r\n" +
-                    "a=connection:new\r\n",
-                    id,
-                    sessionId,
-                    sessionVersion,
-                    "192.168.1.100",
-                    "8888");
+                string tmp;
+                if (sessionname == "RealTime")
+                {
+                    tmp = string.Format(
+                       "v=0\r\n" +
+                       "o={0} {1} {2} IN IP4 {3}\r\n" +
+                       "s=RealTime\r\n" +
+                       "c=IN IP4 {3}\r\n" +
+                       "t=0 0\r\n" +
+                       "a=sendonly\r\n" +
+                       "m=video {4} TCP H264\r\n" +
+                       "a=setup:passive\r\n" +
+                       "a=connection:new\r\n" +
+                       "m=audio {4} TCP PCMA\r\n" +
+                       "a=setup:passive\r\n" +
+                       "a=connection:new\r\n",
+                       id,
+                       sessionId,
+                       sessionVersion,
+                       "192.168.1.100",
+                       "8888");
+                }
+                else if (sessionname == "PlayBack")
+                {
+                    tmp = string.Format(
+                       "v=0\r\n" +
+                       "o={0} {1} {2} IN IP4 {3}\r\n" +
+                       "s=PlayBack\r\n" +
+                       "c=IN IP4 {3}\r\n" +
+                       "t=0 0\r\n" +
+                       "a=sendonly\r\n" +
+                       "m=video {4} TCP H264\r\n" +
+                       "a=setup:passive\r\n" +
+                       "a=connection:new\r\n" +
+                       "m=audio {4} TCP PCMA\r\n" +
+                       "a=setup:passive\r\n" +
+                       "a=connection:new\r\n",
+                       id,
+                       sessionId,
+                       sessionVersion,
+                       "192.168.1.100",
+                       "8888");
+                }
+                else
+                {
+                    tmp = string.Format(
+                       "v=0\r\n" +
+                       "o={0} {1} {2} IN IP4 {3}\r\n" +
+                       "s=DownLoad\r\n" +
+                       "c=IN IP4 {3}\r\n" +
+                       "t=0 0\r\n" +
+                       "a=sendonly\r\n" +
+                       "m=video {4} TCP H264\r\n" +
+                       "a=setup:passive\r\n" +
+                       "a=connection:new\r\n" +
+                       "m=audio {4} TCP PCMA\r\n" +
+                       "a=setup:passive\r\n" +
+                       "a=connection:new\r\n",
+                       id,
+                       sessionId,
+                       sessionVersion,
+                       "192.168.1.100",
+                       "8888");
+                }
+                
                 osip.Message.SetBody(answer, tmp);
                 osip.Message.SetContentType(answer, "application/sdp");
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 200, answer);
