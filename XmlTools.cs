@@ -111,5 +111,19 @@ namespace TrainStationServer
             }
             return list;
         }
+
+        public string[] GetAttribute(XmlDocument doc, string nodeName, string[] attributeName)
+        {
+            string[] result = new string[attributeName.Length];
+            int i = 0;
+            XmlNode node = doc.SelectSingleNode("//" + nodeName);
+            XmlNodeList nodeList = doc.GetElementsByTagName(nodeName);
+            foreach(XmlElement temp in nodeList)
+            {
+                for (i = 0; i < attributeName.Length; i++)
+                    result[i] = temp.GetAttribute(attributeName[i]);
+            }
+            return result;
+        }
     }
 }

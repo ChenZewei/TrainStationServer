@@ -10,9 +10,9 @@ namespace TrainStationServer
     {
         private static IntPtr eXosipContext = IntPtr.Zero;
 
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_malloc();
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_init(IntPtr context);
         public static void Init()
         {
@@ -21,7 +21,7 @@ namespace TrainStationServer
             int i = eXosip_init(eXosipContext);
             osip.ThrowException(i);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static void eXosip_quit(IntPtr context);
         public static void Quit() 
         {
@@ -31,7 +31,7 @@ namespace TrainStationServer
                 eXosipContext = IntPtr.Zero;
             }
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_set_option(IntPtr excontext, EXOSIP_OPT opt, IntPtr value);
         public enum EXOSIP_OPT
         {
@@ -43,34 +43,34 @@ namespace TrainStationServer
             osip.ThrowException(i);
         }
         
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_lock(IntPtr context);
         public static void Lock() 
         {
             int i = eXosip_lock(eXosipContext);
             osip.ThrowException(i);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_unlock(IntPtr context);
         public static void Unlock() 
         {
             int i = eXosip_unlock(eXosipContext);
             osip.ThrowException(i);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static void eXosip_automatic_action(IntPtr context);
         public static void AutomaticAction() 
         {
             eXosip_automatic_action(eXosipContext);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_default_action(IntPtr context, IntPtr je);
         public static void DefaultAction(IntPtr je) 
         {
             int i = eXosip_default_action(eXosipContext, je);
             //osip.ThrowException(i);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_guess_localip(IntPtr context, AddressFamily family, StringBuilder address, int size);
         public static string GuessLocalIP(AddressFamily family) 
         { 
@@ -79,82 +79,82 @@ namespace TrainStationServer
             osip.ThrowException(i);
             return localIP.ToString();
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_listen_addr(IntPtr context, ProtocolType transport, string addr, int port, AddressFamily family, int secure);
         public static void ListenAddr(ProtocolType transport, string addr, int port, AddressFamily family, int secure) 
         { 
             int i = eXosip_listen_addr(eXosipContext, transport,addr,port,family,secure);
             osip.ThrowException(i);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_add_authentication_info(IntPtr context, string username, string userid, string passwd, string ha1, string realm);
         public static void AddAuthenticationInfo(string username, string userid, string passwd, string ha1, string realm)
         { 
             int i = eXosip_add_authentication_info(eXosipContext, username, userid, passwd, ha1, realm);
             osip.ThrowException(i);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_clear_authentication_info(IntPtr context);
         public static void ClearAuthenticationInfo()
         {
             int i = eXosip_clear_authentication_info(eXosipContext);
             osip.ThrowException(i);      
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_local_sdp(IntPtr context, int did);
         public static IntPtr GetLocalSdp(int did)
         {
             return eXosip_get_local_sdp(eXosipContext, did);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_remote_sdp(IntPtr context, int did);
         public static IntPtr GetRemoteSdp(int did)
         {
             return eXosip_get_remote_sdp(eXosipContext, did);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_remote_sdp_from_tid(IntPtr context, int tid);
         public static IntPtr GetRemoteSdpFromTid(int tid)
         {
             return eXosip_get_remote_sdp_from_tid(eXosipContext, tid);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_video_connection(IntPtr sdp);
         public static IntPtr GetVideoConnection(IntPtr sdp)
         {
             return eXosip_get_video_connection(sdp);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_video_media(IntPtr sdp);
         public static IntPtr GetVideoMedia(IntPtr sdp)
         {
             return eXosip_get_video_media(sdp);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_audio_connection(IntPtr sdp);
         public static IntPtr GetAudioConnection(IntPtr sdp)
         {
             return eXosip_get_audio_connection(sdp);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_audio_media(IntPtr sdp);
         public static IntPtr GetAudioMedia(IntPtr sdp)
         {
             return eXosip_get_audio_media(sdp);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_media(IntPtr sdp, string media);
         public static IntPtr GetMedia(IntPtr sdp, string media)
         {
             return eXosip_get_media(sdp, media);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static IntPtr eXosip_get_connection(IntPtr sdp, string media);
         public static IntPtr GetConnection(IntPtr sdp, string media)
         {
             return eXosip_get_connection(sdp, media);
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_build_publish(IntPtr context, out IntPtr message, string to, string from, string route, string _event, string expires, string ctype, string body);
         public static IntPtr BuildPublish(string to, string from, string route, string _event, string expires, string ctype, string body)
         {
@@ -163,7 +163,7 @@ namespace TrainStationServer
             osip.ThrowException(i);
             return pub;
         }
-        [DllImport("eXosip.dll")]
+        [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static int eXosip_publish(IntPtr context, IntPtr message, string to);
         public static void Publish(IntPtr message, string to)
         {
@@ -269,19 +269,19 @@ namespace TrainStationServer
             public int ss_status;  /**< current Subscription-State for subscription */
             public int ss_reason;  /**< current Reason status for subscription */
 
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr eXosip_event_wait(IntPtr context, int tv_s, int tv_ms);
             public static IntPtr Wait(int tv_s, int tv_ms)
             {
                 return eXosip_event_wait(eXosipContext, tv_s, tv_ms);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr eXosip_event_get(IntPtr context);
             public static IntPtr Get()
             {
                 return eXosip_event_get(eXosipContext);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static void eXosip_event_free(IntPtr je);
             public static void Free(IntPtr je)
             {
@@ -298,7 +298,7 @@ namespace TrainStationServer
             private static string _contact;
             private static IntPtr reg;
 
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_register_build_initial_register(IntPtr context, string from, string proxy, string contact, int expires, out IntPtr reg);
             public static int BuildInitialRegister(string from, string proxy, string contact, int expires, out IntPtr reg)
             {
@@ -306,7 +306,7 @@ namespace TrainStationServer
                 //osip.ThrowException(i);
                 return i;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_register_build_register(IntPtr context, int rid, int expires, out IntPtr reg);
             public static IntPtr BuildRegister(int rid, int expires)
             {
@@ -315,14 +315,14 @@ namespace TrainStationServer
                 //osip.ThrowException(i);
                 return reg;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_register_send_register(IntPtr context, int rid, IntPtr reg);
             public static void SendRegister(int rid, IntPtr reg)
             {
                 int i = eXosip_register_send_register(eXosipContext, rid, reg);
                 //osip.ThrowException(i);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_register_remove(IntPtr context, int rid);
             public static void Initialize(string from, string proxy, string contact, int expires)
             {
@@ -358,7 +358,7 @@ namespace TrainStationServer
         }
         public static class Option
         { 
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_options_build_request(IntPtr context, out IntPtr options, string to,string from, string route);
             public static IntPtr BuildRequest(string to, string from, string route)
             {
@@ -366,7 +366,7 @@ namespace TrainStationServer
                 eXosip_options_build_request(eXosipContext, out opt, to, from, route);
                 return opt;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_options_send_request(IntPtr context, IntPtr options);
             public static void SendRequest(IntPtr opt)
             {
@@ -375,7 +375,7 @@ namespace TrainStationServer
         }
         public static class Call
         {
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_initial_invite(IntPtr context, out IntPtr invite, string to, string from, string route, string subject);
             public static IntPtr BuildInitialInvite(string to, string from, string route, string subject)
             {
@@ -384,7 +384,7 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return invite;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_send_initial_invite(IntPtr context, IntPtr invite);
             public static int SendInitialInvite(IntPtr invite)
             {
@@ -392,14 +392,14 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return i;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_set_reference(IntPtr context, int id, IntPtr reference);
             public static void SetReference(int id, IntPtr reference)
             {
                 int i = eXosip_call_set_reference(eXosipContext, id, reference);
                 osip.ThrowException(i);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_answer(IntPtr context, int tid, int status, out IntPtr answer);
             public static IntPtr BuildAnswer(int tid, int status)
             {
@@ -408,14 +408,14 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return answer;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_send_answer(IntPtr context, int tid, int status, IntPtr answer);
             public static void SendAnswer(int tid, int status, IntPtr answer)
             {
                 int i = eXosip_call_send_answer(eXosipContext, tid, status, answer);
                 osip.ThrowException(i);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_ack(IntPtr context, int did, out IntPtr ack);
             public static IntPtr BuildAck(int did)
             {
@@ -424,7 +424,7 @@ namespace TrainStationServer
                 //osip.ThrowException(i);
                 return ack;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_info(IntPtr context, int did, out IntPtr request);
             public static IntPtr BuildInfo(int did)
             {
@@ -433,7 +433,7 @@ namespace TrainStationServer
                 //osip.ThrowException(i);
                 return info;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_options(IntPtr context, int did, out IntPtr request);
             public static IntPtr BuildOptions(int did)
             {
@@ -442,7 +442,7 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return opt;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_update(IntPtr context, int did, out IntPtr request);
             public static IntPtr BuildUpdate(int did)
             {
@@ -451,21 +451,21 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return update;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_send_ack(IntPtr context, int did, IntPtr ack);
             public static void SendAck(int did, IntPtr ack)
             {
                 int i = eXosip_call_send_ack(eXosipContext, did, ack);
                 osip.ThrowException(i);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_send_request(IntPtr context, int did, IntPtr request);
             public static void SendRequest(int did, IntPtr request)
             {
                 int i = eXosip_call_send_request(eXosipContext, did, request);
                 osip.ThrowException(i);
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_terminate(IntPtr context, int cid, int did);
             public static void Terminate(int cid, int did)
             {
@@ -474,7 +474,7 @@ namespace TrainStationServer
         }
         public static class Message
         {
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_message_build_request(IntPtr context, out IntPtr message, string method, string to, string from, string route);
             public static IntPtr BuildRequest(string method, string to, string from, string route)
             {
@@ -483,7 +483,7 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return msg;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_message_send_request(IntPtr context, IntPtr message);
             public static void SendRequest(IntPtr message)
             {
@@ -493,7 +493,7 @@ namespace TrainStationServer
         }
         public static class Subscribe
         {
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_subscribe_build_initial_request(IntPtr context, out IntPtr subscribe, string to, string from, string route, string evt, int expires);
             public static IntPtr BuildInitialRequest(string to, string from, string route, string evt, int expires)
             {
@@ -503,7 +503,7 @@ namespace TrainStationServer
                 osip.ThrowException(i);
                 return subscribe;
             }
-            [DllImport("eXosip.dll")]
+            [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_subscribe_send_initial_request(IntPtr context, IntPtr subscribe);
             public static void SendInitialRequest(IntPtr subscribe)
             {
@@ -547,14 +547,14 @@ namespace TrainStationServer
 
         public class Message
         {
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_set_contact(IntPtr sip, string hvalue);
             public static void SetContact(IntPtr sip, string hvalue)
             {
                 int i = osip_message_set_contact(sip, hvalue);
                 if (i < 0) throw new Exception(((Error)i).ToString());
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_get_contact(IntPtr sip, int pos, out IntPtr dest);
             public static IntPtr GetContact(IntPtr sip)
             {
@@ -563,7 +563,7 @@ namespace TrainStationServer
                 if (i < 0) throw new Exception(((Error)i).ToString());
                 return ptr;         
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_get_body(IntPtr sip, int pos, out IntPtr dest);
             public static IntPtr GetBody(IntPtr sip)
             {
@@ -571,27 +571,27 @@ namespace TrainStationServer
                 osip_message_get_body(sip, 0, out ptr);
                 return ptr;
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_set_body(IntPtr sip, string buf, uint length);
             public static void SetBody(IntPtr sip, string buf)
             {
                 int i = osip_message_set_body(sip, buf, (uint)Encoding.UTF8.GetByteCount(buf));
                 if (i < 0) throw new Exception(((Error)i).ToString());
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_set_content_type(IntPtr sip, string hvalue);
             public static void SetContentType(IntPtr sip, string hvalue)
             {
                 int i = osip_message_set_content_type(sip, hvalue);
                 if (i < 0) throw new Exception(((Error)i).ToString());
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr osip_message_get_content_type(IntPtr sip);
             public static IntPtr GetContentType(IntPtr sip)
             {
                 return osip_message_get_content_type(sip);
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_to_str(IntPtr sip, out IntPtr dest, out uint message_length);
             public static string ToString(IntPtr sip)
             {
@@ -603,14 +603,14 @@ namespace TrainStationServer
                 osip_free(ptr);
                 return str;
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_set_header(IntPtr sip, string hname, string hvalue);
             public static void SetHeader(IntPtr sip, string hname, string hvalue)
             {
                 int i = osip_message_set_header(sip, hname, hvalue);
                 if (i < 0) throw new Exception(((Error)i).ToString());
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_get_status_code(IntPtr sip);
             public static int GetStatusCode(IntPtr sip)
             {
@@ -618,34 +618,34 @@ namespace TrainStationServer
                 if (i < 0) throw new Exception(((Error)i).ToString());
                 return i;
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr osip_message_get_method(IntPtr sip);
             public static string GetMethod(IntPtr sip)
             {
                 return Marshal.PtrToStringAnsi(osip_message_get_method(sip));
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr osip_message_get_uri(IntPtr sip);
             public static URI GetURI(IntPtr sip)
             {
                 IntPtr ptr = osip_message_get_uri(sip);
                 return (URI)Marshal.PtrToStructure(ptr, typeof(URI));
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr osip_message_get_to(IntPtr sip);
             public static From GetTo(IntPtr sip)
             {
                 IntPtr ptr = osip_message_get_to(sip);
                 return (From)Marshal.PtrToStructure(ptr, typeof(From));
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr osip_message_get_from(IntPtr sip);
             public static From GetFrom(IntPtr sip)
             {
                 IntPtr ptr = osip_message_get_from(sip);
                 return (From)Marshal.PtrToStructure(ptr, typeof(From));
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_message_header_get_byname(IntPtr sip, string hname, int pos, out IntPtr dest);
             public static IntPtr GetHeaderByName(IntPtr sip, string hname, int pos)
             {
@@ -657,13 +657,13 @@ namespace TrainStationServer
         }
         public static class SdpMessage
         {
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static void sdp_message_free(IntPtr sdp);
             public static void Free(IntPtr sdp)
             {
                 sdp_message_free(sdp);
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int sdp_message_to_str(IntPtr sdp, out IntPtr dest);
             public static IntPtr ToString(IntPtr sdp)
             {
@@ -671,7 +671,7 @@ namespace TrainStationServer
                 sdp_message_to_str(sdp, out str);
                 return str;
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr sdp_message_s_name_get(IntPtr sdp);
             public static string GetSessionName(IntPtr sdp)
             {
@@ -684,32 +684,32 @@ namespace TrainStationServer
                 }
                 return str;
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static string sdp_message_o_sess_id_get(IntPtr sdp);
             public static string GetSessionId(IntPtr sdp)
             {
                 return sdp_message_o_sess_id_get(sdp);
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static string sdp_message_o_sess_version_get(IntPtr sdp);
             public static string GetSessionVersion(IntPtr sdp)
             {
                 return sdp_message_o_sess_version_get(sdp);
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static string sdp_message_t_start_time_get(IntPtr sdp, int pos_td);
             public static string GetStartTime(IntPtr sdp)
             {
                 return sdp_message_t_start_time_get(sdp, 0);
             }
         }
-        [DllImport("osipparser2.dll")]
+        [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static void osip_free(IntPtr ptr);
         public static void Free(IntPtr ptr)
         {
             osip_free(ptr);
         }
-        [DllImport("osipparser2.dll")]
+        [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
         private extern static void osip_header_free(IntPtr header);
         public static void FreeHeader(IntPtr header)
         {
@@ -738,7 +738,7 @@ namespace TrainStationServer
             public IntPtr url;         /**< url */
             public List gen_params;  /**< other From parameters */
 
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_from_to_str(IntPtr header, out IntPtr dest);
             public static string ToString(IntPtr header)
             {
@@ -752,13 +752,13 @@ namespace TrainStationServer
                 }
                 return str;
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static IntPtr osip_from_get_url(IntPtr header);
             public static IntPtr GetURL(IntPtr header)
             {
                 return osip_from_get_url(header);
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static void osip_from_free(IntPtr header);
             public static void Free(IntPtr header)
             {
@@ -781,13 +781,13 @@ namespace TrainStationServer
             public List url_headers;   /**< Uri headers */
             public IntPtr str;  /**< Space for other url schemes. (http, mailto...) */
 
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static void osip_uri_free(IntPtr uri);
             public static void Free(IntPtr uri)
             {
                 osip_uri_free(uri);
             }
-            [DllImport("osipparser2.dll")]
+            [DllImport("osipparser2.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int osip_uri_to_str(IntPtr url, out IntPtr dest);
             public static string ToString(IntPtr url)
             {

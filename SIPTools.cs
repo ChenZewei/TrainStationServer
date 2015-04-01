@@ -126,7 +126,7 @@ namespace TrainStationServer
                 {
                     infoByte[length] = buffer[index + length];
                     length++;
-                    if (((buffer[index + length] == '\r') && (buffer[index + length + 1] == '\n')) || buffer[index + length] == ' ')
+                    if (((buffer[index + length] == '\r') && (buffer[index + length + 1] == '\n')))
                         break;
                 }
             }
