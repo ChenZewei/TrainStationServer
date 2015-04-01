@@ -13,10 +13,13 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="端口：" FontSize="20" Margin="20,0" HorizontalAlignment="Left" VerticalAlignment="Center"/> 
-            <TextBox Grid.Column="0" Name="Port" Width="60" Height="30" Margin="20,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="0" Name="Combo" HorizontalAlignment="Center" Margin="20,10" VerticalAlignment="Center" Width="120">
+                <ComboBoxItem>StartMediaReq</ComboBoxItem>
+                <ComboBoxItem>StopMediaReq</ComboBoxItem>
+            </ComboBox>
             <Button Grid.Column="1" Name="Test" Width="100" Height="30" Content="Test" Click="Test_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Button Grid.Column="2" Name="Start" Width="100" Height="30" Content="Start" Click="Start_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            
         </Grid>
         <Grid Grid.Row="1">
             <TextBox Name="Result" Margin="20"  TextWrapping="Wrap" AcceptsReturn="True"/>
