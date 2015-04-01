@@ -111,16 +111,13 @@ namespace TrainStationServer
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 SipSocket.Add(state.socket, new SIPTools(state.recv, i));
                 temp = SipSocket.FindSipSocket(state.socket);
-                temp.Send(Doc);
                 string[] result;
                 Doc = SIPTools.XmlExtract(recv, i);
                 if (Doc == null)
                     return;
                 if (InterfaceC.IsRequest(Doc))
                 {
-                    sendbuffer = SipSocket.FindSip(testsocket).SIPRequest(InterfaceC.Request(Doc));
-                    state.send = Encoding.GetEncoding("GB2312").GetBytes(sendbuffer);
-                    state.socket.Send(state.send);
+                    temp.Send(InterfaceC.Request(Doc));
                 }
                 else
                 {
@@ -174,6 +171,7 @@ namespace TrainStationServer
                         osipMessage(eXosipEvent);
                         break;
                     case eXosip.EventType.EXOSIP_CALL_CLOSED:
+                        osipCallClose(eXosipEvent);
                         break;
                     default:
                         break;
@@ -220,7 +218,21 @@ namespace TrainStationServer
                 return;
             }
 
-            Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
+            string sessionname = osip.SdpMessage.GetSessionName(sdp);
+            //以下的接口中的数据均为伪造，未测试版本，缺失提取Xml信息的步骤
+            if (sessionname == "RealTime")
+            {
+                Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
+            }
+            else if (sessionname == "PlayBack")
+            {
+                Request = InterfaceC.StartPlayBack("1111111", "1111111", "1111111", "1990-03-22 22:33:22", "1990-03-22 23:33:22", 0, "192.168.1.1", "15000", 1, 0);
+            }
+            else //if (sessionname == "DownLoad")
+            {
+                Request = InterfaceC.StartHisLoad("1111111", "1111111", "1111111", "1990-03-22 22:33:22", "1990-03-22 23:33:22", 0, "192.168.1.1", "15000", 1, 0);//测试
+            }
+
             temp = SipSocket.FindSipSocket(exoSocket);
             temp.Send(Request);
 
@@ -254,7 +266,7 @@ namespace TrainStationServer
                 string tmp = string.Format(
                     "v=0\r\n" +
                     "o={0} {1} {2} IN IP4 {3}\r\n" +
-                    "s=RealTime\r\n" +
+                    "s={5}\r\n" +
                     "c=IN IP4 {3}\r\n" +
                     "t=0 0\r\n" +
                     "a=sendonly\r\n" +
@@ -268,7 +280,8 @@ namespace TrainStationServer
                     sessionId,
                     sessionVersion,
                     result[1],
-                    result[2]);
+                    result[2],
+                    sessionname);
                 osip.Message.SetBody(answer, tmp);
                 osip.Message.SetContentType(answer, "application/sdp");
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 200, answer);
@@ -361,6 +374,39 @@ namespace TrainStationServer
             //SipSocket.CleanResult(exoSocket);
             //temp = SipSocket.FindSipSocket(exoSocket);
             //temp.Send(Request); 
+        }
+
+        void osipCallClose(eXosip.Event eXosipEvent)
+        {
+            IntPtr ptr;
+            XmlDocument Request;
+            Socket exoSocket;
+            SipSocket temp;
+            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
+            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            string name = osip.URI.ToString(pTo.url);
+            string id = name.Substring(4, name.IndexOf('@') - 4);
+            if ((exoSocket = SipSocket.FindSocket(id.Substring(0, 6))) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            /*----------------------------分割线-----------------------------*/
+            Request = InterfaceC.StopMediaReq("aaaaaaa", "11111111", "sad");//提取参数并转为C类接口格式
+
+            temp = SipSocket.FindSipSocket(exoSocket);
+            try
+            {
+                temp.Send(Request);
+            }
+            catch (SocketException ex)
+            {
+                System.Console.WriteLine(ex);
+            }
+
+            SipSocket.CleanResult(exoSocket);
         }
 
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用

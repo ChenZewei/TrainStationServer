@@ -125,6 +125,21 @@ namespace TrainStationServer
                     case "ResChange":
                         response = ResChange(doc);
                         break;
+                    case "AlarmResListReport":
+                        response = AlarmResListReport(doc);
+                        break;
+                    case "UserResReport":
+                        response = UserResReport(doc);
+                        break;
+                    case "ReportCamResState":
+                        response = ReportCamResState(doc);
+                        break;
+                    case "AlarmResListChange":
+                        response = AlarmResListChange(doc);
+                        break;
+                    case "StartMediaState":
+                        response = StartMediaState(doc);
+                        break;
                     default:
                         response = new XmlDocument();
                         break;
@@ -1013,7 +1028,7 @@ namespace TrainStationServer
         #endregion
 
         #region StartPlayBack
-        public static byte[] StartPlayBack(string resId, string userId, string userLevel, string startTime, string endTime, int linkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
+        public static XmlDocument StartPlayBack(string resId, string userId, string userLevel, string startTime, string endTime, int linkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1043,7 +1058,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
             Request.Save("D://request-StartPlayBack.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] StartPlayBackResponse(XmlDocument Doc)
@@ -1065,7 +1080,7 @@ namespace TrainStationServer
         #endregion
 
         #region StartHisLoad
-        public static byte[] StartHisLoad(string resId, string userId, string userLevel, string startTime, string endTime, int linkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
+        public static XmlDocument StartHisLoad(string resId, string userId, string userLevel, string startTime, string endTime, int linkMode, string targetIpAddr, string targetPort, int flag, int locationFlag)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1095,7 +1110,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
             Request.Save("D://request-StartHisLoad.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] StartHisLoadResponse(XmlDocument Doc)
