@@ -393,7 +393,7 @@ namespace TrainStationServer
                 return;
             }
             /*----------------------------分割线-----------------------------*/
-            Request = InterfaceC.StopMediaReq("aaaaaaa", "11111111", "sad");//提取参数并转为C类接口格式
+            Request = InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0");//提取参数并转为C类接口格式
 
             temp = SipSocket.FindSipSocket(exoSocket);
             try
