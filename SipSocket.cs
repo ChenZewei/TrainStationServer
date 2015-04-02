@@ -58,9 +58,14 @@ namespace TrainStationServer
             return temp;
         }
 
-        public int Send(XmlDocument doc)
+        public int SendRequest(XmlDocument doc)
         {
             return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPRequest(doc)));
+        }
+
+        public int SendResponse(XmlDocument doc)
+        {
+            return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(doc)));
         }
 
         public IAsyncResult BeginAccept(AsyncCallback callback, object obj)

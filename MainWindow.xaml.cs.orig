@@ -80,7 +80,6 @@ namespace TrainStationServer
             snoopThread = new Thread(Snoop);
             snoopThread.IsBackground = true;
             snoopThread.Start();
-            Combo.IsEnabled = true;
         }
         
         private void AsyncAccept(IAsyncResult ar)//异步Accept
@@ -102,6 +101,7 @@ namespace TrainStationServer
             stateobject state = (stateobject)ar.AsyncState;
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
+            string sendbuffer;
             if (state.isClosed)
                 return;
             try
@@ -121,7 +121,7 @@ namespace TrainStationServer
                 }
                 else
                 {
-                    result = InterfaceC.Response(Doc);
+                    result = InterfaceC.Response(state.recv, i);
                     if (result != null)
                     {
                         SipSocket.InsertResult(state.socket, result);
@@ -190,7 +190,7 @@ namespace TrainStationServer
             byte[] recv = new byte[2048];
             XmlDocument Request = new XmlDocument(); ;
             SipSocket temp;
-            System.Timers.Timer timer = new System.Timers.Timer(2000);
+            //string tcpIp, tcpPort;
             string[] result = new string[10];
             eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
             IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
@@ -233,14 +233,25 @@ namespace TrainStationServer
             }
 
             temp = SipSocket.FindSipSocket(exoSocket);
-            SipSocket.CleanResult(exoSocket);
             temp.SendRequest(Request);
-            result = WaitForResult(testsocket, timer, 2000);
 
-            if (result != null)
-                for (int k = 0; k < result.Length; k++)
-                    Console.WriteLine(result[k]);
-            else
+            System.Timers.Timer timer = new System.Timers.Timer(5000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
+            timer.Enabled = true;
+            while (true)
+            {
+                if (timeout)
+                {
+                    timeout = false;
+                    result = null;
+                    break;
+                }
+                if ((result = SipSocket.GetResult(exoSocket)) != null)
+                    break;
+                Thread.Sleep(100);
+            }
+            timer.Enabled = false;
+            if (result == null)
             {
                 eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
                 eXosip.Unlock();
@@ -284,8 +295,6 @@ namespace TrainStationServer
             XmlDocument Request;
             Socket exoSocket;
             SipSocket temp;
-            string[] result = new string[10];
-            System.Timers.Timer timer = new System.Timers.Timer(2000);
             ptr = osip.Message.GetContentType(eXosipEvent.request);
             if (ptr == IntPtr.Zero) return;
             osip.ContentType content = (osip.ContentType)Marshal.PtrToStructure(ptr, typeof(osip.ContentType));
@@ -317,15 +326,10 @@ namespace TrainStationServer
             Console.Write(xml);
             /*----------------------------分割线-----------------------------*/
             TempDoc.LoadXml(xml);
-            temp = SipSocket.FindSipSocket(exoSocket);
             Request = InterfaceC.CallMessageTranslate(TempDoc, resId, userId);//提取参数并转为C类接口格式
             SipSocket.CleanResult(exoSocket);
-            temp.SendRequest(Request);
-            result = WaitForResult(testsocket, timer, 2000);
-
-            if (result != null)
-                for (int k = 0; k < result.Length; k++)
-                    Console.WriteLine(result[k]);
+            temp = SipSocket.FindSipSocket(exoSocket);
+            temp.SendRequest(Request); 
         }
 
         void osipMessage(eXosip.Event eXosipEvent)
@@ -373,11 +377,10 @@ namespace TrainStationServer
 
         void osipCallClose(eXosip.Event eXosipEvent)
         {
+            IntPtr ptr;
             XmlDocument Request;
             Socket exoSocket;
             SipSocket temp;
-            string[] result = new string[10];
-            System.Timers.Timer timer = new System.Timers.Timer(2000);
             osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
             osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
             osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
@@ -390,44 +393,47 @@ namespace TrainStationServer
                 return;
             }
             /*----------------------------分割线-----------------------------*/
+            Request = InterfaceC.StopMediaReq("aaaaaaa", "11111111", "sad");//提取参数并转为C类接口格式
+
             temp = SipSocket.FindSipSocket(exoSocket);
-            Request = InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0");//提取参数并转为C类接口格式
+            try
+            {
+                temp.SendRequest(Request);
+            }
+            catch (SocketException ex)
+            {
+                System.Console.WriteLine(ex);
+            }
+
             SipSocket.CleanResult(exoSocket);
-            temp.SendRequest(Request);
-            result = WaitForResult(testsocket, timer, 2000);
-
-            if (result != null)
-                for (int k = 0; k < result.Length; k++)
-                    Console.WriteLine(result[k]);
-
         }
 
-//         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
-//         {
-//             byte[] recv = new byte[2048];
-//             string[] result = new string[10];
-//             SipSocket temp = SipSocket.FindSipSocket(testsocket);
-//             System.Timers.Timer timer = new System.Timers.Timer(2000);
-//             SipSocket.CleanResult(testsocket);
-//             switch(Combo.SelectionBoxItem.ToString())
-//             {
-//                 case "StartMediaReq":
-//                     temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
-//                     break;
-//                 case "StopMediaReq":
-//                     temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
-//                     break;
-//                 default:
-//                     break;
-//             }
-// 
-//             result = WaitForResult(testsocket, timer, 2000);
-// 
-//             if(result != null)
-//                 for (int k = 0; k < result.Length; k++)
-//                     Console.WriteLine(result[k]);
-//             //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
-//         }
+        private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
+        {
+            byte[] recv = new byte[2048];
+            string[] result = new string[10];
+            SipSocket temp = SipSocket.FindSipSocket(testsocket);
+            System.Timers.Timer timer = new System.Timers.Timer(2000);
+            SipSocket.CleanResult(testsocket);
+            switch(Combo.SelectionBoxItem.ToString())
+            {
+                case "StartMediaReq":
+                    temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
+                    break;
+                case "StopMediaReq":
+                    temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
+                    break;
+                default:
+                    break;
+            }
+
+            result = WaitForResult(testsocket, timer, 2000);
+
+            if(result != null)
+                for (int k = 0; k < result.Length; k++)
+                    Console.WriteLine(result[k]);
+            //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
+        }
 
         private string[] WaitForResult(Socket socket, System.Timers.Timer timer,int ms)
         {
@@ -454,52 +460,6 @@ namespace TrainStationServer
         private void Tick(object source, System.Timers.ElapsedEventArgs e)
         {
             timeout = true;
-        }
-
-        private void Combo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SIPTools sip = new SIPTools();
-            SipSocket temp = new SipSocket(testsocket,sip);
-            string seleRequest;
-            seleRequest = Combo.SelectedValue.ToString().Substring(38);
-            switch (seleRequest)
-            {
-                case "StartMediaReq":
-                    temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
-                    break;
-                case "StopMediaReq":
-                    temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
-                    break;
-                case "QueryHistoryFiles":
-                    temp.SendRequest(InterfaceC.QueryHistoryFiles("0000000000000000", "6101010000000001", "0", "1111", "2015-03-22 12:22:33", "2015-03-22 12:42:33"));
-                    break;
-                case "StartPlayBack":
-                    temp.SendRequest(InterfaceC.StartPlayBack("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33",0,"192.168.1.1","15000",1,1));
-                    break;
-                case "ControlFileBack":
-                    temp.SendRequest(InterfaceC.ControlFileBack("00000000000", "00038478", "UP", 0));
-                    break;
-                case "StartHisLoad":
-                    temp.SendRequest(InterfaceC.StartHisLoad("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
-                    break;
-                case "ReqCamResState":
-                    string[] str = { "000000", "1111111", "222222" };
-                    temp.SendRequest(InterfaceC.ReqCamResState("0000000000000000", str, 1));
-                    break;
-                case "GetUserCurState":
-                    temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
-                    break;
-                case "SetUserCamManage":
-                    string[] cameId={"00000","111111"}, id={"222222","333333"};
-                    temp.SendRequest(InterfaceC.SetUserCamManage("0000000000000000", "6101010000000001", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 2, id, 2));
-                    break;
-                case "AlarmResSubscribe":
-                    string[] type={"666666","4444444"},id_0={"00000","11111"};
-                    temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id_0, type, 2));
-                    break;
-                default:
-                    break;
-            }
         }
     }
 }
