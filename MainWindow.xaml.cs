@@ -220,6 +220,28 @@ namespace TrainStationServer
             string sessionname = osip.SdpMessage.GetSessionName(sdp);
             //以下的接口中的数据均为伪造，未测试版本，缺失提取Xml信息的步骤
             if (sessionname == "RealTime")
+<<<<<<< HEAD
+=======
+            {
+                Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
+            }
+            else if (sessionname == "PlayBack")
+            {
+                Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
+            }
+            else if (sessionname == "DownLoad")
+            {
+                Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
+            }
+
+            temp = SipSocket.FindSipSocket(exoSocket);
+            temp.SendRequest(Request);
+
+            System.Timers.Timer timer = new System.Timers.Timer(5000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
+            timer.Enabled = true;
+            while (true)
+>>>>>>> origin/SipSocket
             {
                 Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
             }
@@ -320,12 +342,17 @@ namespace TrainStationServer
             temp = SipSocket.FindSipSocket(exoSocket);
             Request = InterfaceC.CallMessageTranslate(TempDoc, resId, userId);//提取参数并转为C类接口格式
             SipSocket.CleanResult(exoSocket);
+<<<<<<< HEAD
             temp.SendRequest(Request);
             result = WaitForResult(testsocket, timer, 2000);
 
             if (result != null)
                 for (int k = 0; k < result.Length; k++)
                     Console.WriteLine(result[k]);
+=======
+            temp = SipSocket.FindSipSocket(exoSocket);
+            temp.SendRequest(Request); 
+>>>>>>> origin/SipSocket
         }
 
         void osipMessage(eXosip.Event eXosipEvent)
@@ -372,11 +399,48 @@ namespace TrainStationServer
         }
 
         void osipCallClose(eXosip.Event eXosipEvent)
+<<<<<<< HEAD
+=======
+        {
+            IntPtr ptr;
+            XmlDocument Request;
+            Socket exoSocket;
+            SipSocket temp;
+            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
+            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
+            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
+            string name = osip.URI.ToString(pTo.url);
+            string id = name.Substring(4, name.IndexOf('@') - 4);
+            if ((exoSocket = SipSocket.FindSocket(id.Substring(0, 6))) == null)
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
+            /*----------------------------分割线-----------------------------*/
+            Request = InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0");//提取参数并转为C类接口格式
+
+            temp = SipSocket.FindSipSocket(exoSocket);
+            try
+            {
+                temp.SendRequest(Request);
+            }
+            catch (SocketException ex)
+            {
+                System.Console.WriteLine(ex);
+            }
+
+            SipSocket.CleanResult(exoSocket);
+        }
+
+        private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
+>>>>>>> origin/SipSocket
         {
             XmlDocument Request;
             Socket exoSocket;
             SipSocket temp;
             string[] result = new string[10];
+<<<<<<< HEAD
             System.Timers.Timer timer = new System.Timers.Timer(2000);
             osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
             osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
@@ -429,6 +493,31 @@ namespace TrainStationServer
 //             //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
 //         }
 
+=======
+            SipSocket temp = SipSocket.FindSipSocket(testsocket);
+            System.Timers.Timer timer = new System.Timers.Timer(2000);
+            SipSocket.CleanResult(testsocket);
+            switch(Combo.SelectionBoxItem.ToString())
+            {
+                case "StartMediaReq":
+                    temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
+                    break;
+                case "StopMediaReq":
+                    temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
+                    break;
+                default:
+                    break;
+            }
+
+            result = WaitForResult(testsocket, timer, 2000);
+
+            if(result != null)
+                for (int k = 0; k < result.Length; k++)
+                    Console.WriteLine(result[k]);
+            //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
+        }
+
+>>>>>>> origin/SipSocket
         private string[] WaitForResult(Socket socket, System.Timers.Timer timer,int ms)
         {
             timer.Interval = ms;

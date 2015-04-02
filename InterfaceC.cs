@@ -95,6 +95,21 @@ namespace TrainStationServer
                     case "InfoOrder":
                         response = InfoOrder(doc);
                         break;
+                    case "AlarmResListReport":
+                        response = AlarmResListReport(doc);
+                        break;
+                    case "UserResReport":
+                        response = UserResReport(doc);
+                        break;
+                    case "ReportCamResState":
+                        response = ReportCamResState(doc);
+                        break;
+                    case "AlarmResListChange":
+                        response = AlarmResListChange(doc);
+                        break;
+                    case "StartMediaState":
+                        response = StartMediaState(doc);
+                        break;
                     default:
                         response = new XmlDocument();
                         break;
