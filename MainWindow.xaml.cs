@@ -115,6 +115,8 @@ namespace TrainStationServer
                 Doc = SIPTools.XmlExtract(recv, i);
                 if (Doc == null)
                     return;
+                if (temp == null)
+                    return;
                 if (InterfaceC.IsRequest(Doc))
                 {
                     temp.SendResponse(InterfaceC.Request(Doc));
@@ -283,7 +285,7 @@ namespace TrainStationServer
                     "a=setup:passive\r\n" +
                     "a=connection:new\r\n",
                     resId,
-                    sessionId,
+                    result[0],
                     sessionVersion,
                     result[1],
                     result[2],
@@ -459,53 +461,82 @@ namespace TrainStationServer
         {
             byte[] recv = new byte[2048];
             string[] result = new string[10];
+            int sendLen = 0;
+            bool test = false;
             SipSocket temp = SipSocket.FindSipSocket(testsocket);
             System.Timers.Timer timer = new System.Timers.Timer(2000);
             SipSocket.CleanResult(testsocket);
+            string[] resId = { "6101010000000001", "6101010000000002" }, name = { "01", "02" };
+            string[] cameId = { "00000", "111111" }, id = { "222222", "333333" };
+            string[] str = { "000000", "1111111", "222222" };
+            string[] type = { "666666", "4444444" };
+            string[] startTime = { "2015-03-22 12:22:33", "2015-03-22 12:22:33" }, endTime = { "2015-03-22 12:42:33", "2015-03-22 12:42:33" };
             switch (Combo.SelectionBoxItem.ToString())
             {
                 case "StartMediaReq":
-                    temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
+                    test = true;
+                    sendLen = temp.SendRequest(InterfaceC.StartMediaReq("6101010000000011", "6101010000000001", "63", "1", "0", "", "", "1"));
                     break;
                 case "StopMediaReq":
-                    temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
+                    sendLen = temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
+                    break;
+                case "ControlPTZ":
+                    sendLen = temp.SendRequest(InterfaceC.ControlPTZ("6100001201000101", "6101010000000001", "63", "RIGHT", "4", "4"));
                     break;
                 case "QueryHistoryFiles":
-                    temp.SendRequest(InterfaceC.QueryHistoryFiles("0000000000000000", "6101010000000001", "0", "1111", "2015-03-22 12:22:33", "2015-03-22 12:42:33"));
+                    sendLen = temp.SendRequest(InterfaceC.QueryHistoryFiles("6100001201000101", "6101010000000001", "0", "1111", "2015-03-22 12:22:33", "2015-03-22 12:42:33"));
                     break;
                 case "StartPlayBack":
-                    temp.SendRequest(InterfaceC.StartPlayBack("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
+                    test = true;
+                    sendLen = temp.SendRequest(InterfaceC.StartPlayBack("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
                     break;
                 case "ControlFileBack":
-                    temp.SendRequest(InterfaceC.ControlFileBack("00000000000", "00038478", "UP", 0));
+                    if(temp.sessionId != null)
+                        sendLen = temp.SendRequest(InterfaceC.ControlFileBack(temp.sessionId, "6100001201000101", "RATE", 0));
                     break;
                 case "StartHisLoad":
-                    temp.SendRequest(InterfaceC.StartHisLoad("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
+                    sendLen = temp.SendRequest(InterfaceC.StartHisLoad("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
                     break;
                 case "ReqCamResState":
-                    string[] str = { "000000", "1111111", "222222" };
-                    temp.SendRequest(InterfaceC.ReqCamResState("0000000000000000", str, 1));
+                    sendLen = temp.SendRequest(InterfaceC.ReqCamResState("0000000000000000", str, 1));
                     break;
                 case "GetUserCurState":
-                    temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
+                    sendLen = temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
                     break;
                 case "SetUserCamManage":
-                    string[] cameId = { "00000", "111111" }, id = { "222222", "333333" };
-                    temp.SendRequest(InterfaceC.SetUserCamManage("0000000000000000", "6101010000000001", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 2, id, 2));
+                    sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("0000000000000000", "6101010000000001", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 2, id, 2));
                     break;
                 case "AlarmResSubscribe":
-                    string[] type = { "666666", "4444444" }, id_0 = { "00000", "11111" };
-                    temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id_0, type, 2));
+                    sendLen = temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id, type, 2));
+                    break;
+                case "QueryAlarmRes":
+                    sendLen = temp.SendRequest(InterfaceC.QueryAlarmRes("6101010000000001", "saName", id, type, 2));
+                    break;
+                case "ResTransOrder":
+                    sendLen = temp.SendRequest(InterfaceC.ResTransOrder("6101010000000001", "1", "1", resId, name, null, null, null, 2));
+                    break;
+                case "ResChangeOrder":
+                    sendLen = temp.SendRequest(InterfaceC.ResChangeOrder("6101010000000001", "cmd", resId, name, null, null, null, 2));
+                    break;
+                case "ReportAlarmInfo":
+                    sendLen = temp.SendRequest(InterfaceC.ReportAlarmInfo("6101010000000001", "muName", resId, type, startTime, endTime, 2));
                     break;
                 default:
                     break;
             }
 
             result = WaitForResult(testsocket, timer, 2000);
-
+            Console.WriteLine("Send Length: " + sendLen.ToString());
             if (result != null)
+            {
                 for (int k = 0; k < result.Length; k++)
                     Console.WriteLine(result[k]);
+                if (test)
+                {
+                    temp.sessionId = result[0];
+                }
+            }
+                
             //XXX.Send(InterfaceC.StartMediaReq("127.0.0.1", "12000", "6100011201000102", "6100011201000102", "1", "1", "0", "", "", "1"));
         }
 
@@ -538,48 +569,50 @@ namespace TrainStationServer
 
         private void Combo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SIPTools sip = new SIPTools();
-            SipSocket temp = new SipSocket(testsocket,sip);
-            string seleRequest;
-            seleRequest = Combo.SelectedValue.ToString().Substring(38);
-            switch (seleRequest)
-            {
-                case "StartMediaReq":
-                    temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
-                    break;
-                case "StopMediaReq":
-                    temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
-                    break;
-                case "QueryHistoryFiles":
-                    temp.SendRequest(InterfaceC.QueryHistoryFiles("0000000000000000", "6101010000000001", "0", "1111", "2015-03-22 12:22:33", "2015-03-22 12:42:33"));
-                    break;
-                case "StartPlayBack":
-                    temp.SendRequest(InterfaceC.StartPlayBack("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33",0,"192.168.1.1","15000",1,1));
-                    break;
-                case "ControlFileBack":
-                    temp.SendRequest(InterfaceC.ControlFileBack("00000000000", "00038478", "UP", 0));
-                    break;
-                case "StartHisLoad":
-                    temp.SendRequest(InterfaceC.StartHisLoad("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
-                    break;
-                case "ReqCamResState":
-                    string[] str = { "000000", "1111111", "222222" };
-                    temp.SendRequest(InterfaceC.ReqCamResState("0000000000000000", str, 1));
-                    break;
-                case "GetUserCurState":
-                    temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
-                    break;
-                case "SetUserCamManage":
-                    string[] cameId={"00000","111111"}, id={"222222","333333"};
-                    temp.SendRequest(InterfaceC.SetUserCamManage("0000000000000000", "6101010000000001", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 2, id, 2));
-                    break;
-                case "AlarmResSubscribe":
-                    string[] type={"666666","4444444"},id_0={"00000","11111"};
-                    temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id_0, type, 2));
-                    break;
-                default:
-                    break;
-            }
+            //SipSocket temp = SipSocket.FindSipSocket(testsocket);
+            //string seleRequest;
+            //int sendLen = 0;
+            //seleRequest = Combo.SelectedValue.ToString().Substring(38);
+            //switch (seleRequest)
+            //{
+            //    case "StartMediaReq":
+            //        sendLen = temp.SendRequest(InterfaceC.StartMediaReq("6101010000000000", "6101010000000001", "63", "1", "0", "", "", "1"));
+            //        break;
+            //    case "StopMediaReq":
+            //        sendLen = temp.SendRequest(InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0"));
+            //        break;
+            //    case "QueryHistoryFiles":
+            //        sendLen = temp.SendRequest(InterfaceC.QueryHistoryFiles("6100001201000101", "6101010000000001", "0", "1111", "2015-03-22 12:22:33", "2015-03-22 12:42:33"));
+            //        break;
+            //    case "StartPlayBack":
+            //        sendLen = temp.SendRequest(InterfaceC.StartPlayBack("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
+            //        break;
+            //    case "ControlFileBack":
+            //        sendLen = temp.SendRequest(InterfaceC.ControlFileBack("0000000000000000", "6100001201000101", "PLAY", 0));
+            //        break;
+            //    case "StartHisLoad":
+            //        sendLen = temp.SendRequest(InterfaceC.StartHisLoad("0000000000000000", "6101010000000001", "0", "2015-03-22 12:22:33", "2015-03-22 12:42:33", 0, "192.168.1.1", "15000", 1, 1));
+            //        break;
+            //    case "ReqCamResState":
+            //        string[] str = { "000000", "1111111", "222222" };
+            //        sendLen = temp.SendRequest(InterfaceC.ReqCamResState("0000000000000000", str, 1));
+            //        break;
+            //    case "GetUserCurState":
+            //        sendLen = temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
+            //        break;
+            //    case "SetUserCamManage":
+            //        string[] cameId = { "00000", "111111" }, id = { "222222", "333333" };
+            //        sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("0000000000000000", "6101010000000001", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 2, id, 2));
+            //        break;
+            //    case "AlarmResSubscribe":
+            //        string[] type = { "666666", "4444444" }, id_0 = { "00000", "11111" };
+            //        sendLen = temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id_0, type, 2));
+            //        break;
+            //    default:
+            //        break;
+            //}
+
+            //Console.WriteLine("Send Length: " + sendLen.ToString());
         }
     }
 }

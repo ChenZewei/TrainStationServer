@@ -128,6 +128,9 @@ namespace TrainStationServer
                     case "ControlPTZ":
                         result = null;
                         break;
+                    case "StartPlayBack":
+                        result = StartPlayBackResponse(doc);
+                        break;
                     default:
                         result = null;
                         break;
@@ -177,7 +180,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "30");
             Response.Save("D://SaRegister-request.xml");
 
             return Response;
@@ -239,7 +242,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "30");
             //Response.Save("D://SaKeepAlive-request.xml");
 
             return Response;
@@ -974,7 +977,7 @@ namespace TrainStationServer
             XmlDocument Request = XmlOp.XmlCreate();
 
             XmlOp.ElementAdd(Request, null, "request");
-            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "StartPlayBack");
+            XmlOp.SetNodeAttribute(Request, "request", 0, "command", "StartHisLoad");
             XmlOp.ElementAdd(Request, "request", "parameters");
             XmlOp.ElementAdd(Request, "parameters", "resId");
             XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
@@ -1463,10 +1466,13 @@ namespace TrainStationServer
                 XmlOp.ElementAdd(Request, "URL", "name", i);
                 XmlOp.SetNodeInnerText(Request, "name", i, name[i]);
                 XmlOp.ElementAdd(Request, "URL", "location", i);
-                XmlOp.SetNodeInnerText(Request, "location", i, location[i]);
+                if(location != null)
+                    XmlOp.SetNodeInnerText(Request, "location", i, location[i]);
                 XmlOp.ElementAdd(Request, "URL", "purpose", i);
+                if (purpose != null)
                 XmlOp.SetNodeInnerText(Request, "purpose", i, purpose[i]);
                 XmlOp.ElementAdd(Request, "URL", "infomation", i);
+                if (infomation != null)
                 XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
             }
 
@@ -1509,11 +1515,14 @@ namespace TrainStationServer
                 XmlOp.ElementAdd(Request, "URL", "name", i);
                 XmlOp.SetNodeInnerText(Request, "name", i, name[i]);
                 XmlOp.ElementAdd(Request, "URL", "location", i);
-                XmlOp.SetNodeInnerText(Request, "location", i, location[i]);
+                if (location != null)
+                    XmlOp.SetNodeInnerText(Request, "location", i, location[i]);
                 XmlOp.ElementAdd(Request, "URL", "purpose", i);
-                XmlOp.SetNodeInnerText(Request, "purpose", i, purpose[i]);
+                if (purpose != null)
+                    XmlOp.SetNodeInnerText(Request, "purpose", i, purpose[i]);
                 XmlOp.ElementAdd(Request, "URL", "infomation", i);
-                XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
+                if (infomation != null)
+                    XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
             }
 
             Request.Save("D://request-ResChangeOrder.xml");

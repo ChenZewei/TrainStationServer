@@ -13,6 +13,7 @@ namespace TrainStationServer
         public Socket socket;
         public SIPTools sip;
         public string[] result;
+        public string sessionId;
         private static List<SipSocket> sipsocket = new List<SipSocket>();
 
         private SipSocket()
