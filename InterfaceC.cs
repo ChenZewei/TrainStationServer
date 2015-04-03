@@ -1273,7 +1273,7 @@ namespace TrainStationServer
             for (int i = 0; i < cameIdNum; i++)
             {
                 XmlOp.ElementAdd(Request, "whiteUser", "URL");
-                XmlOp.ElementAdd(Request, "URL", "id", i);
+                XmlOp.ElementAdd(Request, "whiteUser/URL", "id", i);
                 XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
             }
 
