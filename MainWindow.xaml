@@ -13,11 +13,27 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
+<<<<<<< HEAD
+            <ComboBox Grid.Column="0" Name="Combo" IsEnabled="False" HorizontalAlignment="Center" Margin="20,10" VerticalAlignment="Center" Width="120" SelectionChanged="Combo_SelectionChanged">
+                <ComboBoxItem>StartMediaReq</ComboBoxItem>
+                <ComboBoxItem>StopMediaReq</ComboBoxItem>
+                <ComboBoxItem>QueryHistoryFiles</ComboBoxItem>
+                <ComboBoxItem>StartPlayBack</ComboBoxItem>
+                <ComboBoxItem>ControlFileBack</ComboBoxItem>
+                <ComboBoxItem>StartHisLoad</ComboBoxItem>
+                <ComboBoxItem>ReqCamResState</ComboBoxItem>
+                <ComboBoxItem>GetUserCurState</ComboBoxItem>
+                <ComboBoxItem>SetUserCamManage</ComboBoxItem>
+                <ComboBoxItem>AlarmResSubscribe</ComboBoxItem>
+            </ComboBox>
+            <!--Button Grid.Column="1" Name="Test" Width="100" Height="30" Content="Test" Click="Test_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/-->
+=======
             <ComboBox Grid.Column="0" Name="Combo" HorizontalAlignment="Center" Margin="20,10" VerticalAlignment="Center" Width="120">
                 <ComboBoxItem>StartMediaReq</ComboBoxItem>
                 <ComboBoxItem>StopMediaReq</ComboBoxItem>
             </ComboBox>
             <Button Grid.Column="1" Name="Test" Width="100" Height="30" Content="Test" Click="Test_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+>>>>>>> origin/SipSocket
             <Button Grid.Column="2" Name="Start" Width="100" Height="30" Content="Start" Click="Start_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             
         </Grid>

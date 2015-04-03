@@ -71,59 +71,29 @@ namespace TrainStationServer
                     case "ResChange":
                         response = ResChange(doc);
                         break;
-                    default:
-                        response = new XmlDocument();
+                    case "AlarmResListReport":
+                        response = AlarmResListReport(doc);
                         break;
-                }
-            }
-
-            return response;
-        }
-
-        public static byte[] Request(byte[] recv, int i)
-        {
-            XmlDocument doc = new XmlDocument();
-            XmlElement root;
-            XmlNodeList nodeList;
-            XmlNode node;
-            XmlDocument response = new XmlDocument();
-            try
-            {
-                sip = new SIPTools(recv, i);
-                doc = SIPTools.XmlExtract(recv, i);
-                if (doc == null)
-                    return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(response));
-            }
-            catch(XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
-            FileStream sendbuf = new FileStream("D://test.txt", FileMode.OpenOrCreate, FileAccess.Write);
-            sendbuf.Close();
-            sendbuf = new FileStream("D://test.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
-            sendbuf.Close();
-            
-            root = doc.DocumentElement;
-            nodeList = doc.GetElementsByTagName("request");
-            if(nodeList.Count > 0)
-            {
-                nodeList = root.SelectNodes("/request/@command");
-                node = nodeList.Item(0);
-                switch (node.InnerText)
-                {
-                    case "SaRegister":
-                        response = SaRegister(doc);
+                    case "UserResReport":
+                        response = UserResReport(doc);
                         break;
-                    case "SaKeepAlive":
-                        response = SaKeepAlive(doc);
+                    case "ReportCamResState":
+                        response = ReportCamResState(doc);
                         break;
-                    case "ResReport":
-                        response = ResReport(doc);
+                    case "AlarmResListChange":
+                        response = AlarmResListChange(doc);
                         break;
-                    case "ResChange":
-                        response = ResChange(doc);
+                    case "UserResChange":
+                        response = UserResChange(doc);
+                        break;
+                    case "ReportAlarmRes":
+                        response = ReportAlarmRes(doc);
+                        break;
+                    case "StartMediaOrder":
+                        response = StartMediaOrder(doc);
+                        break;
+                    case "InfoOrder":
+                        response = InfoOrder(doc);
                         break;
                     case "AlarmResListReport":
                         response = AlarmResListReport(doc);
@@ -146,28 +116,16 @@ namespace TrainStationServer
                 }
             }
 
-            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(response));
+            return response;
         }
 
-        public static string[] Response(byte[] recv, int i)
+        public static string[] Response(XmlDocument doc)
         {
-            XmlDocument doc = new XmlDocument();
             XmlElement root;
             XmlNodeList nodeList;
             XmlNode node;
             string[] result = null;
-            try
-            {
-                sip = new SIPTools(recv, i);
-                doc = SIPTools.XmlExtract(recv, i);
-                if (doc == null)
-                    return null;
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
+            Console.WriteLine(doc.OuterXml);
             root = doc.DocumentElement;
             nodeList = doc.GetElementsByTagName("response");
             if (nodeList.Count > 0)
@@ -178,7 +136,11 @@ namespace TrainStationServer
                 {
                     case "StartMediaReq":
                         result = new string[3];
-                        result = StartMediaResponse(doc);
+                        result = StartMediaResResponse(doc);
+                        break;
+                    case "StopMediaReq":
+                        result = new string[1];
+                        result = StopMediaReqResponse(doc);
                         break;
                     case "QueryAlarmRes":
                         result = new string[3];
@@ -663,15 +625,12 @@ namespace TrainStationServer
         }
         #endregion
 
-        #region StartMediaState
-        public static XmlDocument StartMediaState(XmlDocument Doc)
+        #region StartMediaOrder
+        public static XmlDocument StartMediaOrder(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string resId, userId, userName, userLevel, mediaType, linkMode, targetIpAddr, targetPort, flag;
-            List<string> id;
-            List<string> name;
-            List<string> type;
 
             resId = XmlOp.GetInnerText(Doc, "resId");
             userId = XmlOp.GetInnerText(Doc, "userId");
@@ -684,7 +643,7 @@ namespace TrainStationServer
             flag = XmlOp.GetInnerText(Doc, "flag");
 
             XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaState");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaOrder");
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
@@ -696,7 +655,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "tcpPort");
             XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "tcpPort");
 
-            Response.Save("D://response-StartMediaState.xml");
+            Response.Save("D://response-StartMediaOrder.xml");
 
             return Response;
         }
@@ -708,9 +667,6 @@ namespace TrainStationServer
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string sessionId, resId, userId, userLevel;
-            List<string> id;
-            List<string> name;
-            List<string> type;
 
             sessionId = XmlOp.GetInnerText(Doc, "sessionId");
             resId = XmlOp.GetInnerText(Doc, "resId");
@@ -811,68 +767,8 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static byte[] test(byte[] recv, int i)//Only for test
+        public static string[] StartMediaResResponse(XmlDocument Doc)
         {
-            XmlDocument Doc = new XmlDocument();
-            try
-            {
-                sip = new SIPTools(recv, i);
-                Doc = SIPTools.XmlExtract(recv, i);
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            XmlTools XmlOp = new XmlTools();
-            XmlDocument Response = XmlOp.XmlCreate();
-
-
-            XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "StartMediaReq");
-            XmlOp.ElementAdd(Response, "response", "result");
-            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
-            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            XmlOp.ElementAdd(Response, "response", "parameters");
-            XmlOp.ElementAdd(Response, "parameters", "sessionId");
-            XmlOp.SetNodeInnerText(Response, "sessionId", 0, "0001");
-            XmlOp.ElementAdd(Response, "parameters", "tcpIp");
-            XmlOp.SetNodeInnerText(Response, "tcpIp", 0, "127.0.0.1");
-            XmlOp.ElementAdd(Response, "parameters", "tcpPort");
-            XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "12001");
-            Response.Save("D://request-StartMediaReq.xml");
-
-            return Encoding.UTF8.GetBytes(sip.SIPResponse(Response));
-        }
-
-        public static string[] StartMediaResponse(XmlDocument Doc)
-        {
-            XmlTools XmlOp = new XmlTools();
-            string sessionId, tcpIp, tcpPort;
-            string[] result = new string[3];
-
-            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
-            tcpIp = XmlOp.GetInnerText(Doc, "tcpIp");
-            tcpPort = XmlOp.GetInnerText(Doc, "tcpPort");
-
-            result[0] = sessionId;
-            result[1] = tcpIp;
-            result[2] = tcpPort;
-
-            return result;
-        }
-
-        public static string[] StartMediaResponse(byte[] recv, int i)
-        {
-            XmlDocument Doc = new XmlDocument();
-            try
-            {
-                sip = new SIPTools(recv, i);
-                Doc = SIPTools.XmlExtract(recv, i);
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
             XmlTools XmlOp = new XmlTools();
             string sessionId, tcpIp, tcpPort;
             string[] result = new string[3];
@@ -972,10 +868,23 @@ namespace TrainStationServer
 
             return Request;
         }
+
+        public static string[] StopMediaReqResponse(XmlDocument Doc)
+        {
+            XmlTools XmlOp = new XmlTools();
+            string sessionId;
+            string[] result = new string[1];
+
+            sessionId = XmlOp.GetInnerText(Doc, "sessionId");
+
+            result[0] = sessionId;
+
+            return result;
+        }
         #endregion
 
         #region QueryHistoryFiles
-        public static byte[] QueryHistoryFiles(string resId, string userId, string userLevel, string cuId, string fromDate, string toDate)
+        public static XmlDocument QueryHistoryFiles(string resId, string userId, string userLevel, string cuId, string fromDate, string toDate)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -997,7 +906,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "toDate", 0, toDate);
             Request.Save("D://request-QueryHistoryFiles.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] QueryHistoryFilesResponse(XmlDocument Doc)
@@ -1132,7 +1041,7 @@ namespace TrainStationServer
         #endregion
 
         #region HisLoadInfo
-        public static byte[] HisLoadInfo(string sessionId, string resId, string userId, string userLevel)
+        public static XmlDocument HisLoadInfo(string sessionId, string resId, string userId, string userLevel)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1150,7 +1059,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
             Request.Save("D://request-HisLoadInfo.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] HisLoadInfoResponse(XmlDocument Doc)
@@ -1168,7 +1077,7 @@ namespace TrainStationServer
         #endregion
 
         #region INFO
-        public static byte[] INFO(string sessionId, string resId, string userId, string userLevel)
+        public static XmlDocument INFO(string sessionId, string resId, string userId, string userLevel)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1186,7 +1095,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
             Request.Save("D://request-INFO.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] INFOResponse(XmlDocument Doc)
@@ -1204,7 +1113,7 @@ namespace TrainStationServer
         #endregion
 
         #region HisInfo
-        public static byte[] HisInfo(string sessionId, string resId, string userId, string userLevel)
+        public static XmlDocument HisInfo(string sessionId, string resId, string userId, string userLevel)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1222,7 +1131,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
             Request.Save("D://request-HisInfo.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] HisInfoResponse(XmlDocument Doc)
@@ -1240,7 +1149,7 @@ namespace TrainStationServer
         #endregion
 
         #region ControlFileBack
-        public static byte[] ControlFileBack(string sessionId, string resId, string cmd, int param)
+        public static XmlDocument ControlFileBack(string sessionId, string resId, string cmd, int param)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1258,7 +1167,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "param", 0, param.ToString());
             Request.Save("D://request-ControlFileBack.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] ControlFileBackResponse(XmlDocument Doc)
@@ -1276,7 +1185,7 @@ namespace TrainStationServer
         #endregion
 
         #region ReqCamResState
-        public static byte[] ReqCamResState(string saId, string[] resId, int resNum)
+        public static XmlDocument ReqCamResState(string saId, string[] resId, int resNum)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1295,7 +1204,7 @@ namespace TrainStationServer
             }
             Request.Save("D://request-ReqCamResState.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] ReqCamResStateResponse(XmlDocument Doc)
@@ -1313,7 +1222,7 @@ namespace TrainStationServer
         #endregion
 
         #region GetUserCurState
-        public static byte[] GetUserCurState(string saId, string curUserId)
+        public static XmlDocument GetUserCurState(string saId, string curUserId)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1327,7 +1236,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "curUserId", 0, curUserId);
             Request.Save("D://request-GetUserCurState.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] GetUserCurStateResponse(XmlDocument Doc)
@@ -1351,7 +1260,7 @@ namespace TrainStationServer
         #endregion
 
         #region SetUserCamManage
-        public static byte[] SetUserCamManage(string cuId, string cuLevel, int action, string startTime, string endTime, string schduleCreatTime, string[] cameId, int cameIdNum, string[] id, int idNum)
+        public static XmlDocument SetUserCamManage(string cuId, string cuLevel, int action, string startTime, string endTime, string schduleCreatTime, string[] cameId, int cameIdNum, string[] id, int idNum)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1388,7 +1297,7 @@ namespace TrainStationServer
 
             Request.Save("D://request-SetUserCamManage.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] SetUserCamManageResponse(XmlDocument Doc)
@@ -1401,7 +1310,7 @@ namespace TrainStationServer
         #endregion
 
         #region AlarmResSubscribe
-        public static byte[] AlarmResSubscribe(string saId, string saName, int action, string[] id, string[] type, int num)
+        public static XmlDocument AlarmResSubscribe(string saId, string saName, int action, string[] id, string[] type, int num)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1427,7 +1336,7 @@ namespace TrainStationServer
 
             Request.Save("D://request-AlarmResSubscribe.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] AlarmResSubscribeResponse(XmlDocument Doc)
@@ -1445,7 +1354,7 @@ namespace TrainStationServer
         #endregion
 
         #region QueryAlarmRes
-        public static byte[] QueryAlarmRes(string saId, string saName, string[] id, string[] type, int num)
+        public static XmlDocument QueryAlarmRes(string saId, string saName, string[] id, string[] type, int num)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1469,7 +1378,7 @@ namespace TrainStationServer
 
             Request.Save("D://request-QueryAlarmRes.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] QueryAlarmResResponse(XmlDocument Doc)
@@ -1498,7 +1407,7 @@ namespace TrainStationServer
         #endregion
 
         #region ReportAlarmInfo
-        public static byte[] ReportAlarmInfo(string muId, string muName, string[] id, string[] type, string[] startTime, string[] endTime, int num)
+        public static XmlDocument ReportAlarmInfo(string muId, string muName, string[] id, string[] type, string[] startTime, string[] endTime, int num)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1526,7 +1435,7 @@ namespace TrainStationServer
 
             Request.Save("D://request-ReportAlarmInfo.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] ReportAlarmInfoResponse(XmlDocument Doc)
@@ -1552,7 +1461,7 @@ namespace TrainStationServer
         #endregion
 
         #region ResTransOrder
-        public static byte[] ResTransOrder(string saId, string totalPacketNum, string curPacketNum, string[] resId, string[] name, string[] location, string[] purpose, string[] infomation, int num)
+        public static XmlDocument ResTransOrder(string saId, string totalPacketNum, string curPacketNum, string[] resId, string[] name, string[] location, string[] purpose, string[] infomation, int num)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1584,7 +1493,7 @@ namespace TrainStationServer
 
             Request.Save("D://request-ResTransOrder.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] ResTransOrderResponse(XmlDocument Doc)
@@ -1600,7 +1509,7 @@ namespace TrainStationServer
         #endregion
 
         #region ResChangeOrder
-        public static byte[] ResChangeOrder(string saId, string cmd, string[] resId, string[] name, string[] location, string[] purpose, string[] infomation, int num)
+        public static XmlDocument ResChangeOrder(string saId, string cmd, string[] resId, string[] name, string[] location, string[] purpose, string[] infomation, int num)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1630,7 +1539,7 @@ namespace TrainStationServer
 
             Request.Save("D://request-ResChangeOrder.xml");
 
-            return Encoding.GetEncoding("GB2312 ").GetBytes(sip.SIPRequest(Request));
+            return Request;
         }
 
         public static string[] ResChangeOrderResponse(XmlDocument Doc)
