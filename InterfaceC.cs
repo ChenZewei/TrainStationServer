@@ -30,12 +30,6 @@ namespace TrainStationServer
             XmlElement root;
             XmlNodeList nodeList;
 
-            FileStream sendbuf = new FileStream("D://recieve.txt", FileMode.OpenOrCreate, FileAccess.Write);
-            sendbuf.Close();
-            sendbuf = new FileStream("D://recieve.txt", FileMode.Append, FileAccess.Write);
-            sendbuf.Write(Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml), 0, Encoding.GetEncoding("GB2312").GetBytes(doc.OuterXml).Length);
-            sendbuf.Close();
-
             root = doc.DocumentElement;
             nodeList = doc.GetElementsByTagName("request");
             if (nodeList.Count > 0)
@@ -94,21 +88,6 @@ namespace TrainStationServer
                         break;
                     case "InfoOrder":
                         response = InfoOrder(doc);
-                        break;
-                    case "AlarmResListReport":
-                        response = AlarmResListReport(doc);
-                        break;
-                    case "UserResReport":
-                        response = UserResReport(doc);
-                        break;
-                    case "ReportCamResState":
-                        response = ReportCamResState(doc);
-                        break;
-                    case "AlarmResListChange":
-                        response = AlarmResListChange(doc);
-                        break;
-                    case "StartMediaState":
-                        response = StartMediaState(doc);
                         break;
                     default:
                         response = new XmlDocument();
