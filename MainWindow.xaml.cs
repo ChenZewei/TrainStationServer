@@ -193,6 +193,7 @@ namespace TrainStationServer
             XmlDocument Request = new XmlDocument(); ;
             SipSocket temp;
             System.Timers.Timer timer = new System.Timers.Timer(2000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
             string[] result = new string[10];
             eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
             IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
@@ -243,16 +244,6 @@ namespace TrainStationServer
             }
 
             temp = SipSocket.FindSipSocket(exoSocket);
-            temp.SendRequest(Request);
-            timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
-            timer.Enabled = true;
-            while (true)
-            {
-                Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
-            }
-            
-
-            temp = SipSocket.FindSipSocket(exoSocket);
             SipSocket.CleanResult(exoSocket);
             temp.SendRequest(Request);
             result = WaitForResult(testsocket, timer, 2000);
@@ -278,10 +269,7 @@ namespace TrainStationServer
                     "c=IN IP4 {3}\r\n" +
                     "t=0 0\r\n" +
                     "a=sendonly\r\n" +
-                    "m=video {4} TCP H264\r\n" +
-                    "a=setup:passive\r\n" +
-                    "a=connection:new\r\n" +
-                    "m=audio {4} TCP PCMA\r\n" +
+                    "m=application {4} RTP/AVP/TCP octet-stream\r\n" +
                     "a=setup:passive\r\n" +
                     "a=connection:new\r\n",
                     resId,
@@ -426,37 +414,6 @@ namespace TrainStationServer
             SipSocket.CleanResult(exoSocket);
         }
 
-        //private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
-        //{
-        //    XmlDocument Request;
-        //    Socket exoSocket;
-        //    SipSocket temp;
-        //    string[] result = new string[10];
-        //    System.Timers.Timer timer = new System.Timers.Timer(2000);
-        //    osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
-        //    osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
-        //    osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
-        //    string name = osip.URI.ToString(pTo.url);
-        //    string id = name.Substring(4, name.IndexOf('@') - 4);
-        //    if ((exoSocket = SipSocket.FindSocket(id.Substring(0, 6))) == null)
-        //    {
-        //        eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-        //        eXosip.Unlock();
-        //        return;
-        //    }
-        //    /*----------------------------分割线-----------------------------*/
-        //    temp = SipSocket.FindSipSocket(exoSocket);
-        //    Request = InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0");//提取参数并转为C类接口格式
-        //    SipSocket.CleanResult(exoSocket);
-        //    temp.SendRequest(Request);
-        //    result = WaitForResult(testsocket, timer, 2000);
-
-        //    if (result != null)
-        //        for (int k = 0; k < result.Length; k++)
-        //            Console.WriteLine(result[k]);
-
-        //}
-
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
         {
             byte[] recv = new byte[2048];
@@ -468,7 +425,7 @@ namespace TrainStationServer
             SipSocket.CleanResult(testsocket);
             string[] resId = { "6101010000000001", "6101010000000002" }, name = { "01", "02" };
             string[] cameId = { "00000", "111111" }, id = { "222222", "333333" };
-            string[] str = { "000000", "1111111", "222222" };
+            string[] str = { "6100001201000101"};
             string[] type = { "666666", "4444444" };
             string[] startTime = { "2015-03-22 12:22:33", "2015-03-22 12:22:33" }, endTime = { "2015-03-22 12:42:33", "2015-03-22 12:42:33" };
             switch (Combo.SelectionBoxItem.ToString())
