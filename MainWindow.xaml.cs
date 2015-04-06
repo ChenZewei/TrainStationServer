@@ -421,6 +421,8 @@ namespace TrainStationServer
             int sendLen = 0;
             bool test = false;
             SipSocket temp = SipSocket.FindSipSocket(testsocket);
+            if (temp == null)
+                return;
             System.Timers.Timer timer = new System.Timers.Timer(2000);
             SipSocket.CleanResult(testsocket);
             string[] resId = { "6101010000000001", "6101010000000002" }, name = { "01", "02" };

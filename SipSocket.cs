@@ -61,12 +61,30 @@ namespace TrainStationServer
 
         public int SendRequest(XmlDocument doc)
         {
-            return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPRequest(doc)));
+            try
+            {
+                return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPRequest(doc)));
+            }
+            catch(ObjectDisposedException e)
+            {
+                Delete(socket);
+                socket.Dispose();
+                return -1;
+            }
         }
 
         public int SendResponse(XmlDocument doc)
         {
-            return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(doc)));
+            try
+            {
+                return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(doc)));
+            }
+            catch (ObjectDisposedException e)
+            {
+                Delete(socket);
+                socket.Dispose();
+                return -1;
+            }
         }
 
         public IAsyncResult BeginAccept(AsyncCallback callback, object obj)
@@ -97,6 +115,19 @@ namespace TrainStationServer
             }
             SipSocket temp = new SipSocket(socket, sip);
             sipsocket.Add(temp);
+        }
+
+        public static void Delete(Socket socket)
+        {
+            foreach (SipSocket ss in sipsocket)
+            {
+                if (ss.socket.Equals(socket))
+                {
+                    sipsocket.Remove(ss);
+                    return;
+                }
+            }
+            return;
         }
 
         public static Socket FindSocket(string prefix)//确认sipsocket列表中是否已经存在指定id的Socket
