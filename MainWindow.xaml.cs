@@ -222,17 +222,10 @@ namespace TrainStationServer
 
             string sessionname = osip.SdpMessage.GetSessionName(sdp);
             //以下的接口中的数据均为伪造，未测试版本，缺失提取Xml信息的步骤
+
             if (sessionname == "RealTime")
             {
                 Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
-            }
-            else if (sessionname == "PlayBack")
-            {
-                Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
-            }
-            else if (sessionname == "DownLoad")
-            {
-                Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
             }
             else if (sessionname == "PlayBack")
             {
@@ -247,6 +240,7 @@ namespace TrainStationServer
             SipSocket.CleanResult(exoSocket);
             temp.SendRequest(Request);
             result = WaitForResult(testsocket, timer, 2000);
+            
 
             if (result != null)
                 for (int k = 0; k < result.Length; k++)
