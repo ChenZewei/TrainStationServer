@@ -13,7 +13,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ComboBox Grid.Column="0" Name="Combo" IsEnabled="False" HorizontalAlignment="Center" Margin="20,10" VerticalAlignment="Center" Width="120" SelectionChanged="Combo_SelectionChanged">
+            <ComboBox Grid.Column="0" Name="Combo" IsEnabled="False" HorizontalAlignment="Center" Margin="20,10" VerticalAlignment="Center" Width="120">
                 <ComboBoxItem>StartMediaReq</ComboBoxItem>
                 <ComboBoxItem>StopMediaReq</ComboBoxItem>
                 <ComboBoxItem>ControlPTZ</ComboBoxItem>

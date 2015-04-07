@@ -115,7 +115,7 @@ namespace TrainStationServer
                 {
                     case "StartMediaReq":
                         result = new string[3];
-                        result = StartMediaResResponse(doc);
+                        result = StartMediaReqResponse(doc);
                         break;
                     case "StopMediaReq":
                         result = new string[1];
@@ -749,7 +749,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] StartMediaResResponse(XmlDocument Doc)
+        public static string[] StartMediaReqResponse(XmlDocument Doc)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId, tcpIp, tcpPort;

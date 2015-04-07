@@ -13,7 +13,7 @@ namespace TrainStationServer
         public Socket socket;
         public SIPTools sip;
         public string[] result;
-        public string sessionId;
+        public string sessionIdRT, sessionIdPB, sessionIdDL;
         private static List<SipSocket> sipsocket = new List<SipSocket>();
 
         private SipSocket()
@@ -81,27 +81,11 @@ namespace TrainStationServer
             }
             catch (ObjectDisposedException e)
             {
+                Console.WriteLine(e.Message);
                 Delete(socket);
                 socket.Dispose();
                 return -1;
             }
-        }
-
-        public IAsyncResult BeginAccept(AsyncCallback callback, object obj)
-        {
-            return socket.BeginAccept(callback, obj);
-        }
-
-        public SipSocket EndAccept(IAsyncResult ar)
-        {
-            SipSocket temp = new SipSocket();
-            temp.socket = socket.EndAccept(ar);
-            return temp;
-        }
-
-        public IAsyncResult BeginReceive(byte[] buffer,int offset,int size,SocketFlags socketflags,AsyncCallback callback, object obj)
-        {
-            return socket.BeginReceive(buffer, offset, size, socketflags, callback, obj);
         }
 
         //static
@@ -170,21 +154,21 @@ namespace TrainStationServer
             return null;
         }
 
-        public static SipSocket FindSipSocket(string id)
-        {
-            foreach (SipSocket temp in sipsocket)
-            {
-                if (temp.sip.Id.Equals(id))
-                {
-                    return temp;
-                }
-                else
-                    return null;
-            }
-            return null;
-        }
+        //public static SipSocket FindSipSocket(string id)
+        //{
+        //    foreach (SipSocket temp in sipsocket)
+        //    {
+        //        if (temp.sip.Id.Equals(id))
+        //        {
+        //            return temp;
+        //        }
+        //        else
+        //            return null;
+        //    }
+        //    return null;
+        //}
 
-        public static void InsertResult(Socket socket, string[] result)
+        public static void SetResult(Socket socket, string[] result)
         {
             foreach (SipSocket temp in sipsocket)
             {
