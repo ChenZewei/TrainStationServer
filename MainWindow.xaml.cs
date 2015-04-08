@@ -119,11 +119,11 @@ namespace TrainStationServer
                     return;
                 if (InterfaceC.IsRequest(Doc))
                 {
-                    temp.SendResponse(InterfaceC.Request(Doc));
+                    temp.SendResponse(InterfaceC.Request(Doc, temp));
                 }
                 else
                 {
-                    result = InterfaceC.Response(Doc);
+                    result = InterfaceC.Response(Doc, temp);
                     if (result != null)
                     {
                         SipSocket.SetResult(state.socket, result);
@@ -442,7 +442,7 @@ namespace TrainStationServer
             System.Timers.Timer timer = new System.Timers.Timer(2000);
             SipSocket.CleanResult(testsocket);
             string[] resId = { "6101010000000001", "6101010000000002" }, name = { "01", "02" };
-            string[] cameId = { "00000", "111111" }, id = { "222222", "333333" };
+            string[] cameId = { "6100001201000101" }, id = { "6100002008000001" };
             string[] str = { "6100001201000101"};
             string[] type = { "666666", "4444444" };
             string[] startTime = { "2015-03-22 12:22:33", "2015-03-22 12:22:33" }, endTime = { "2015-03-22 12:42:33", "2015-03-22 12:42:33" };
@@ -480,7 +480,7 @@ namespace TrainStationServer
                     sendLen = temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
                     break;
                 case "SetUserCamManage":
-                    sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("0000000000000000", "6101010000000001", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 2, id, 2));
+                    sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("6101010000000001", "0", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 1, id, 1));
                     break;
                 case "AlarmResSubscribe":
                     sendLen = temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id, type, 2));

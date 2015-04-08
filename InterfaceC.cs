@@ -13,6 +13,7 @@ namespace TrainStationServer
     {
         static DataBase database;
         static SIPTools sip;
+
         public InterfaceC()
         {
             database = new DataBase();
@@ -38,7 +39,7 @@ namespace TrainStationServer
                 return false;
         }
 
-        public static XmlDocument Request(XmlDocument doc)
+        public static XmlDocument Request(XmlDocument doc, SipSocket sipsocket)
         {
             XmlElement root;
             XmlNodeList nodeList;
@@ -54,40 +55,40 @@ namespace TrainStationServer
                 switch (node.InnerText)
                 {
                     case "SaRegister":
-                        response = SaRegister(doc);
+                        response = SaRegister(doc, sipsocket);
                         break;
                     case "SaKeepAlive":
-                        response = SaKeepAlive(doc);
+                        response = SaKeepAlive(doc, sipsocket);
                         break;
                     case "ResReport":
-                        response = ResReport(doc);
+                        response = ResReport(doc, sipsocket);
                         break;
                     case "ResChange":
-                        response = ResChange(doc);
+                        response = ResChange(doc, sipsocket);
                         break;
                     case "AlarmResListReport":
-                        response = AlarmResListReport(doc);
+                        response = AlarmResListReport(doc, sipsocket);
                         break;
                     case "UserResReport":
-                        response = UserResReport(doc);
+                        response = UserResReport(doc, sipsocket);
                         break;
                     case "ReportCamResState":
-                        response = ReportCamResState(doc);
+                        response = ReportCamResState(doc, sipsocket);
                         break;
                     case "AlarmResListChange":
-                        response = AlarmResListChange(doc);
+                        response = AlarmResListChange(doc, sipsocket);
                         break;
                     case "UserResChange":
-                        response = UserResChange(doc);
+                        response = UserResChange(doc, sipsocket);
                         break;
                     case "ReportAlarmRes":
-                        response = ReportAlarmRes(doc);
+                        response = ReportAlarmRes(doc, sipsocket);
                         break;
                     case "StartMediaOrder":
-                        response = StartMediaOrder(doc);
+                        response = StartMediaOrder(doc, sipsocket);
                         break;
                     case "InfoOrder":
-                        response = InfoOrder(doc);
+                        response = InfoOrder(doc, sipsocket);
                         break;
                     default:
                         response = new XmlDocument();
@@ -98,7 +99,7 @@ namespace TrainStationServer
             return response;
         }
 
-        public static string[] Response(XmlDocument doc)
+        public static string[] Response(XmlDocument doc, SipSocket sipsocket)
         {
             XmlElement root;
             XmlNodeList nodeList;
@@ -115,21 +116,21 @@ namespace TrainStationServer
                 {
                     case "StartMediaReq":
                         result = new string[3];
-                        result = StartMediaReqResponse(doc);
+                        result = StartMediaReqResponse(doc, sipsocket);
                         break;
                     case "StopMediaReq":
                         result = new string[1];
-                        result = StopMediaReqResponse(doc);
+                        result = StopMediaReqResponse(doc, sipsocket);
                         break;
                     case "QueryAlarmRes":
                         result = new string[3];
-                        result = QueryAlarmResResponse(doc);
+                        result = QueryAlarmResResponse(doc, sipsocket);
                         break;
                     case "ControlPTZ":
                         result = null;
                         break;
                     case "StartPlayBack":
-                        result = StartPlayBackResponse(doc);
+                        result = StartPlayBackResponse(doc, sipsocket);
                         break;
                     default:
                         result = null;
@@ -157,7 +158,7 @@ namespace TrainStationServer
         #region Down 2 Up
 
         #region SaRegister
-        public static XmlDocument SaRegister(XmlDocument Doc)
+        public static XmlDocument SaRegister(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -227,7 +228,7 @@ namespace TrainStationServer
         #endregion
 
         #region SaKeepAlive
-        public static XmlDocument SaKeepAlive(XmlDocument Doc)
+        public static XmlDocument SaKeepAlive(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -281,7 +282,7 @@ namespace TrainStationServer
         #endregion
 
         #region ResReport
-        public static XmlDocument ResReport(XmlDocument Doc)
+        public static XmlDocument ResReport(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -303,6 +304,12 @@ namespace TrainStationServer
             location = XmlOp.GetInnerTextList(Doc, "location");
             purpose = XmlOp.GetInnerTextList(Doc, "purpose");
             infomation = XmlOp.GetInnerTextList(Doc, "infomation");
+
+            sipsocket.resId = new string[resId.Count];
+            for (int i = 0; i < resId.Count; i++ )
+            {
+                sipsocket.resId[i] = resId[i];
+            }
 
             database.Insert("ivms_resources", columes, resId, name, location, purpose);
 
@@ -351,7 +358,6 @@ namespace TrainStationServer
             string saId, totalPacketNum, curPacketNum;
             string[] columes = { "id", "name", "location", "custom" };
             string[] values = new string[4];
-            int num = 2;
             List<string> resId;
             List<string> name;
             List<string> location;
@@ -398,7 +404,7 @@ namespace TrainStationServer
         #endregion
         
         #region ResChange
-        public static XmlDocument ResChange(XmlDocument Doc)
+        public static XmlDocument ResChange(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -452,7 +458,7 @@ namespace TrainStationServer
         #endregion
 
         #region ReportCamResState
-        public static XmlDocument ReportCamResState(XmlDocument Doc)
+        public static XmlDocument ReportCamResState(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -484,7 +490,7 @@ namespace TrainStationServer
         #endregion
 
         #region UserResReport
-        public static XmlDocument UserResReport(XmlDocument Doc)
+        public static XmlDocument UserResReport(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -493,11 +499,14 @@ namespace TrainStationServer
             List<string> name;
 
             saId = XmlOp.GetInnerText(Doc, "saId");
+            Console.WriteLine(saId);
             saName = XmlOp.GetInnerText(Doc, "saName");
             totalPkt = XmlOp.GetInnerText(Doc, "totalPkt");
             pktNum = XmlOp.GetInnerText(Doc, "pktNum");
             id = XmlOp.GetInnerTextList(Doc, "ip");
             name = XmlOp.GetInnerTextList(Doc, "name");
+
+            sipsocket.saId = saId;
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "UserResReport");
@@ -512,7 +521,7 @@ namespace TrainStationServer
         #endregion
 
         #region UserResChange
-        public static XmlDocument UserResChange(XmlDocument Doc)
+        public static XmlDocument UserResChange(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -521,6 +530,7 @@ namespace TrainStationServer
             List<string> name;
 
             saId = XmlOp.GetInnerText(Doc, "saId");
+            Console.WriteLine(saId);
             totalPkt = XmlOp.GetInnerText(Doc, "totalPkt");
             pktNum = XmlOp.GetInnerText(Doc, "pktNum");
             cmd = XmlOp.GetInnerText(Doc, "cmd");
@@ -540,7 +550,7 @@ namespace TrainStationServer
         #endregion
 
         #region AlarmResListReport
-        public static XmlDocument AlarmResListReport(XmlDocument Doc)
+        public static XmlDocument AlarmResListReport(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -573,7 +583,7 @@ namespace TrainStationServer
         #endregion
 
         #region AlarmResListChange
-        public static XmlDocument AlarmResListChange(XmlDocument Doc)
+        public static XmlDocument AlarmResListChange(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -608,7 +618,7 @@ namespace TrainStationServer
         #endregion
 
         #region StartMediaOrder
-        public static XmlDocument StartMediaOrder(XmlDocument Doc)
+        public static XmlDocument StartMediaOrder(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -644,7 +654,7 @@ namespace TrainStationServer
         #endregion
 
         #region InfoOrder
-        public static XmlDocument InfoOrder(XmlDocument Doc)
+        public static XmlDocument InfoOrder(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -671,7 +681,7 @@ namespace TrainStationServer
         #endregion
 
         #region ReportAlarmRes
-        public static XmlDocument ReportAlarmRes(XmlDocument Doc)
+        public static XmlDocument ReportAlarmRes(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -749,7 +759,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] StartMediaReqResponse(XmlDocument Doc)
+        public static string[] StartMediaReqResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId, tcpIp, tcpPort;
@@ -819,13 +829,13 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static XmlDocument ControlPTZTranslate(XmlDocument doc,params string[] param)
+        public static XmlDocument ControlPTZTranslate(XmlDocument Doc,params string[] param)
         {
             XmlTools XmlOp = new XmlTools();
             string[] parameters;
             //string[] paraNames = { "resId", "userId", "userLevel", "cmd", "param", "speed" };//原
             string[] paraNames = { "level", "command", "parameter" };
-            parameters = XmlOp.GetAttribute(doc, "PTZControl", paraNames);
+            parameters = XmlOp.GetAttribute(Doc, "PTZControl", paraNames);
             //return ControlPTZ(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);//原
             return ControlPTZ(param[0], param[1], parameters[0], parameters[1], parameters[2],"4");
         }
@@ -851,7 +861,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] StopMediaReqResponse(XmlDocument Doc)
+        public static string[] StopMediaReqResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId;
@@ -891,7 +901,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] QueryHistoryFilesResponse(XmlDocument Doc)
+        public static string[] QueryHistoryFilesResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string resId, cuId, totalNumber, currentNumber;
@@ -952,7 +962,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] StartPlayBackResponse(XmlDocument Doc)
+        public static string[] StartPlayBackResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId, tcpIp, tcpPort;
@@ -1004,7 +1014,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] StartHisLoadResponse(XmlDocument Doc)
+        public static string[] StartHisLoadResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId, tcpIp, tcpPort;
@@ -1044,7 +1054,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] HisLoadInfoResponse(XmlDocument Doc)
+        public static string[] HisLoadInfoResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId;
@@ -1080,7 +1090,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] INFOResponse(XmlDocument Doc)
+        public static string[] INFOResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId;
@@ -1116,7 +1126,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] HisInfoResponse(XmlDocument Doc)
+        public static string[] HisInfoResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId;
@@ -1152,7 +1162,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] ControlFileBackResponse(XmlDocument Doc)
+        public static string[] ControlFileBackResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string sessionId;
@@ -1189,7 +1199,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] ReqCamResStateResponse(XmlDocument Doc)
+        public static string[] ReqCamResStateResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             List<string> resId = new List<string>();
@@ -1221,7 +1231,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] GetUserCurStateResponse(XmlDocument Doc)
+        public static string[] GetUserCurStateResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string saId, curUserId, userIp, userState;
@@ -1282,7 +1292,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] SetUserCamManageResponse(XmlDocument Doc)
+        public static string[] SetUserCamManageResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string[] result = null;                   
@@ -1321,7 +1331,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] AlarmResSubscribeResponse(XmlDocument Doc)
+        public static string[] AlarmResSubscribeResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string saId;
@@ -1363,7 +1373,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] QueryAlarmResResponse(XmlDocument Doc)
+        public static string[] QueryAlarmResResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             List<string> id = new List<string>();
@@ -1420,7 +1430,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] ReportAlarmInfoResponse(XmlDocument Doc)
+        public static string[] ReportAlarmInfoResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string muId;
@@ -1481,7 +1491,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] ResTransOrderResponse(XmlDocument Doc)
+        public static string[] ResTransOrderResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string saId;
@@ -1530,7 +1540,7 @@ namespace TrainStationServer
             return Request;
         }
 
-        public static string[] ResChangeOrderResponse(XmlDocument Doc)
+        public static string[] ResChangeOrderResponse(XmlDocument Doc, SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             string[] result = null;
