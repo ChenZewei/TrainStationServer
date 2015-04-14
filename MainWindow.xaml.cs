@@ -171,10 +171,11 @@ namespace TrainStationServer
                         osipCallMessage(eXosipEvent);
                         break;
                     case eXosip.EventType.EXOSIP_MESSAGE_NEW:
-                        osipMessage(eXosipEvent);
+                        //osipCallMessage(eXosipEvent);
+                        //osipMessage(eXosipEvent);
                         break;
                     case eXosip.EventType.EXOSIP_CALL_CLOSED:
-                        osipCallClose(eXosipEvent);
+                        //osipCallClose(eXosipEvent);
                         break;
                     default:
                         break;
@@ -190,20 +191,39 @@ namespace TrainStationServer
         {
             Socket exoSocket;
             eXosip.Lock();
+            IntPtr ptr; 
             byte[] recv = new byte[2048];
             XmlDocument Request = new XmlDocument(); ;
             SipSocket temp;
+            ptr = osip.Message.GetContentType(eXosipEvent.request);
+            if (ptr == IntPtr.Zero) return;
+            osip.ContentType content = (osip.ContentType)Marshal.PtrToStructure(ptr, typeof(osip.ContentType));
             System.Timers.Timer timer = new System.Timers.Timer(2000);
             timer.Elapsed += new System.Timers.ElapsedEventHandler(Tick);
             string[] result = new string[10];
-            eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
-            IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
-            if (sdp == IntPtr.Zero)
+            try
             {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 180, IntPtr.Zero);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
+            try
+            {
+                if (sdp == IntPtr.Zero)
+                {
+                    eXosip.Call.SendAnswer(eXosipEvent.tid, 400, IntPtr.Zero);
+                    eXosip.Unlock();
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
 
             osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
             osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
@@ -214,27 +234,64 @@ namespace TrainStationServer
             string resId = name.Substring(4, name.IndexOf('@') - 4);
             string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
             string userId = resId.Substring(0, 10) + userCode;
-            if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
-            {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
-            }
+            //try
+            //{
+            //    if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
+            //    {
+            //        eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+            //        eXosip.Unlock();
+            //        return;
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //}
 
             string sessionname = osip.SdpMessage.GetSessionName(sdp);
             //以下的接口中的数据均为伪造，未测试版本，缺失提取Xml信息的步骤
 
             if (sessionname == "RealTime")
             {
-                Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
+                //Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
             }
             else if (sessionname == "PlayBack")
             {
-                Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
+                ptr = osip.Message.GetBody(eXosipEvent.request);
+                osip.Body body = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
+                //if (Marshal.PtrToStringAnsi(content.type) != "RVSS" ||
+                //    Marshal.PtrToStringAnsi(content.subtype) != "xml")
+                //    return;
+                string xml = Marshal.PtrToStringAnsi(body.body);
+                Console.Write("PlayBack:\r\n" + xml);
+                //try
+                //{
+                //    Request.LoadXml(xml);
+                //}
+                //catch (XmlException e)
+                //{
+                //    Console.WriteLine(e.Message);
+                //}
+                //Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
             }
             else if (sessionname == "DownLoad")
             {
-                Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
+                ptr = osip.Message.GetBody(eXosipEvent.request);
+                osip.Body body = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
+                //if (Marshal.PtrToStringAnsi(content.type) != "RVSS" ||
+                //    Marshal.PtrToStringAnsi(content.subtype) != "xml")
+                //    return;
+                string xml = Marshal.PtrToStringAnsi(body.body);
+                Console.Write("DownLoad:\r\n" + xml);
+                //try
+                //{
+                //    Request.LoadXml(xml);
+                //}
+                //catch(XmlException e)
+                //{
+                //    Console.WriteLine(e.Message);
+                //}
+                //Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
             }
             else
             {
@@ -243,34 +300,34 @@ namespace TrainStationServer
                 return;
             }
 
-            temp = SipSocket.FindSipSocket(exoSocket);
-            SipSocket.CleanResult(exoSocket);
-            temp.SendRequest(Request);
-            result = WaitForResult(testsocket, timer, 5000);
+            //temp = SipSocket.FindSipSocket(exoSocket);
+            //SipSocket.CleanResult(exoSocket);
+            //temp.SendRequest(Request);
+            //result = WaitForResult(testsocket, timer, 5000);
 
-            if (result != null)
-            {
-                switch(sessionname)
-                {
-                    case "RealTime":
-                        temp.sessionIdRT = result[0];
-                        break;
-                    case "PlayBack":
-                        temp.sessionIdPB = result[0];
-                        break;
-                    case "DownLoad":
-                        temp.sessionIdDL = result[0];
-                        break;
-                }
-                for (int k = 0; k < result.Length; k++)
-                    Console.WriteLine(result[k]);
-            }
-            else
-            {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
-            }
+            //if (result != null)
+            //{
+            //    switch(sessionname)
+            //    {
+            //        case "RealTime":
+            //            temp.sessionIdRT = result[0];
+            //            break;
+            //        case "PlayBack":
+            //            temp.sessionIdPB = result[0];
+            //            break;
+            //        case "DownLoad":
+            //            temp.sessionIdDL = result[0];
+            //            break;
+            //    }
+            //    for (int k = 0; k < result.Length; k++)
+            //        Console.WriteLine(result[k]);
+            //}
+            //else
+            //{
+                //eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                //eXosip.Unlock();
+                //return;
+            //}
 
             
             string sessionId = osip.SdpMessage.GetSessionId(sdp);
@@ -288,11 +345,11 @@ namespace TrainStationServer
                     "m=application {4} RTP/AVP/TCP octet-stream\r\n" +
                     "a=setup:passive\r\n" +
                     "a=connection:new\r\n",
-                    resId,
-                    result[0],
-                    sessionVersion,
-                    result[1],
-                    result[2],
+                    resId,"0000000000ffffffffff00000fffff",
+                    //result[0],
+                    sessionVersion,"192.168.80.110","8888",
+                    //result[1],
+                    //result[2],
                     sessionname);
                 osip.Message.SetBody(answer, tmp);
                 osip.Message.SetContentType(answer, "application/sdp");
@@ -326,12 +383,19 @@ namespace TrainStationServer
             string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
             string userId = resId.Substring(0, 10) + userCode;
 
-            if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
-            {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
-            }
+            //try
+            //{
+            //    if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
+            //    {
+            //        eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+            //        eXosip.Unlock();
+            //        return;
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //}
 
             osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
             if (Marshal.PtrToStringAnsi(content.type) != "application" ||
@@ -340,18 +404,18 @@ namespace TrainStationServer
             string xml = Marshal.PtrToStringAnsi(data.body);
             Console.Write(xml);
             /*----------------------------分割线-----------------------------*/
-            TempDoc.LoadXml(xml);
-            temp = SipSocket.FindSipSocket(exoSocket);
-            Request = InterfaceC.CallMessageTranslate(TempDoc, resId, userId);//提取参数并转为C类接口格式
-            SipSocket.CleanResult(exoSocket);
-            temp.SendRequest(Request);
-            result = WaitForResult(testsocket, timer, 2000);
+            //TempDoc.LoadXml(xml);
+            //temp = SipSocket.FindSipSocket(exoSocket);
+            //Request = InterfaceC.CallMessageTranslate(TempDoc, resId, userId);//提取参数并转为C类接口格式
+            //SipSocket.CleanResult(exoSocket);
+            //temp.SendRequest(Request);
+            //result = WaitForResult(testsocket, timer, 2000);
 
-            if (result != null)
-                for (int k = 0; k < result.Length; k++)
-                    Console.WriteLine(result[k]);
-            temp = SipSocket.FindSipSocket(exoSocket);
-            temp.SendRequest(Request); 
+            //if (result != null)
+            //    for (int k = 0; k < result.Length; k++)
+            //        Console.WriteLine(result[k]);
+            //temp = SipSocket.FindSipSocket(exoSocket);
+            //temp.SendRequest(Request); 
         }
 
         void osipMessage(eXosip.Event eXosipEvent)
@@ -376,13 +440,20 @@ namespace TrainStationServer
             string resId = name.Substring(4, name.IndexOf('@') - 4);
             string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
             string userId = resId.Substring(0, 10) + userCode;
-
-            if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
+            try 
             {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
+                if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
+                {
+                    eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                    eXosip.Unlock();
+                    return;
+                }
             }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
 
             osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
             if (Marshal.PtrToStringAnsi(content.type) != "application" ||
@@ -399,7 +470,6 @@ namespace TrainStationServer
 
         void osipCallClose(eXosip.Event eXosipEvent)
         {
-            IntPtr ptr;
             XmlDocument Request;
             Socket exoSocket;
             SipSocket temp;

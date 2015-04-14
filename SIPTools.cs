@@ -109,7 +109,14 @@ namespace TrainStationServer
                     }
                 }
 
-                xmlDoc.LoadXml(strBuffer);
+                try
+                {
+                    xmlDoc.LoadXml(strBuffer);
+                }
+                catch(XmlException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
                 return xmlDoc;
             }
             return null;
