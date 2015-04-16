@@ -123,6 +123,9 @@ namespace TrainStationServer
                         result = StopMediaReqResponse(doc, sipsocket);
                         break;
                     case "QueryAlarmRes":
+                        //result = new string[1];
+                        //result[0] = "sendback";
+                        //break;
                         result = new string[3];
                         result = QueryAlarmResResponse(doc, sipsocket);
                         break;

@@ -10,6 +10,7 @@ namespace TrainStationServer
 {
     class SipSocket
     {
+        
         public Socket socket;
         public SIPTools sip;
         public string[] result;
@@ -17,7 +18,7 @@ namespace TrainStationServer
         public string saId;
         public string[] resId;
         private static List<SipSocket> sipsocket = new List<SipSocket>();
-        public List<XmlDocument> XmlList = new List<XmlDocument>();
+        public List<ResponseList> XmlList = new List<ResponseList>();
 
         private SipSocket()
         {
@@ -243,6 +244,21 @@ namespace TrainStationServer
         public static int Send(Socket socket, XmlDocument doc)
         {
             return socket.Send(Encoding.GetEncoding("GB2312").GetBytes(FindSip(socket).SIPRequest(doc)));
+        }
+
+        public XmlDocument Redy2Return()
+        {
+            foreach(ResponseList temp in XmlList)
+            {
+                if (temp.Cseq == sip.ncseq)
+                {
+                    XmlDocument response = temp.Doc;
+                    XmlList.Remove(temp);
+                    sip.ncseq++;
+                    return response;
+                }
+            }
+            return null;
         }
     }
 }

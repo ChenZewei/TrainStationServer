@@ -10,7 +10,7 @@ namespace TrainStationServer
     class SIPTools
     {
         private string To, From, CSeq;
-        private int cseq;
+        public int cseq,ncseq;
         public string Id;
         public SIPTools()
         {
@@ -28,6 +28,7 @@ namespace TrainStationServer
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
             cseq = 0;
+            ncseq = 0;
         }
         public SIPTools(string to, string from, string cseq)
         {
@@ -35,22 +36,9 @@ namespace TrainStationServer
             From = from;
             CSeq = cseq;
             this.cseq = 0;
+            this.ncseq = 0;
         }
-        public string SIPRequest(XmlDocument doc)
-        {
-            string sendBuffer = "";
-            //sendBuffer += "INVITE sip:6100002007000001 SIP/2.0\r\n";
-            sendBuffer += "SIP/2.0 200 OK\r\n";
-            sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
-            sendBuffer += "To:" + To + "\r\n";
-            sendBuffer += "From:" + From + "\r\n";
-            sendBuffer += "Call-ID: XX\r\n";
-            sendBuffer += "CSeq:" + (cseq++).ToString() + "\r\n";
-            sendBuffer += "Content-Type:RVSS/xml\r\n";
-            sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
-            sendBuffer += doc.OuterXml;
-            return sendBuffer;
-        }
+        
 
         public void RefreshCSeq(byte[] recv,int i)
         {
@@ -66,6 +54,22 @@ namespace TrainStationServer
             sendBuffer += "From:" + From + "\r\n";
             sendBuffer += "Call-ID:6100002007000001\r\n";
             sendBuffer += "CSeq:" + CSeq + "\r\n";
+            sendBuffer += "Content-Type:RVSS/xml\r\n";
+            sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
+            sendBuffer += doc.OuterXml;
+            return sendBuffer;
+        }
+
+        public string SIPRequest(XmlDocument doc)
+        {
+            string sendBuffer = "";
+            //sendBuffer += "INVITE sip:6100002007000001 SIP/2.0\r\n";
+            sendBuffer += "SIP/2.0 200 OK\r\n";
+            sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
+            sendBuffer += "To:" + To + "\r\n";
+            sendBuffer += "From:" + From + "\r\n";
+            sendBuffer += "Call-ID: XX\r\n";
+            sendBuffer += "CSeq:" + (cseq++).ToString() + "INVITE\r\n";
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
             sendBuffer += doc.OuterXml;
@@ -152,6 +156,27 @@ namespace TrainStationServer
                 return "";
             info = Encoding.UTF8.GetString(infoByte, 0, length);
             return info;
+        }
+
+        public static int getCSeq(byte[] recv)
+        {
+            int index, n = 0;
+            byte[] result = new byte[10];
+            if ((index = IndexOf(recv, Encoding.ASCII.GetBytes("CSeq:"))) != -1)
+            {
+                while (recv[index] == ' ')
+                    index++;
+                for(int i = index; ;i++)
+                {
+                    if (recv[i] == ' ' || recv[i] < '0' || recv[i] > '9')
+                    {
+                        break;
+                    }
+                    result[n++] = recv[i];
+                }
+                return int.Parse(Encoding.ASCII.GetString(result));
+            }
+            return -1;
         }
 
         private static int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号

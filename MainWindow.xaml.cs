@@ -35,6 +35,7 @@ namespace TrainStationServer
             public int recvLen;
             public bool isClosed = false;
         }
+        
         private Socket socket, client, client2, testsocket, socket2;
         //private SipSocket mainSocket, client, testsocket;
         private IPEndPoint ipEnd, ipEnd2;
@@ -71,9 +72,9 @@ namespace TrainStationServer
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
-            socket2.Bind(ipEnd2);
+            //socket2.Bind(ipEnd2);
             socket.Listen(20);
-            socket2.Listen(5);
+            //socket2.Listen(5);
             Database = new DataBase();
             C = new InterfaceC(Database);
             stateobject mainObject = new stateobject();
@@ -81,12 +82,12 @@ namespace TrainStationServer
             stateobject mainObject2 = new stateobject();
             mainObject2.socket = socket2;
             socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
-            socket2.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject2);
+            //socket2.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject2);
             Result.AppendText("Start listening...\r\n");
-            exosip = new eXosip();
-            snoopThread = new Thread(Snoop);
-            snoopThread.IsBackground = true;
-            snoopThread.Start();
+            //exosip = new eXosip();
+            //snoopThread = new Thread(Snoop);
+            //snoopThread.IsBackground = true;
+            //snoopThread.Start();
             Combo.IsEnabled = true;
         }
         
@@ -122,6 +123,7 @@ namespace TrainStationServer
             stateobject state = (stateobject)ar.AsyncState;
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
+            int cseq;
             if (state.isClosed)
                 return;
             try
@@ -133,6 +135,9 @@ namespace TrainStationServer
                 SipSocket.Add(state.socket, new SIPTools(state.recv, i));
                 temp = SipSocket.FindSipSocket(state.socket);
                 string[] result;
+                cseq = SIPTools.getCSeq(state.recv);
+                if (cseq == -1)
+                    return;
                 Doc = SIPTools.XmlExtract(recv, i);
                 if (Doc == null)
                     return;
@@ -157,14 +162,29 @@ namespace TrainStationServer
                         }
                         else
                         {
-                            temp.XmlList.Add(Doc);
-                            //int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(Doc.OuterXml));
-                            //Console.WriteLine("SendToServer:" + j.ToString());
-                            //client2.Close();
+                            ResponseList RL = new ResponseList(cseq, Doc);
+                            temp.XmlList.Add(RL);
+                            XmlDocument response = new XmlDocument();
+                            while(true)
+                            {
+                                response = temp.Redy2Return();
+                                if (response != null)
+                                {
+                                    //int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
+                                    //Console.WriteLine("SendToServer:" + j.ToString());
+                                    if (temp.XmlList.Count == 0)
+                                    {
+                                        //client2.Close();
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
                         }
-                        
                     }
-                        
                 }
             }
             catch(SocketException e)
@@ -182,7 +202,7 @@ namespace TrainStationServer
       
         }
 
-        void recvProc2(IAsyncResult ar)//异步Receive
+        void recvProc2(IAsyncResult ar)//接收服务器请求
         {
             stateobject state = (stateobject)ar.AsyncState;
             XmlDocument Doc = new XmlDocument();
