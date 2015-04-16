@@ -17,6 +17,7 @@ namespace TrainStationServer
         public string saId;
         public string[] resId;
         private static List<SipSocket> sipsocket = new List<SipSocket>();
+        public List<XmlDocument> XmlList = new List<XmlDocument>();
 
         private SipSocket()
         {
@@ -105,6 +106,8 @@ namespace TrainStationServer
 
         public static void Delete(Socket socket)
         {
+            if (sipsocket.Count == 0)
+                return;
             foreach (SipSocket ss in sipsocket)
             {
                 if (ss.socket.Equals(socket))
@@ -118,6 +121,8 @@ namespace TrainStationServer
 
         public static Socket FindSocket(string prefix)//确认sipsocket列表中是否已经存在指定id的Socket
         {
+            if (sipsocket.Count == 0)
+                return null;
             foreach (SipSocket temp in sipsocket)
             {
                 if (temp.sip.Id.StartsWith(prefix))
@@ -130,28 +135,45 @@ namespace TrainStationServer
 
         public static SIPTools FindSip(Socket socket)//确认sipsocket列表中是否已经存在指定id的SIPTools
         {
+            if (sipsocket.Count == 0)
+                return null;
             foreach (SipSocket temp in sipsocket)
             {
                 if (temp.socket.Equals(socket))
                 {
                     return temp.sip;
                 }
-                else
-                    return null;
             }
             return null;
         }
 
         public static SipSocket FindSipSocket(Socket socket)
         {
+            if (sipsocket.Count == 0)
+                return null;
             foreach (SipSocket temp in sipsocket)
             {
                 if (temp.socket.Equals(socket))
                 {
                     return temp;
                 }
-                else
-                    return null;
+            }
+            return null;
+        }
+
+        public static SipSocket FindSipSocket(string resId)
+        {
+            if (sipsocket.Count == 0)
+                return null;
+            foreach (SipSocket temp in sipsocket)
+            {
+                for (int i = 0; i < temp.resId.Length; i++ )
+                {
+                    if (temp.resId[i].Equals(resId))
+                    {
+                        return temp;
+                    }
+                }  
             }
             return null;
         }

@@ -35,9 +35,9 @@ namespace TrainStationServer
             public int recvLen;
             public bool isClosed = false;
         }
-        private Socket socket, client, testsocket;
+        private Socket socket, client, client2, testsocket, socket2;
         //private SipSocket mainSocket, client, testsocket;
-        private IPEndPoint ipEnd;
+        private IPEndPoint ipEnd, ipEnd2;
         private eXosip exosip;
         private Thread clientThread, snoopThread;
         private byte[] recv = new byte[2048], send = new byte[2048];
@@ -67,14 +67,21 @@ namespace TrainStationServer
         private void Start_Click_1(object sender, RoutedEventArgs e)//绑定套接字等初始化
         {
             ipEnd = new IPEndPoint(IPAddress.Any, 15000);
+            ipEnd2 = new IPEndPoint(IPAddress.Any, 16000);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
+            socket2.Bind(ipEnd2);
             socket.Listen(20);
+            socket2.Listen(5);
             Database = new DataBase();
             C = new InterfaceC(Database);
             stateobject mainObject = new stateobject();
             mainObject.socket = socket;
+            stateobject mainObject2 = new stateobject();
+            mainObject2.socket = socket2;
             socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
+            socket2.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject2);
             Result.AppendText("Start listening...\r\n");
             exosip = new eXosip();
             snoopThread = new Thread(Snoop);
@@ -97,6 +104,19 @@ namespace TrainStationServer
             testsocket = client;
         }
 
+        private void AsyncAccept2(IAsyncResult ar)//异步Accept
+        {
+            stateobject mainObject = (stateobject)ar.AsyncState;
+            stateobject clientObject = new stateobject();
+            client2 = mainObject.socket.EndAccept(ar);
+            mainObject.socket.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject);
+            this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
+            clientObject.socket = client2;
+            clientObject.recv = recv;
+            clientObject.send = send;
+            client2.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc2), clientObject);
+        }
+
         void recvProc(IAsyncResult ar)//异步Receive
         {
             stateobject state = (stateobject)ar.AsyncState;
@@ -108,6 +128,7 @@ namespace TrainStationServer
             {
                 state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 int i = state.socket.EndReceive(ar);
+                Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 SipSocket.Add(state.socket, new SIPTools(state.recv, i));
                 temp = SipSocket.FindSipSocket(state.socket);
@@ -119,6 +140,7 @@ namespace TrainStationServer
                     return;
                 if (InterfaceC.IsRequest(Doc))
                 {
+                    temp.sip.RefreshCSeq(state.recv, i);
                     temp.SendResponse(InterfaceC.Request(Doc, temp));
                 }
                 else
@@ -126,10 +148,21 @@ namespace TrainStationServer
                     result = InterfaceC.Response(Doc, temp);
                     if (result != null)
                     {
-                        SipSocket.SetResult(state.socket, result);
-                        //temp.SetResult(result);
-                        for (int k = 0; k < result.Length; k++)
-                            Console.WriteLine(result[k]);
+                        if(result[0] != "sendback")
+                        {
+                            SipSocket.SetResult(state.socket, result);
+                            //temp.SetResult(result);
+                            for (int k = 0; k < result.Length; k++)
+                                Console.WriteLine(result[k]);
+                        }
+                        else
+                        {
+                            temp.XmlList.Add(Doc);
+                            //int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(Doc.OuterXml));
+                            //Console.WriteLine("SendToServer:" + j.ToString());
+                            //client2.Close();
+                        }
+                        
                     }
                         
                 }
@@ -147,6 +180,50 @@ namespace TrainStationServer
                 return;
             }      
       
+        }
+
+        void recvProc2(IAsyncResult ar)//异步Receive
+        {
+            stateobject state = (stateobject)ar.AsyncState;
+            XmlDocument Doc = new XmlDocument();
+            SipSocket temp;
+            Thread returnInOrder;
+            returnInOrder = new Thread(ReturnInOrder);
+            returnInOrder.IsBackground = true;
+            if (state.isClosed)
+                return;
+            try
+            {
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
+                int i = state.socket.EndReceive(ar);
+                string recvbuffer = Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i);
+                Doc.LoadXml(recvbuffer);
+                XmlTools XmlOp = new XmlTools();
+                string resId = XmlOp.GetInnerText(Doc, "resId");
+                temp = SipSocket.FindSipSocket(resId);
+                temp.SendRequest(Doc);
+                returnInOrder.Start();
+                Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
+            }
+            catch (SocketException e)
+            {
+                state.isClosed = true;
+                state.socket.Dispose();
+                Console.WriteLine(e.Message);
+                return;
+            }
+            catch (XmlException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+
+        }
+
+        void ReturnInOrder()
+        { 
+
         }
 
         void Snoop()
@@ -234,63 +311,66 @@ namespace TrainStationServer
             string resId = name.Substring(4, name.IndexOf('@') - 4);
             string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
             string userId = resId.Substring(0, 10) + userCode;
-            //try
-            //{
-            //    if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
-            //    {
-            //        eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-            //        eXosip.Unlock();
-            //        return;
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //}
+            exoSocket = SipSocket.FindSocket(resId.Substring(0, 6));
+            try
+            {
+                if (exoSocket == null)
+                {
+                    eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                    eXosip.Unlock();
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
             string sessionname = osip.SdpMessage.GetSessionName(sdp);
             //以下的接口中的数据均为伪造，未测试版本，缺失提取Xml信息的步骤
 
             if (sessionname == "RealTime")
             {
-                //Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
+                Request = InterfaceC.StartMediaReq(resId, userId, "63", "1", "0", "", "", "1");
             }
             else if (sessionname == "PlayBack")
             {
                 ptr = osip.Message.GetBody(eXosipEvent.request);
                 osip.Body body = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
-                //if (Marshal.PtrToStringAnsi(content.type) != "RVSS" ||
-                //    Marshal.PtrToStringAnsi(content.subtype) != "xml")
-                //    return;
+                if (Marshal.PtrToStringAnsi(content.type) != "RVSS" ||
+                    Marshal.PtrToStringAnsi(content.subtype) != "xml")
+                    return;
                 string xml = Marshal.PtrToStringAnsi(body.body);
                 Console.Write("PlayBack:\r\n" + xml);
-                //try
-                //{
-                //    Request.LoadXml(xml);
-                //}
-                //catch (XmlException e)
-                //{
-                //    Console.WriteLine(e.Message);
-                //}
+                try
+                {
+                    Request.LoadXml(xml);
+                }
+                catch (XmlException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return;
+                }
                 //Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
             }
             else if (sessionname == "DownLoad")
             {
                 ptr = osip.Message.GetBody(eXosipEvent.request);
                 osip.Body body = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
-                //if (Marshal.PtrToStringAnsi(content.type) != "RVSS" ||
-                //    Marshal.PtrToStringAnsi(content.subtype) != "xml")
-                //    return;
+                if (Marshal.PtrToStringAnsi(content.type) != "RVSS" ||
+                    Marshal.PtrToStringAnsi(content.subtype) != "xml")
+                    return;
                 string xml = Marshal.PtrToStringAnsi(body.body);
                 Console.Write("DownLoad:\r\n" + xml);
-                //try
-                //{
-                //    Request.LoadXml(xml);
-                //}
-                //catch(XmlException e)
-                //{
-                //    Console.WriteLine(e.Message);
-                //}
+                try
+                {
+                    Request.LoadXml(xml);
+                }
+                catch (XmlException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return;
+                }
                 //Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
             }
             else
@@ -300,34 +380,34 @@ namespace TrainStationServer
                 return;
             }
 
-            //temp = SipSocket.FindSipSocket(exoSocket);
-            //SipSocket.CleanResult(exoSocket);
-            //temp.SendRequest(Request);
-            //result = WaitForResult(testsocket, timer, 5000);
+            temp = SipSocket.FindSipSocket(exoSocket);
+            SipSocket.CleanResult(exoSocket);
+            temp.SendRequest(Request);
+            result = WaitForResult(testsocket, timer, 5000);
 
-            //if (result != null)
-            //{
-            //    switch(sessionname)
-            //    {
-            //        case "RealTime":
-            //            temp.sessionIdRT = result[0];
-            //            break;
-            //        case "PlayBack":
-            //            temp.sessionIdPB = result[0];
-            //            break;
-            //        case "DownLoad":
-            //            temp.sessionIdDL = result[0];
-            //            break;
-            //    }
-            //    for (int k = 0; k < result.Length; k++)
-            //        Console.WriteLine(result[k]);
-            //}
-            //else
-            //{
-                //eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                //eXosip.Unlock();
-                //return;
-            //}
+            if (result != null)
+            {
+                switch (sessionname)
+                {
+                    case "RealTime":
+                        temp.sessionIdRT = result[0];
+                        break;
+                    case "PlayBack":
+                        temp.sessionIdPB = result[0];
+                        break;
+                    case "DownLoad":
+                        temp.sessionIdDL = result[0];
+                        break;
+                }
+                for (int k = 0; k < result.Length; k++)
+                    Console.WriteLine(result[k]);
+            }
+            else
+            {
+                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                eXosip.Unlock();
+                return;
+            }
 
             
             string sessionId = osip.SdpMessage.GetSessionId(sdp);
@@ -345,11 +425,11 @@ namespace TrainStationServer
                     "m=application {4} RTP/AVP/TCP octet-stream\r\n" +
                     "a=setup:passive\r\n" +
                     "a=connection:new\r\n",
-                    resId,"0000000000ffffffffff00000fffff",
-                    //result[0],
-                    sessionVersion,"192.168.80.110","8888",
-                    //result[1],
-                    //result[2],
+                    resId,
+                    result[0],
+                    sessionVersion,
+                    result[1],
+                    result[2],
                     sessionname);
                 osip.Message.SetBody(answer, tmp);
                 osip.Message.SetContentType(answer, "application/sdp");
@@ -396,6 +476,8 @@ namespace TrainStationServer
             //{
             //    Console.WriteLine(e.Message);
             //}
+            IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
+            string sessionname = osip.SdpMessage.GetSessionName(sdp);
 
             osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
             if (Marshal.PtrToStringAnsi(content.type) != "application" ||

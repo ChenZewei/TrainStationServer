@@ -130,7 +130,18 @@ namespace TrainStationServer
                         result = null;
                         break;
                     case "StartPlayBack":
-                        result = StartPlayBackResponse(doc, sipsocket);
+                        result = new string[1];
+                        result[0] = "sendback";
+                        break;
+                        //result = StartPlayBackResponse(doc, sipsocket);
+                        //break;
+                    case "QueryHistoryFiles":
+                        result = new string[1];
+                        result[0] = "sendback";
+                        break;
+                    case "StartHisLoad":
+                        result = new string[1];
+                        result[0] = "sendback";
                         break;
                     default:
                         result = null;
@@ -305,11 +316,11 @@ namespace TrainStationServer
             purpose = XmlOp.GetInnerTextList(Doc, "purpose");
             infomation = XmlOp.GetInnerTextList(Doc, "infomation");
 
-            sipsocket.resId = new string[resId.Count];
-            for (int i = 0; i < resId.Count; i++ )
-            {
-                sipsocket.resId[i] = resId[i];
-            }
+            //sipsocket.resId = new string[resId.Count];
+            //for (int i = 0; i < resId.Count; i++ )
+            //{
+            //    sipsocket.resId[i] = resId[i];
+            //}
 
             database.Insert("ivms_resources", columes, resId, name, location, purpose);
 
@@ -469,6 +480,12 @@ namespace TrainStationServer
             saId = XmlOp.GetInnerText(Doc, "saId");
             resId = XmlOp.GetInnerTextList(Doc, "resId");
             state = XmlOp.GetInnerTextList(Doc, "state");
+
+            sipsocket.resId = new string[resId.Count];
+            for (int i = 0; i < resId.Count; i++)
+            {
+                sipsocket.resId[i] = resId[i];
+            }
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ReportCamResState");

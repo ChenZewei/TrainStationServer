@@ -10,6 +10,7 @@ namespace TrainStationServer
     class SIPTools
     {
         private string To, From, CSeq;
+        private int cseq;
         public string Id;
         public SIPTools()
         {
@@ -17,6 +18,7 @@ namespace TrainStationServer
             To = "XX";
             From = "XX";
             CSeq = "XX INVITE";
+            cseq = 0;
         }
 
         public SIPTools(byte[] buffer, int bufferlen)
@@ -25,12 +27,14 @@ namespace TrainStationServer
             To = GetSIPInfo(buffer, bufferlen, "From");
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
+            cseq = 0;
         }
         public SIPTools(string to, string from, string cseq)
         {
             To = to;
             From = from;
             CSeq = cseq;
+            this.cseq = 0;
         }
         public string SIPRequest(XmlDocument doc)
         {
@@ -41,12 +45,18 @@ namespace TrainStationServer
             sendBuffer += "To:" + To + "\r\n";
             sendBuffer += "From:" + From + "\r\n";
             sendBuffer += "Call-ID: XX\r\n";
-            sendBuffer += "CSeq:" + CSeq + "\r\n";
+            sendBuffer += "CSeq:" + (cseq++).ToString() + "\r\n";
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
             sendBuffer += doc.OuterXml;
             return sendBuffer;
         }
+
+        public void RefreshCSeq(byte[] recv,int i)
+        {
+            CSeq = GetSIPInfo(recv, i, "CSeq");
+        }
+
         public string SIPRequest(XmlDocument doc,string To,string From, string CSeq)
         {
             string sendBuffer = "";
