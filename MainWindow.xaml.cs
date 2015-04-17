@@ -42,8 +42,10 @@ namespace TrainStationServer
         private eXosip exosip;
         private Thread clientThread, snoopThread;
         private byte[] recv = new byte[2048], send = new byte[2048];
+        private byte[] recv2 = new byte[2048], send2 = new byte[2048];
         private DataBase Database;
         private InterfaceC C;
+        private System.Timers.Timer timer;
         //private SocketBound bound;
         private bool timeout = false;
         public MainWindow()
@@ -72,9 +74,9 @@ namespace TrainStationServer
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(ipEnd);
-            //socket2.Bind(ipEnd2);
+            socket2.Bind(ipEnd2);
             socket.Listen(20);
-            //socket2.Listen(5);
+            socket2.Listen(5);
             Database = new DataBase();
             C = new InterfaceC(Database);
             stateobject mainObject = new stateobject();
@@ -82,12 +84,15 @@ namespace TrainStationServer
             stateobject mainObject2 = new stateobject();
             mainObject2.socket = socket2;
             socket.BeginAccept(new AsyncCallback(AsyncAccept), mainObject);
-            //socket2.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject2);
+            socket2.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject2);
             Result.AppendText("Start listening...\r\n");
-            //exosip = new eXosip();
-            //snoopThread = new Thread(Snoop);
-            //snoopThread.IsBackground = true;
-            //snoopThread.Start();
+            exosip = new eXosip();
+            snoopThread = new Thread(Snoop);
+            snoopThread.IsBackground = true;
+            snoopThread.Start();
+            timer = new System.Timers.Timer(60000);
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(ClearTextBox);
+            timer.Enabled = true;
             Combo.IsEnabled = true;
         }
         
@@ -113,8 +118,8 @@ namespace TrainStationServer
             mainObject.socket.BeginAccept(new AsyncCallback(AsyncAccept2), mainObject);
             this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText("Accepted...\r\n")));
             clientObject.socket = client2;
-            clientObject.recv = recv;
-            clientObject.send = send;
+            clientObject.recv = recv2;
+            clientObject.send = send2;
             client2.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc2), clientObject);
         }
 
@@ -124,12 +129,17 @@ namespace TrainStationServer
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
             int cseq;
-            if (state.isClosed)
-                return;
+            //if (state.isClosed)
+            //    return;
             try
             {
-                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 int i = state.socket.EndReceive(ar);
+                if (i <= 0)
+                {
+                    state.socket.Close();
+                    return;
+                }   
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 SipSocket.Add(state.socket, new SIPTools(state.recv, i));
@@ -170,11 +180,12 @@ namespace TrainStationServer
                                 response = temp.Redy2Return();
                                 if (response != null)
                                 {
-                                    //int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
-                                    //Console.WriteLine("SendToServer:" + j.ToString());
+                                    int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
+                                    Console.WriteLine("\r\n<---------------------------------------->\r\n");
+                                    Console.WriteLine("SendToServer:" + j.ToString());
                                     if (temp.XmlList.Count == 0)
                                     {
-                                        //client2.Close();
+                                        client2.Close();
                                         break;
                                     }
                                 }
@@ -191,14 +202,19 @@ namespace TrainStationServer
             {
                 state.isClosed = true;
                 state.socket.Dispose();
-                Console.WriteLine(e.Message);
+                Console.WriteLine("recvProc: " + e.Message);
                 return;
             }
             catch(XmlException e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("recvProc: " + e.Message);
                 return;
-            }      
+            }
+            catch(ObjectDisposedException e)
+            {
+                Console.WriteLine("recvProc: " + e.Message);
+                return;
+            }
       
         }
 
@@ -207,42 +223,46 @@ namespace TrainStationServer
             stateobject state = (stateobject)ar.AsyncState;
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
-            Thread returnInOrder;
-            returnInOrder = new Thread(ReturnInOrder);
-            returnInOrder.IsBackground = true;
-            if (state.isClosed)
+            if (!state.socket.Connected)
                 return;
             try
             {
-                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
                 int i = state.socket.EndReceive(ar);
+                if (i <= 0)
+                {
+                    state.socket.Close();
+                    return;
+                }   
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
                 string recvbuffer = Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i);
                 Doc.LoadXml(recvbuffer);
                 XmlTools XmlOp = new XmlTools();
                 string resId = XmlOp.GetInnerText(Doc, "resId");
                 temp = SipSocket.FindSipSocket(resId);
-                temp.SendRequest(Doc);
-                returnInOrder.Start();
+                int j =temp.SendRequest(Doc);
+                Console.WriteLine("\r\n<---------------------------------------->\r\n");
+                Console.WriteLine("Send J:" + j.ToString());
+                //returnInOrder.Start();
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
             }
             catch (SocketException e)
             {
                 state.isClosed = true;
-                state.socket.Dispose();
+                //state.socket.Dispose();
                 Console.WriteLine(e.Message);
                 return;
             }
             catch (XmlException e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("recvProc2: " + e.Message);
                 return;
             }
-
-        }
-
-        void ReturnInOrder()
-        { 
+            catch(ObjectDisposedException e)
+            {
+                Console.WriteLine("recvProc2: " + e.Message);
+                return;
+            }
 
         }
 
@@ -268,11 +288,8 @@ namespace TrainStationServer
                         osipCallMessage(eXosipEvent);
                         break;
                     case eXosip.EventType.EXOSIP_MESSAGE_NEW:
-                        //osipCallMessage(eXosipEvent);
-                        //osipMessage(eXosipEvent);
                         break;
                     case eXosip.EventType.EXOSIP_CALL_CLOSED:
-                        //osipCallClose(eXosipEvent);
                         break;
                     default:
                         break;
@@ -318,7 +335,7 @@ namespace TrainStationServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("osipCallInvite: " + e.Message);
             }
             
 
@@ -343,7 +360,7 @@ namespace TrainStationServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("osipCallInvite: " + e.Message);
             }
 
             string sessionname = osip.SdpMessage.GetSessionName(sdp);
@@ -368,7 +385,7 @@ namespace TrainStationServer
                 }
                 catch (XmlException e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine("osipCallInvite: " + e.Message);
                     return;
                 }
                 //Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
@@ -388,7 +405,7 @@ namespace TrainStationServer
                 }
                 catch (XmlException e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine("osipCallInvite: " + e.Message);
                     return;
                 }
                 //Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
@@ -482,20 +499,19 @@ namespace TrainStationServer
             string resId = name.Substring(4, name.IndexOf('@') - 4);
             string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
             string userId = resId.Substring(0, 10) + userCode;
-
-            //try
-            //{
-            //    if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
-            //    {
-            //        eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-            //        eXosip.Unlock();
-            //        return;
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //}
+            try
+            {
+                if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
+                {
+                    eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
+                    eXosip.Unlock();
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
             IntPtr sdp = eXosip.GetRemoteSdp(eXosipEvent.did);
             string sessionname = osip.SdpMessage.GetSessionName(sdp);
 
@@ -520,88 +536,6 @@ namespace TrainStationServer
             //temp.SendRequest(Request); 
         }
 
-        void osipMessage(eXosip.Event eXosipEvent)
-        {
-            IntPtr ptr;
-            XmlDocument TempDoc = new XmlDocument();
-            XmlDocument Request;
-            Socket exoSocket;
-            SipSocket temp;
-            ptr = osip.Message.GetContentType(eXosipEvent.request);
-            if (ptr == IntPtr.Zero) return;
-            osip.ContentType content = (osip.ContentType)Marshal.PtrToStructure(ptr, typeof(osip.ContentType));
-            ptr = osip.Message.GetBody(eXosipEvent.request);
-            if (ptr == IntPtr.Zero) return;
-
-            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
-            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
-            osip.URI uriTo = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
-            osip.URI uriFrom = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pFrom.url), typeof(osip.URI));
-            string name = osip.URI.ToString(pTo.url);
-            string name2 = osip.URI.ToString(pFrom.url);
-            string resId = name.Substring(4, name.IndexOf('@') - 4);
-            string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
-            string userId = resId.Substring(0, 10) + userCode;
-            try 
-            {
-                if ((exoSocket = SipSocket.FindSocket(resId.Substring(0, 6))) == null)
-                {
-                    eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                    eXosip.Unlock();
-                    return;
-                }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            
-
-            osip.Body data = (osip.Body)Marshal.PtrToStructure(ptr, typeof(osip.Body));
-            if (Marshal.PtrToStringAnsi(content.type) != "application" ||
-                Marshal.PtrToStringAnsi(content.subtype) != "xml")
-                return;
-            string xml = Marshal.PtrToStringAnsi(data.body);
-            Console.Write(xml);
-            /*----------------------------分割线-----------------------------*/
-            TempDoc.LoadXml(xml);
-            //SipSocket.CleanResult(exoSocket);
-            //temp = SipSocket.FindSipSocket(exoSocket);
-            //temp.Send(Request); 
-        }
-
-        void osipCallClose(eXosip.Event eXosipEvent)
-        {
-            XmlDocument Request;
-            Socket exoSocket;
-            SipSocket temp;
-            osip.From pFrom = osip.Message.GetFrom(eXosipEvent.request);
-            osip.From pTo = osip.Message.GetTo(eXosipEvent.request);
-            osip.URI uri = (osip.URI)Marshal.PtrToStructure(osip.From.GetURL(pTo.url), typeof(osip.URI));
-            string name = osip.URI.ToString(pTo.url);
-            string id = name.Substring(4, name.IndexOf('@') - 4);
-            if ((exoSocket = SipSocket.FindSocket(id.Substring(0, 6))) == null)
-            {
-                eXosip.Call.SendAnswer(eXosipEvent.tid, 404, IntPtr.Zero);
-                eXosip.Unlock();
-                return;
-            }
-            /*----------------------------分割线-----------------------------*/
-            Request = InterfaceC.StopMediaReq("0000000000000000", "6101010000000001", "0");//提取参数并转为C类接口格式
-
-            temp = SipSocket.FindSipSocket(exoSocket);
-            try
-            {
-                temp.SendRequest(Request);
-            }
-            catch (SocketException ex)
-            {
-                System.Console.WriteLine(ex);
-            }
-
-            SipSocket.CleanResult(exoSocket);
-        }
-
         private void Test_Click_1(object sender, RoutedEventArgs e)//测试用
         {
             byte[] recv = new byte[2048];
@@ -611,10 +545,10 @@ namespace TrainStationServer
             SipSocket temp = SipSocket.FindSipSocket(testsocket);
             if (temp == null)
                 return;
-            System.Timers.Timer timer = new System.Timers.Timer(2000);
+            System.Timers.Timer timer1 = new System.Timers.Timer(2000);
             SipSocket.CleanResult(testsocket);
             string[] resId = { "6101010000000001", "6101010000000002" }, name = { "01", "02" };
-            string[] cameId = { "6100001201000101" }, id = { "6100002008000001" };
+            string[] camId = { "6100001201000301" }, id = { "6100001201000301" };
             string[] str = { "6100001201000101"};
             string[] type = { "666666", "4444444" };
             string[] startTime = { "2015-03-22 12:22:33", "2015-03-22 12:22:33" }, endTime = { "2015-03-22 12:42:33", "2015-03-22 12:42:33" };
@@ -652,7 +586,7 @@ namespace TrainStationServer
                     sendLen = temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
                     break;
                 case "SetUserCamManage":
-                    sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("6101010000000001", "0", 0, "2015-03-22 12:22:33", "2015-03-22 12:42:33", "2015-03-22 11:42:33", cameId, 1, id, 1));
+                    sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("6100003020990001", "0", 0, "2015-04-17 16:05:45", "2015-04-17 17:05:45", "2015-04-17 16:05:58", camId, 1, null, 0));
                     break;
                 case "AlarmResSubscribe":
                     sendLen = temp.SendRequest(InterfaceC.AlarmResSubscribe("0000000000000000", "6101010000000001", 0, id, type, 2));
@@ -673,7 +607,8 @@ namespace TrainStationServer
                     break;
             }
 
-            result = WaitForResult(testsocket, timer, 2000);
+            result = WaitForResult(testsocket, timer1, 2000);
+            Console.WriteLine("\r\n<===================>\r\n");
             Console.WriteLine("Send Length: " + sendLen.ToString());
             if (result != null)
             {
@@ -722,6 +657,11 @@ namespace TrainStationServer
         private void Tick(object source, System.Timers.ElapsedEventArgs e)
         {
             timeout = true;
+        }
+
+        private void ClearTextBox(object source, System.Timers.ElapsedEventArgs e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => Result.Clear()));
         }
 
     }

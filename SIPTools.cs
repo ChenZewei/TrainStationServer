@@ -69,7 +69,7 @@ namespace TrainStationServer
             sendBuffer += "To:" + To + "\r\n";
             sendBuffer += "From:" + From + "\r\n";
             sendBuffer += "Call-ID: XX\r\n";
-            sendBuffer += "CSeq:" + (cseq++).ToString() + "INVITE\r\n";
+            sendBuffer += "CSeq:" + (cseq++).ToString() + " INVITE\r\n";
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
             sendBuffer += doc.OuterXml;

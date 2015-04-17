@@ -248,17 +248,32 @@ namespace TrainStationServer
 
         public XmlDocument Redy2Return()
         {
+            XmlDocument response;
+            ResponseList RL;
+            if (XmlList.Count <= 0)
+                return null;
+            int tempSeq = XmlList[0].Cseq;
+            response = XmlList[0].Doc;
+            RL = XmlList[0];
             foreach(ResponseList temp in XmlList)
             {
-                if (temp.Cseq == sip.ncseq)
+                //if (temp.Cseq == sip.ncseq)
+                //{
+                //    XmlDocument response = temp.Doc;
+                //    XmlList.Remove(temp);
+                //    sip.ncseq++;
+                //    return response;
+                //}
+                
+                if (temp.Cseq <= tempSeq)
                 {
-                    XmlDocument response = temp.Doc;
-                    XmlList.Remove(temp);
-                    sip.ncseq++;
-                    return response;
+                    response = temp.Doc;
+                    RL = temp;
                 }
             }
-            return null;
+            XmlList.Remove(RL);
+            return response;
+            //return null;
         }
     }
 }

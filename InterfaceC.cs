@@ -123,9 +123,6 @@ namespace TrainStationServer
                         result = StopMediaReqResponse(doc, sipsocket);
                         break;
                     case "QueryAlarmRes":
-                        //result = new string[1];
-                        //result[0] = "sendback";
-                        //break;
                         result = new string[3];
                         result = QueryAlarmResResponse(doc, sipsocket);
                         break;
@@ -136,13 +133,15 @@ namespace TrainStationServer
                         result = new string[1];
                         result[0] = "sendback";
                         break;
-                        //result = StartPlayBackResponse(doc, sipsocket);
-                        //break;
                     case "QueryHistoryFiles":
                         result = new string[1];
                         result[0] = "sendback";
                         break;
                     case "StartHisLoad":
+                        result = new string[1];
+                        result[0] = "sendback";
+                        break;
+                    case "ControlFileBack":
                         result = new string[1];
                         result[0] = "sendback";
                         break;
@@ -1272,7 +1271,7 @@ namespace TrainStationServer
         #endregion
 
         #region SetUserCamManage
-        public static XmlDocument SetUserCamManage(string cuId, string cuLevel, int action, string startTime, string endTime, string schduleCreatTime, string[] cameId, int cameIdNum, string[] id, int idNum)
+        public static XmlDocument SetUserCamManage(string cuId, string cuLevel, int action, string startTime, string endTime, string schduleCreatTime, string[] camId, int camIdNum, string[] id, int idNum)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Request = XmlOp.XmlCreate();
@@ -1293,14 +1292,16 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Request, "parameters", "schduleCreatTime");
             XmlOp.SetNodeInnerText(Request, "schduleCreatTime", 0, schduleCreatTime);
             XmlOp.ElementAdd(Request, "parameters", "group");
-            for (int i = 0; i < cameIdNum;i++ )
+            for (int i = 0; i < camIdNum;i++ )
             {
                 XmlOp.ElementAdd(Request, "group", "URL");
-                XmlOp.ElementAdd(Request, "URL", "cameId", i);
-                XmlOp.SetNodeInnerText(Request, "cameId", i, cameId[i]);
+                XmlOp.ElementAdd(Request, "URL", "camId", i);
+                XmlOp.SetNodeInnerText(Request, "camId", i, camId[i]);
             }
+
             XmlOp.ElementAdd(Request, "parameters", "whiteUser");
-            for (int i = 0; i < cameIdNum; i++)
+            //XmlOp.SetNodeInnerText(Request, "whiteUser", 0, "");
+            for (int i = 0; i < idNum; i++)
             {
                 XmlOp.ElementAdd(Request, "whiteUser", "URL");
                 XmlOp.ElementAdd(Request, "whiteUser/URL", "id", i);
