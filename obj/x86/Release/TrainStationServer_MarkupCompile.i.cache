@@ -4,15 +4,15 @@
 winexe
 C#
 .cs
-C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Release\
 TrainStationServer
 none
 false
-DEBUG;TRACE
+TRACE
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\App.xaml
 11151548125
 
-18-303918338
+181890355
 151700821087
 MainWindow.xaml;
 

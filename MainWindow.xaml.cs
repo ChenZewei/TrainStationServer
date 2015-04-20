@@ -35,36 +35,19 @@ namespace TrainStationServer
             public int recvLen;
             public bool isClosed = false;
         }
-        
         private Socket socket, client, client2, testsocket, socket2;
-        //private SipSocket mainSocket, client, testsocket;
         private IPEndPoint ipEnd, ipEnd2;
         private eXosip exosip;
-        private Thread clientThread, snoopThread;
-        private byte[] recv = new byte[2048], send = new byte[2048];
-        private byte[] recv2 = new byte[2048], send2 = new byte[2048];
+        private Thread snoopThread;
         private DataBase Database;
         private InterfaceC C;
         private System.Timers.Timer timer;
-        //private SocketBound bound;
         private bool timeout = false;
+        private byte[] recv = new byte[2048], send = new byte[2048];
+        private byte[] recv2 = new byte[2048], send2 = new byte[2048];
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        ~MainWindow()
-        {
-            if(socket != null)
-            {
-                socket.Close();
-                socket.Dispose();
-            }
-            if(clientThread != null)
-            {
-                clientThread.Abort();
-                clientThread.Join();
-            }
         }
 
         private void Start_Click_1(object sender, RoutedEventArgs e)//绑定套接字等初始化
@@ -93,7 +76,7 @@ namespace TrainStationServer
             timer = new System.Timers.Timer(60000);
             timer.Elapsed += new System.Timers.ElapsedEventHandler(ClearTextBox);
             timer.Enabled = true;
-            Combo.IsEnabled = true;
+            Start.IsEnabled = false;
         }
         
         private void AsyncAccept(IAsyncResult ar)//异步Accept
@@ -108,6 +91,11 @@ namespace TrainStationServer
             clientObject.send = send;
             client.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc), clientObject);
             testsocket = client;
+            if (Test.IsEnabled == false)
+            {
+                Combo.IsEnabled = true;
+                Test.IsEnabled = true;
+            }
         }
 
         private void AsyncAccept2(IAsyncResult ar)//异步Accept
@@ -129,8 +117,7 @@ namespace TrainStationServer
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
             int cseq;
-            //if (state.isClosed)
-            //    return;
+            string[] result;
             try
             {
                 int i = state.socket.EndReceive(ar);
@@ -144,14 +131,13 @@ namespace TrainStationServer
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 SipSocket.Add(state.socket, new SIPTools(state.recv, i));
                 temp = SipSocket.FindSipSocket(state.socket);
-                string[] result;
+                if (temp == null)
+                    return;
                 cseq = SIPTools.getCSeq(state.recv);
                 if (cseq == -1)
                     return;
                 Doc = SIPTools.XmlExtract(recv, i);
                 if (Doc == null)
-                    return;
-                if (temp == null)
                     return;
                 if (InterfaceC.IsRequest(Doc))
                 {
@@ -166,7 +152,6 @@ namespace TrainStationServer
                         if(result[0] != "sendback")
                         {
                             SipSocket.SetResult(state.socket, result);
-                            //temp.SetResult(result);
                             for (int k = 0; k < result.Length; k++)
                                 Console.WriteLine(result[k]);
                         }
@@ -215,7 +200,6 @@ namespace TrainStationServer
                 Console.WriteLine("recvProc: " + e.Message);
                 return;
             }
-      
         }
 
         void recvProc2(IAsyncResult ar)//接收服务器请求
@@ -239,17 +223,17 @@ namespace TrainStationServer
                 XmlTools XmlOp = new XmlTools();
                 string resId = XmlOp.GetInnerText(Doc, "resId");
                 temp = SipSocket.FindSipSocket(resId);
+                if (temp == null)
+                    return;
                 int j =temp.SendRequest(Doc);
                 Console.WriteLine("\r\n<---------------------------------------->\r\n");
                 Console.WriteLine("Send J:" + j.ToString());
-                //returnInOrder.Start();
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
             }
             catch (SocketException e)
             {
                 state.isClosed = true;
-                //state.socket.Dispose();
                 Console.WriteLine(e.Message);
                 return;
             }
@@ -263,7 +247,6 @@ namespace TrainStationServer
                 Console.WriteLine("recvProc2: " + e.Message);
                 return;
             }
-
         }
 
         void Snoop()
@@ -286,10 +269,6 @@ namespace TrainStationServer
                         break;
                     case eXosip.EventType.EXOSIP_CALL_MESSAGE_NEW:
                         osipCallMessage(eXosipEvent);
-                        break;
-                    case eXosip.EventType.EXOSIP_MESSAGE_NEW:
-                        break;
-                    case eXosip.EventType.EXOSIP_CALL_CLOSED:
                         break;
                     default:
                         break;
@@ -388,7 +367,6 @@ namespace TrainStationServer
                     Console.WriteLine("osipCallInvite: " + e.Message);
                     return;
                 }
-                //Request = InterfaceC.StartPlayBack(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);
             }
             else if (sessionname == "DownLoad")
             {
@@ -408,7 +386,6 @@ namespace TrainStationServer
                     Console.WriteLine("osipCallInvite: " + e.Message);
                     return;
                 }
-                //Request = InterfaceC.StartHisLoad(resId, userId, "63", "2015-03-22 22:33:22", "2015-03-22 23:44:22", 0, "192.168.1.1", "15000", 1, 0);//测试
             }
             else
             {
@@ -662,6 +639,35 @@ namespace TrainStationServer
         private void ClearTextBox(object source, System.Timers.ElapsedEventArgs e)
         {
             this.Dispatcher.BeginInvoke(new Action(() => Result.Clear()));
+        }
+
+        ~MainWindow()
+        {
+            if (socket != null)
+            {
+                socket.Close();
+                socket.Dispose();
+            }
+            if (client != null)
+            {
+                client.Close();
+                client.Dispose();
+            }
+            if (client2 != null)
+            {
+                client2.Close();
+                client2.Dispose();
+            }
+            if (testsocket != null)
+            {
+                testsocket.Close();
+                testsocket.Dispose();
+            }
+            if (socket2 != null)
+            {
+                socket2.Close();
+                socket2.Dispose();
+            }
         }
 
     }

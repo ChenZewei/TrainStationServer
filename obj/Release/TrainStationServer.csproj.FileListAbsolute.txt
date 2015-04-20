@@ -1,0 +1,12 @@
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\Release\TrainStationServer.exe.config
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\Release\TrainStationServer.exe
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\Release\TrainStationServer.pdb
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\MainWindow.baml
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\MainWindow.g.cs
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\App.g.cs
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer_MarkupCompile.cache
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.g.resources
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.Properties.Resources.resources
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.csproj.GenerateResource.Cache
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.exe
+C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.pdb

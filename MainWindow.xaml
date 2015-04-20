@@ -30,7 +30,7 @@
                 <ComboBoxItem>ResChangeOrder</ComboBoxItem>
                 <ComboBoxItem>ReportAlarmInfo</ComboBoxItem>
             </ComboBox>
-            <Button Grid.Column="1" Name="Test" Width="100" Height="30" Content="Test" Click="Test_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Name="Test" Width="100" Height="30" Content="Test" IsEnabled="False" Click="Test_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Button Grid.Column="2" Name="Start" Width="100" Height="30" Content="Start" Click="Start_Click_1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             
         </Grid>
