@@ -127,12 +127,13 @@ namespace TrainStationServer
                     return;
                 }   
                 state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
-                Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 SipSocket.Add(state.socket, new SIPTools(state.recv, i));
                 temp = SipSocket.FindSipSocket(state.socket);
                 if (temp == null)
                     return;
+                Console.WriteLine("Received from: " + temp.sip.Id);
+                Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 cseq = SIPTools.getCSeq(state.recv);
                 if (cseq == -1)
                     return;
@@ -166,8 +167,8 @@ namespace TrainStationServer
                                 if (response != null)
                                 {
                                     int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
-                                    Console.WriteLine("\r\n<---------------------------------------->\r\n");
-                                    Console.WriteLine("SendToServer:" + j.ToString());
+                                    Console.WriteLine("<---------------------------------------->");
+                                    Console.WriteLine("SendToServer: " + j.ToString());
                                     if (temp.XmlList.Count == 0)
                                     {
                                         client2.Close();
@@ -225,9 +226,9 @@ namespace TrainStationServer
                 temp = SipSocket.FindSipSocket(resId);
                 if (temp == null)
                     return;
-                int j =temp.SendRequest(Doc);
-                Console.WriteLine("\r\n<---------------------------------------->\r\n");
-                Console.WriteLine("Send J:" + j.ToString());
+                int j = temp.SendRequest(Doc);
+                Console.WriteLine("<========================================>");
+                Console.WriteLine("SendToServer: " + j.ToString());
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
             }
