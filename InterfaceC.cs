@@ -195,7 +195,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "30");
-            Response.Save("D://SaRegister-request.xml");
+            ////Response.Save("D://SaRegister-request.xml");
 
             return Response;
         }
@@ -234,7 +234,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
-            Response.Save("D://SaRegister-request.xml");
+            ////Response.Save("D://SaRegister-request.xml");
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
@@ -257,7 +257,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "30");
-            //Response.Save("D://SaKeepAlive-request.xml");
+            ////Response.Save("D://SaKeepAlive-request.xml");
 
             return Response;
         }
@@ -288,7 +288,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
-            //Response.Save("D://SaKeepAlive-request.xml");
+            ////Response.Save("D://SaKeepAlive-request.xml");
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
@@ -349,7 +349,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            Response.Save("D://ResReport-request.xml");
+            //Response.Save("D://ResReport-request.xml");
 
             return Response;
         }
@@ -410,7 +410,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            Response.Save("D://ResReport-request.xml");
+            //Response.Save("D://ResReport-request.xml");
 
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
@@ -464,7 +464,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            Response.Save("D://ResChange-response.xml");
+            //Response.Save("D://ResChange-response.xml");
 
             return Response;
         }
@@ -502,7 +502,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Response, "resId", i, "test");
             }
             
-            Response.Save("D://response-ReportCamResState.xml");
+            //Response.Save("D://response-ReportCamResState.xml");
 
             return Response;
         }
@@ -533,7 +533,7 @@ namespace TrainStationServer
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
 
-            Response.Save("D://response-UserResReport.xml");
+            //Response.Save("D://response-UserResReport.xml");
 
             return Response;
         }
@@ -562,7 +562,7 @@ namespace TrainStationServer
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
 
-            Response.Save("D://response-UserResChange.xml");
+            //Response.Save("D://response-UserResChange.xml");
 
             return Response;
         }
@@ -595,7 +595,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "saId");
             XmlOp.SetNodeInnerText(Response, "saId", 0, "saId");
 
-            Response.Save("D://response-AlarmResListReport.xml");
+            //Response.Save("D://response-AlarmResListReport.xml");
 
             return Response;
         }
@@ -630,7 +630,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "saId");
             XmlOp.SetNodeInnerText(Response, "saId", 0, "saId");
 
-            Response.Save("D://response-AlarmResListChange.xml");
+            //Response.Save("D://response-AlarmResListChange.xml");
 
             return Response;
         }
@@ -666,7 +666,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "tcpPort");
             XmlOp.SetNodeInnerText(Response, "tcpPort", 0, "tcpPort");
 
-            Response.Save("D://response-StartMediaOrder.xml");
+            //Response.Save("D://response-StartMediaOrder.xml");
 
             return Response;
         }
@@ -693,7 +693,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "sessionId");
             XmlOp.SetNodeInnerText(Response, "sessionId", 0, "sessionId");
 
-            Response.Save("D://response-InfoOrder.xml");
+            //Response.Save("D://response-InfoOrder.xml");
 
             return Response;
         }
@@ -739,7 +739,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saId");
             XmlOp.SetNodeInnerText(Response, "saId", 0, "saId");
-            Response.Save("D://response-ReportAlarmRes.xml");
+            //Response.Save("D://response-ReportAlarmRes.xml");
 
             return Response;
         }
@@ -774,7 +774,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "targetPort", 0, targetPort);
             XmlOp.ElementAdd(Request, "parameters", "flag");
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag);
-            Request.Save("D://request-StartMediaReq.xml");
+            //Request.Save("D://request-StartMediaReq.xml");
             return Request;
         }
 
@@ -817,7 +817,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "param", 0, param);
             XmlOp.ElementAdd(Request, "parameters", "speed");
             XmlOp.SetNodeInnerText(Request, "speed", 0, speed);
-            Request.Save("D://ControlPTZ-request.xml");
+            //Request.Save("D://ControlPTZ-request.xml");
 
             return Request;
         }
@@ -843,7 +843,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "param", 0, param);
             XmlOp.ElementAdd(Request, "parameters", "speed");
             XmlOp.SetNodeInnerText(Request, "speed", 0, speed);
-            Request.Save("D://ControlPTZ-request.xml");
+            //Request.Save("D://ControlPTZ-request.xml");
 
             return Request;
         }
@@ -875,7 +875,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "resId", 0, resId);
             XmlOp.ElementAdd(Request, "parameters", "stopFlag");
             XmlOp.SetNodeInnerText(Request, "stopFlag", 0, stopFlag);
-            Request.Save("D://request-StopMediaReq.xml");
+            //Request.Save("D://request-StopMediaReq.xml");
 
             return Request;
         }
@@ -915,7 +915,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "fromDate", 0, fromDate);
             XmlOp.ElementAdd(Request, "parameters", "toDate");
             XmlOp.SetNodeInnerText(Request, "toDate", 0, toDate);
-            Request.Save("D://request-QueryHistoryFiles.xml");
+            //Request.Save("D://request-QueryHistoryFiles.xml");
 
             return Request;
         }
@@ -976,7 +976,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag.ToString());
             XmlOp.ElementAdd(Request, "parameters", "locationFlag");
             XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
-            Request.Save("D://request-StartPlayBack.xml");
+            //Request.Save("D://request-StartPlayBack.xml");
 
             return Request;
         }
@@ -1028,7 +1028,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "flag", 0, flag.ToString());
             XmlOp.ElementAdd(Request, "parameters", "locationFlag");
             XmlOp.SetNodeInnerText(Request, "locationFlag", 0, locationFlag.ToString());
-            Request.Save("D://request-StartHisLoad.xml");
+            //Request.Save("D://request-StartHisLoad.xml");
 
             return Request;
         }
@@ -1068,7 +1068,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
             XmlOp.ElementAdd(Request, "parameters", "userLevel");
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            Request.Save("D://request-HisLoadInfo.xml");
+            //Request.Save("D://request-HisLoadInfo.xml");
 
             return Request;
         }
@@ -1104,7 +1104,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
             XmlOp.ElementAdd(Request, "parameters", "userLevel");
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            Request.Save("D://request-INFO.xml");
+            //Request.Save("D://request-INFO.xml");
 
             return Request;
         }
@@ -1140,7 +1140,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "userId", 0, userId);
             XmlOp.ElementAdd(Request, "parameters", "userLevel");
             XmlOp.SetNodeInnerText(Request, "userLevel", 0, userLevel);
-            Request.Save("D://request-HisInfo.xml");
+            //Request.Save("D://request-HisInfo.xml");
 
             return Request;
         }
@@ -1176,7 +1176,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "cmd", 0, cmd);
             XmlOp.ElementAdd(Request, "parameters", "param");
             XmlOp.SetNodeInnerText(Request, "param", 0, param.ToString());
-            Request.Save("D://request-ControlFileBack.xml");
+            //Request.Save("D://request-ControlFileBack.xml");
 
             return Request;
         }
@@ -1213,7 +1213,7 @@ namespace TrainStationServer
                 XmlOp.ElementAdd(Request, "URL", "resId", i);
                 XmlOp.SetNodeInnerText(Request, "resId", i, resId[i]);
             }
-            Request.Save("D://request-ReqCamResState.xml");
+            //Request.Save("D://request-ReqCamResState.xml");
 
             return Request;
         }
@@ -1245,7 +1245,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Request, "saId", 0, saId);
             XmlOp.ElementAdd(Request, "parameters", "curUserId");
             XmlOp.SetNodeInnerText(Request, "curUserId", 0, curUserId);
-            Request.Save("D://request-GetUserCurState.xml");
+            //Request.Save("D://request-GetUserCurState.xml");
 
             return Request;
         }
@@ -1308,7 +1308,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "id", i, id[i]);
             }
 
-            Request.Save("D://request-SetUserCamManage.xml");
+            //Request.Save("D://request-SetUserCamManage.xml");
 
             return Request;
         }
@@ -1347,7 +1347,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
             }
 
-            Request.Save("D://request-AlarmResSubscribe.xml");
+            //Request.Save("D://request-AlarmResSubscribe.xml");
 
             return Request;
         }
@@ -1389,7 +1389,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "type", i, type[i]);
             }
 
-            Request.Save("D://request-QueryAlarmRes.xml");
+            //Request.Save("D://request-QueryAlarmRes.xml");
 
             return Request;
         }
@@ -1446,7 +1446,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "endTime", i, endTime[i]);
             }
 
-            Request.Save("D://request-ReportAlarmInfo.xml");
+            //Request.Save("D://request-ReportAlarmInfo.xml");
 
             return Request;
         }
@@ -1507,7 +1507,7 @@ namespace TrainStationServer
                 XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
             }
 
-            Request.Save("D://request-ResTransOrder.xml");
+            //Request.Save("D://request-ResTransOrder.xml");
 
             return Request;
         }
@@ -1556,7 +1556,7 @@ namespace TrainStationServer
                     XmlOp.SetNodeInnerText(Request, "infomation", i, infomation[i]);
             }
 
-            Request.Save("D://request-ResChangeOrder.xml");
+            //Request.Save("D://request-ResChangeOrder.xml");
 
             return Request;
         }
