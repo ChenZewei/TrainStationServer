@@ -275,5 +275,17 @@ namespace TrainStationServer
             return response;
             //return null;
         }
+
+        public static void CloseAllSocket()
+        {
+            foreach (SipSocket temp in sipsocket)
+            {
+                if (temp.socket.Connected)
+                {
+                    temp.socket.Shutdown(SocketShutdown.Both);
+                    temp.socket.Close();
+                }
+            }
+        }
     }
 }

@@ -15,9 +15,9 @@ namespace TrainStationServer
         private string cmd;
         private MySqlDataReader DataReader;
         private MySqlCommand Cmd;
-        //public static MySqlConnection MySQLConnect = new MySqlConnection("server=localhost; user id=root; Password=000000; database=opensips; persist security info=False");
+        public static MySqlConnection MySQLConnect = new MySqlConnection("server=localhost; user id=root; Password=000000; database=opensips; persist security info=False");
         //public static MySqlConnection MySQLConnect = new MySqlConnection("server=192.168.80.13; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
-        public static MySqlConnection MySQLConnect = new MySqlConnection("server=10.221.24.221; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
+        //public static MySqlConnection MySQLConnect = new MySqlConnection("server=10.221.24.221; user id=ivms; Password=ivmspwd; database=opensips; persist security info=False");
         public DataBase()
         {
             try

@@ -33,7 +33,6 @@ namespace TrainStationServer
             public byte[] recv;
             public byte[] send;
             public int recvLen;
-            public bool isClosed = false;
         }
         private Socket socket, client, client2, testsocket, socket2;
         private IPEndPoint ipEnd, ipEnd2;
@@ -123,6 +122,7 @@ namespace TrainStationServer
                 int i = state.socket.EndReceive(ar);
                 if (i <= 0)
                 {
+                    state.socket.Shutdown(SocketShutdown.Both);
                     state.socket.Close();
                     return;
                 }   
@@ -167,10 +167,15 @@ namespace TrainStationServer
                                 if (response != null)
                                 {
                                     int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
+                                    if(j <= 0)
+                                    {
+                                        client2.Close();
+                                    }
                                     Console.WriteLine("<---------------------------------------->");
                                     Console.WriteLine("SendToServer: " + j.ToString());
                                     if (temp.XmlList.Count == 0)
                                     {
+                                        client2.Shutdown(SocketShutdown.Both);
                                         client2.Close();
                                         break;
                                     }
@@ -186,8 +191,6 @@ namespace TrainStationServer
             }
             catch(SocketException e)
             {
-                state.isClosed = true;
-                state.socket.Dispose();
                 Console.WriteLine("recvProc: " + e.Message);
                 return;
             }
@@ -215,6 +218,7 @@ namespace TrainStationServer
                 int i = state.socket.EndReceive(ar);
                 if (i <= 0)
                 {
+                    state.socket.Shutdown(SocketShutdown.Both);
                     state.socket.Close();
                     return;
                 }   
@@ -225,7 +229,10 @@ namespace TrainStationServer
                 string resId = XmlOp.GetInnerText(Doc, "resId");
                 temp = SipSocket.FindSipSocket(resId);
                 if (temp == null)
+                {
+                    Console.WriteLine("SA server not found.");
                     return;
+                }
                 int j = temp.SendRequest(Doc);
                 Console.WriteLine("<========================================>");
                 Console.WriteLine("SendToClient: " + j.ToString());
@@ -234,7 +241,6 @@ namespace TrainStationServer
             }
             catch (SocketException e)
             {
-                state.isClosed = true;
                 Console.WriteLine(e.Message);
                 return;
             }
@@ -397,7 +403,7 @@ namespace TrainStationServer
             temp = SipSocket.FindSipSocket(exoSocket);
             SipSocket.CleanResult(exoSocket);
             temp.SendRequest(Request);
-            result = WaitForResult(testsocket, timer, 5000);
+            result = WaitForResult(temp.socket, timer, 5000);
 
             if (result != null)
             {
@@ -645,29 +651,37 @@ namespace TrainStationServer
         {
             if (socket != null)
             {
+                socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
                 socket.Dispose();
             }
             if (client != null)
             {
+                client.Shutdown(SocketShutdown.Both);
                 client.Close();
                 client.Dispose();
             }
             if (client2 != null)
             {
+                client2.Shutdown(SocketShutdown.Both);
                 client2.Close();
                 client2.Dispose();
             }
             if (testsocket != null)
             {
+                testsocket.Shutdown(SocketShutdown.Both);
                 testsocket.Close();
                 testsocket.Dispose();
             }
             if (socket2 != null)
             {
+                socket2.Shutdown(SocketShutdown.Both);
                 socket2.Close();
                 socket2.Dispose();
             }
+
+            SipSocket.CloseAllSocket();
+
         }
 
     }
