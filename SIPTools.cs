@@ -154,27 +154,23 @@ namespace TrainStationServer
             return null;
         }
 
-        public static byte[] PckExtract(byte[] buffer, int bufferlen)
+        public static byte[] PckExtract(byte[] buffer, int len, int offset)
         {
+            int bufferlen = len + offset;
             int i,j = 0;
             int head = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), 0);
             if (head == -1)
                 return null;
             int end = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), head + 10);
-            if (end == -1 && bufferlen != 8000)
+            if (end == -1 && len != 8000)
                 end = bufferlen;
             else if (end == -1)
                 return null;
             string temp = Encoding.GetEncoding("GB2312").GetString(buffer, head, end - head);
-            for (i = end; i < bufferlen; i++)
+            for (i = end; i < 10000; i++)
             {
                 buffer[j++] = buffer[i];
-                buffer[i] = (byte)'\0';
-            }
-            for (i = bufferlen; i < 8000; i++ )
-            {
-
-                buffer[i] = (byte)'\0';
+                buffer[i] = 0;
             }
 
             return Encoding.ASCII.GetBytes(temp);
@@ -188,7 +184,7 @@ namespace TrainStationServer
             if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes(infoType))) != -1)
             {
                 index++;
-                while ((index + length) < bufferlen)
+                while ((index + length + 1) < bufferlen)
                 {
                     infoByte[length] = buffer[index + length];
                     length++;
