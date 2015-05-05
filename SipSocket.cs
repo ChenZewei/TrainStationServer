@@ -19,6 +19,7 @@ namespace TrainStationServer
         public string[] resId;
         private static List<SipSocket> sipsocket = new List<SipSocket>();
         public List<ResponseList> XmlList = new List<ResponseList>();
+        public byte[] lastRecv;
 
         private SipSocket()
         {
@@ -34,6 +35,7 @@ namespace TrainStationServer
         {
             socket = skt;
             sip = s;
+            lastRecv = new byte[8000];
         }
 
         public SipSocket(AddressFamily af, SocketType st, ProtocolType pt)

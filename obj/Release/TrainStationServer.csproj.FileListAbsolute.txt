@@ -10,3 +10,6 @@ C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\R
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.csproj.GenerateResource.Cache
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.exe
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\Release\TrainStationServer.pdb
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\bin\Release\TrainStationServer.exe.config
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Release\TrainStationServer.exe
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Release\TrainStationServer.pdb

@@ -71,7 +71,7 @@ namespace TrainStationServer
             exosip = new eXosip();
             snoopThread = new Thread(Snoop);
             snoopThread.IsBackground = true;
-            snoopThread.Start();
+            //snoopThread.Start();
             timer = new System.Timers.Timer(60000);
             timer.Elapsed += new System.Timers.ElapsedEventHandler(ClearTextBox);
             timer.Enabled = true;
@@ -117,39 +117,123 @@ namespace TrainStationServer
         void recvProc(IAsyncResult ar)//异步Receive
         {
             stateobject state = (stateobject)ar.AsyncState;
+            int i = state.socket.EndReceive(ar);
+            state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
             bool Added = false;
             int cseq;
             string[] result;
+            int targetIndex = 0;
+            byte[] recv = new byte[8000];
+            byte[] temprecv = new byte[8000];
+            temp = SipSocket.FindSipSocket(state.socket);
+            if(temp != null)
+            {
+                if(temp.lastRecv.Length != 8000)
+                    targetIndex = temp.lastRecv.Length;
+                temp.lastRecv.CopyTo(recv, 0);
+                temp.lastRecv.Initialize();
+            }
             try
             {
-                int i = state.socket.EndReceive(ar);
+                
                 if (i <= 0)
                 {
                     state.socket.Shutdown(SocketShutdown.Both);
                     state.socket.Close();
                     return;
-                }   
-                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
-                Added = SipSocket.Add(state.socket, new SIPTools(state.recv, i));
-                temp = SipSocket.FindSipSocket(state.socket);
-                if (temp == null)
-                    return;
-                Console.WriteLine("Received from: " + temp.sip.Id);
-                Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
-                cseq = SIPTools.getCSeq(state.recv);
-                if (cseq == -1)
-                    return;
-
-                Doc = SIPTools.XmlExtract(recv, i);
-
-                if (Doc == null)
-                {
-                    Console.WriteLine("Xml extraction failed.");
-                    return;
                 }
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
+                Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
+                do
+                {
+                    temprecv = SIPTools.PckExtract(state.recv, i);
+                    if(temprecv != null)
+                        Copy(temprecv,0,recv,targetIndex,temprecv.Length);
+                    else
+                    {
+                        Copy(state.recv, 0, temp.lastRecv, 0, state.recv.Length);
+                        return;
+                    }
+                    if(recv != null)
+                    {
+                        Added = SipSocket.Add(state.socket, new SIPTools(recv, i));
+                        temp = SipSocket.FindSipSocket(state.socket);
+                        if (temp == null)
+                            return;
+                        Console.WriteLine("Received from: " + temp.sip.Id);
+                        Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(recv, 0, i));
+                        cseq = SIPTools.getCSeq(recv);
+                        if (cseq == -1)
+                            return;
+                        Doc = SIPTools.XmlExtract(recv, i);
+                        if (Doc == null)
+                        {
+                            Console.WriteLine("Xml extraction failed.");
+                            return;
+                        }
+                        if (InterfaceC.IsRequest(Doc))
+                        {
+                            temp.sip.Refresh(state.recv, i);
+                            temp.SendResponse(InterfaceC.Request(Doc, temp));
+                        }
+                        else
+                        {
+                            result = InterfaceC.Response(Doc, temp);
+                            if (result != null)
+                            {
+                                if (result[0] != "sendback")
+                                {
+                                    SipSocket.SetResult(state.socket, result);
+                                    for (int k = 0; k < result.Length; k++)
+                                        Console.WriteLine(result[k]);
+                                }
+                                else
+                                {
+                                    ResponseList RL = new ResponseList(cseq, Doc);
+                                    temp.XmlList.Add(RL);
+                                    XmlDocument response = new XmlDocument();
+                                    while (true)
+                                    {
+                                        response = temp.Redy2Return();
+                                        if (response != null)
+                                        {
+                                            int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
+                                            if (j <= 0)
+                                            {
+                                                client2.Close();
+                                            }
+                                            Console.WriteLine("<---------------------------------------->");
+                                            Console.WriteLine("SendToServer: " + j.ToString());
+                                            if (temp.XmlList.Count == 0)
+                                            {
+                                                client2.Shutdown(SocketShutdown.Both);
+                                                client2.Close();
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        recv.Initialize();
+                    }
+                    else
+                    {
+                        temp = SipSocket.FindSipSocket(state.socket);
+                        if (temp == null)
+                            return;
+                        state.recv.CopyTo(temp.lastRecv, 0);
+                        break;
+                    }
+
+                } while (true);
+                
                     
                 
                 //if(Added)
@@ -161,54 +245,7 @@ namespace TrainStationServer
                 //        SipSocket.Delete(temp.socket);
                 //    }
                 //}
-                if (InterfaceC.IsRequest(Doc))
-                {
-                    temp.sip.Refresh(state.recv, i);
-                    temp.SendResponse(InterfaceC.Request(Doc, temp));
-                }
-                else
-                {
-                    result = InterfaceC.Response(Doc, temp);
-                    if (result != null)
-                    {
-                        if(result[0] != "sendback")
-                        {
-                            SipSocket.SetResult(state.socket, result);
-                            for (int k = 0; k < result.Length; k++)
-                                Console.WriteLine(result[k]);
-                        }
-                        else
-                        {
-                            ResponseList RL = new ResponseList(cseq, Doc);
-                            temp.XmlList.Add(RL);
-                            XmlDocument response = new XmlDocument();
-                            while(true)
-                            {
-                                response = temp.Redy2Return();
-                                if (response != null)
-                                {
-                                    int j = client2.Send(Encoding.GetEncoding("GB2312").GetBytes(response.OuterXml));
-                                    if(j <= 0)
-                                    {
-                                        client2.Close();
-                                    }
-                                    Console.WriteLine("<---------------------------------------->");
-                                    Console.WriteLine("SendToServer: " + j.ToString());
-                                    if (temp.XmlList.Count == 0)
-                                    {
-                                        client2.Shutdown(SocketShutdown.Both);
-                                        client2.Close();
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                
             }
             catch(SocketException e)
             {
@@ -703,6 +740,36 @@ namespace TrainStationServer
 
             SipSocket.CloseAllSocket();
 
+        }
+
+        void Copy(byte[] source, int sourceOffset, byte[] target, int targetOffset, int count)
+        {
+            // If either array is not instantiated, you cannot complete the copy. 
+            if ((source == null) || (target == null))
+            {
+                throw new System.ArgumentException();
+            }
+
+            // If either offset, or the number of bytes to copy, is negative, you 
+            // cannot complete the copy. 
+            if ((sourceOffset < 0) || (targetOffset < 0) || (count < 0))
+            {
+                throw new System.ArgumentException();
+            }
+
+            // If the number of bytes from the offset to the end of the array is  
+            // less than the number of bytes you want to copy, you cannot complete 
+            // the copy.  
+            if ((source.Length - sourceOffset < count) ||
+                (target.Length - targetOffset < count))
+            {
+                throw new System.ArgumentException();
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                target[targetOffset + i] = source[sourceOffset + i];
+            }
         }
 
     }

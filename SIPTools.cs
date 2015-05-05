@@ -127,7 +127,7 @@ namespace TrainStationServer
                     //        break;
                     //    }
                     //}
-                    for (int k = bufferlen; k >= 0; k-- )
+                    for (int k = bufferlen-1; k >= 0; k-- )
                     {
                         if(buffer[k] == '>')
                         {
@@ -152,6 +152,23 @@ namespace TrainStationServer
                 Console.WriteLine(e.Message);
             }
             return null;
+        }
+
+        public static byte[] PckExtract(byte[] buffer, int bufferlen)
+        {
+            int i,j = 0;
+            int head = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), 0);
+            if (head == -1)
+                return null;
+            int end = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), head + 10);
+            if (end == -1 && bufferlen != 8000)
+                end = bufferlen;
+            else if (end == -1)
+                return null;
+            string temp = Encoding.GetEncoding("GB2312").GetString(buffer, head, end - head);
+            for (i = end; i < bufferlen; i++)
+                buffer[j++] = buffer[i];
+            return Encoding.ASCII.GetBytes(temp);
         }
 
         public static string GetSIPInfo(byte[] buffer, int bufferlen ,string infoType)
@@ -197,7 +214,7 @@ namespace TrainStationServer
             return -1;
         }
 
-        private static int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
+        private static int BeginOf(byte[] srcBytes, byte[] searchBytes,int begin)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
         {
             if (srcBytes == null) 
                 return -1;
@@ -208,6 +225,39 @@ namespace TrainStationServer
             if (searchBytes.Length == 0) 
                 return -1;
             if (srcBytes.Length < searchBytes.Length) 
+                return -1;
+            for (int i = begin; i < srcBytes.Length - searchBytes.Length; i++)
+            {
+                if (srcBytes[i] == searchBytes[0])
+                {
+                    if (searchBytes.Length == 1) { return i; }
+                    bool flag = true;
+                    for (int j = 1; j < searchBytes.Length; j++)
+                    {
+                        if (srcBytes[i + j] != searchBytes[j])
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag)
+                        return i;
+                }
+            }
+            return -1;
+        }
+
+        private static int IndexOf(byte[] srcBytes, byte[] searchBytes)//搜索byte数组，返回-1即未找到，返回值不为-1则为搜索字串后一个字节的序号
+        {
+            if (srcBytes == null)
+                return -1;
+            if (searchBytes == null)
+                return -1;
+            if (srcBytes.Length == 0)
+                return -1;
+            if (searchBytes.Length == 0)
+                return -1;
+            if (srcBytes.Length < searchBytes.Length)
                 return -1;
             for (int i = 0; i < srcBytes.Length - searchBytes.Length; i++)
             {
