@@ -117,8 +117,6 @@ namespace TrainStationServer
         void recvProc(IAsyncResult ar)//异步Receive
         {
             stateobject state = (stateobject)ar.AsyncState;
-            int i = state.socket.EndReceive(ar);
-            state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
             bool Added = false;
@@ -126,7 +124,8 @@ namespace TrainStationServer
             string[] result;
             int targetIndex = 0;
             byte[] recv = new byte[8000];
-            byte[] temprecv = new byte[8000];
+            byte[] temprecv;
+            string tt;
             temp = SipSocket.FindSipSocket(state.socket);
             if(temp != null)
             {
@@ -137,13 +136,14 @@ namespace TrainStationServer
             }
             try
             {
-                
+                int i = state.socket.EndReceive(ar);
                 if (i <= 0)
                 {
                     state.socket.Shutdown(SocketShutdown.Both);
                     state.socket.Close();
                     return;
                 }
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 do
@@ -156,6 +156,7 @@ namespace TrainStationServer
                         Copy(state.recv, 0, temp.lastRecv, 0, state.recv.Length);
                         return;
                     }
+                    tt = Encoding.GetEncoding("GB2312").GetString(recv);
                     if(recv != null)
                     {
                         Added = SipSocket.Add(state.socket, new SIPTools(recv, i));
@@ -707,36 +708,44 @@ namespace TrainStationServer
 
         ~MainWindow()
         {
-            if (socket != null)
+            try
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
-                socket.Dispose();
+                if (socket != null)
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
+                    socket.Dispose();
+                }
+                if (client != null)
+                {
+                    client.Shutdown(SocketShutdown.Both);
+                    client.Close();
+                    client.Dispose();
+                }
+                if (client2 != null)
+                {
+                    client2.Shutdown(SocketShutdown.Both);
+                    client2.Close();
+                    client2.Dispose();
+                }
+                if (testsocket != null)
+                {
+                    testsocket.Shutdown(SocketShutdown.Both);
+                    testsocket.Close();
+                    testsocket.Dispose();
+                }
+                if (socket2 != null)
+                {
+                    socket2.Shutdown(SocketShutdown.Both);
+                    socket2.Close();
+                    socket2.Dispose();
+                }
             }
-            if (client != null)
+            catch(SocketException e)
             {
-                client.Shutdown(SocketShutdown.Both);
-                client.Close();
-                client.Dispose();
+                Console.WriteLine(e.Message);
             }
-            if (client2 != null)
-            {
-                client2.Shutdown(SocketShutdown.Both);
-                client2.Close();
-                client2.Dispose();
-            }
-            if (testsocket != null)
-            {
-                testsocket.Shutdown(SocketShutdown.Both);
-                testsocket.Close();
-                testsocket.Dispose();
-            }
-            if (socket2 != null)
-            {
-                socket2.Shutdown(SocketShutdown.Both);
-                socket2.Close();
-                socket2.Dispose();
-            }
+            
 
             SipSocket.CloseAllSocket();
 
@@ -744,12 +753,13 @@ namespace TrainStationServer
 
         void Copy(byte[] source, int sourceOffset, byte[] target, int targetOffset, int count)
         {
+            byte[] result = new byte[source.Length + count];
             // If either array is not instantiated, you cannot complete the copy. 
             if ((source == null) || (target == null))
             {
                 throw new System.ArgumentException();
             }
-
+            byte[] test = new byte[count];
             // If either offset, or the number of bytes to copy, is negative, you 
             // cannot complete the copy. 
             if ((sourceOffset < 0) || (targetOffset < 0) || (count < 0))

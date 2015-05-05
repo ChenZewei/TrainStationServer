@@ -19,7 +19,6 @@ C:\Users\ThinkPad\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\D
 C:\Users\ThinkPad\Documents\Visual Studio 2012\Projects\TrainStationServer\obj\Debug\TrainStationServer.pdb
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\bin\Debug\TrainStationServer.exe
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\bin\Debug\TrainStationServer.pdb
-C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.csprojResolveAssemblyReference.cache
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\MainWindow.baml
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\MainWindow.g.cs
 C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\App.g.cs

@@ -167,7 +167,16 @@ namespace TrainStationServer
                 return null;
             string temp = Encoding.GetEncoding("GB2312").GetString(buffer, head, end - head);
             for (i = end; i < bufferlen; i++)
+            {
                 buffer[j++] = buffer[i];
+                buffer[i] = (byte)'\0';
+            }
+            for (i = bufferlen; i < 8000; i++ )
+            {
+
+                buffer[i] = (byte)'\0';
+            }
+
             return Encoding.ASCII.GetBytes(temp);
         }
 
