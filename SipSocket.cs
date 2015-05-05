@@ -94,15 +94,16 @@ namespace TrainStationServer
 
         //static
 
-        public static void Add(Socket socket, SIPTools sip)
+        public static bool Add(Socket socket, SIPTools sip)
         {
             foreach (SipSocket ss in sipsocket)
             {
                 if (ss.socket.Equals(socket))
-                    return;
+                    return false;
             }
             SipSocket temp = new SipSocket(socket, sip);
             sipsocket.Add(temp);
+            return true;
         }
 
         public static void Delete(Socket socket)

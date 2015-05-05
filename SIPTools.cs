@@ -12,6 +12,7 @@ namespace TrainStationServer
         private string To, From, CSeq;
         public int cseq,ncseq;
         public string Id;
+        public string CallId;
         public SIPTools()
         {
             Id = "XX";
@@ -27,6 +28,7 @@ namespace TrainStationServer
             To = GetSIPInfo(buffer, bufferlen, "From");
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
+            CallId = GetSIPInfo(buffer, bufferlen, "Call-ID");
             cseq = 0;
             ncseq = 0;
         }
@@ -40,9 +42,10 @@ namespace TrainStationServer
         }
         
 
-        public void RefreshCSeq(byte[] recv,int i)
+        public void Refresh(byte[] recv,int i)
         {
             CSeq = GetSIPInfo(recv, i, "CSeq");
+            CallId = GetSIPInfo(recv, i, "Call-ID");
         }
 
         public string SIPRequest(XmlDocument doc,string To,string From, string CSeq)
@@ -68,7 +71,7 @@ namespace TrainStationServer
             sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
             sendBuffer += "To:" + To + "\r\n";
             sendBuffer += "From:" + From + "\r\n";
-            sendBuffer += "Call-ID: XX\r\n";
+            sendBuffer += "Call-ID:" + CallId + "\r\n";
             sendBuffer += "CSeq:" + (cseq++).ToString() + " INVITE\r\n";
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
@@ -82,7 +85,7 @@ namespace TrainStationServer
             sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
             sendBuffer += "To:" + To + "\r\n";
             sendBuffer += "From:" + From + "\r\n";
-            sendBuffer += "Call-ID:XX\r\n";
+            sendBuffer += "Call-ID:" + CallId + "\r\n";
             sendBuffer += "CSeq:" + CSeq + "\r\n";
             sendBuffer += "Content-Type:RVSS/xml\r\n";
             sendBuffer += "Content-Length:" + doc.OuterXml.Length.ToString() + "\r\n\r\n";
@@ -93,45 +96,60 @@ namespace TrainStationServer
         public static XmlDocument XmlExtract(byte[] buffer, int bufferlen)//Xml提取
         {
             XmlDocument xmlDoc;
-            int i = 0, index = 0;
+            int i = 0, index = 0, end = bufferlen;
             byte[] bufferline;
             byte[] length;
             string strBuffer;
             bufferline = new byte[100];
             length = new byte[10];
-            if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("Content-Length"))) != -1)
+            try
             {
-                index++;
-                while ((index + i) < bufferlen)
+                //if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("Content-Length"))) != -1)
+                //{
+                //    index++;
+                //    while ((index + i) < bufferlen)
+                //    {
+                //        length[i] = buffer[index + i];
+                //        i++;
+                //        if ((buffer[index + i] == '\r') && (buffer[index + i + 1] == '\n'))
+                //            break;
+                //    }
+                //}
+                if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("\r\n\r\n"))) != -1)
                 {
-                    length[i] = buffer[index + i];
-                    i++;
-                    if ((buffer[index + i] == '\r') && (buffer[index + i + 1] == '\n'))
-                        break;
+                    xmlDoc = new XmlDocument();
+                    strBuffer = "";
+                    //for (int j = 1; j < bufferlen; j++)
+                    //{
+                    //    if (buffer[bufferlen - j] != '0' && buffer[bufferlen - j] != '\0')
+                    //    {
+                    //        strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j));
+                    //        break;
+                    //    }
+                    //}
+                    for (int k = bufferlen; k >= 0; k-- )
+                    {
+                        if(buffer[k] == '>')
+                        {
+                            end = k;
+                            break;
+                        }
+                    }
+                    strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (end - index+1));
+                        //Console.WriteLine("strbuffer:" + strBuffer);
+                    xmlDoc.LoadXml(strBuffer);
+                    return xmlDoc;
                 }
             }
-            if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("\r\n\r\n"))) != -1)
+            catch(ArgumentOutOfRangeException e)
             {
-                xmlDoc = new XmlDocument();
-                strBuffer = "";
-                for (int j = 1;j<bufferlen ;j++ )
-                {
-                    if (buffer[bufferlen - j] != '0' && buffer[bufferlen - j] != '\0')
-                    {
-                        strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j));
-                        break;
-                    }
-                }
-
-                try
-                {
-                    xmlDoc.LoadXml(strBuffer);
-                }
-                catch(XmlException e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-                return xmlDoc;
+                Console.WriteLine("ArgumentOutOfRangeException:");
+                Console.WriteLine(e.Message);
+            }
+            catch (XmlException e)
+            {
+                Console.WriteLine("XmlException:");
+                Console.WriteLine(e.Message);
             }
             return null;
         }

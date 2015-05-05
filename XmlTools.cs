@@ -71,7 +71,10 @@ namespace TrainStationServer
         {
             XmlNode node;
             node = doc.SelectSingleNode("//" + nodeName);
-            return node.InnerText;
+            if (node != null)
+                return node.InnerText;
+            else
+                return "";
         }
 
         public List<string> GetInnerTextList(XmlDocument doc, string nodeName)

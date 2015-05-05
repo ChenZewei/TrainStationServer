@@ -13,6 +13,7 @@ namespace TrainStationServer
     {
         static DataBase database;
         static SIPTools sip;
+        static int num = 0;
 
         public InterfaceC()
         {
@@ -37,6 +38,40 @@ namespace TrainStationServer
                 return true;
             else
                 return false;
+        }
+
+        public static bool IsSaRegister(XmlDocument doc, SipSocket sipsocket)
+        {
+            XmlElement root;
+            XmlNode node;
+            XmlNodeList nodeList;
+            XmlDocument response = new XmlDocument();
+
+            root = doc.DocumentElement;
+            nodeList = doc.GetElementsByTagName("request");
+            if (nodeList.Count > 0)
+            {
+                nodeList = root.SelectNodes("/request/@command");
+                node = nodeList.Item(0);
+                if (node.InnerText.Equals("SaRegister"))
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
+        public static XmlDocument Error(string errCode)
+        {
+            XmlTools XmlOp = new XmlTools();
+            XmlDocument Response = XmlOp.XmlCreate();
+
+            XmlOp.ElementAdd(Response, null, "response");
+            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaRegister");
+            XmlOp.ElementAdd(Response, "response", "result");
+            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "1");
+            XmlOp.SetNodeInnerText(Response, "result", 0, errCode);
+            return Response;
         }
 
         public static XmlDocument Request(XmlDocument doc, SipSocket sipsocket)
@@ -297,6 +332,7 @@ namespace TrainStationServer
         #region ResReport
         public static XmlDocument ResReport(XmlDocument Doc, SipSocket sipsocket)
         {
+            Console.WriteLine("ResReport////");
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
             string saId, totalPacketNum, curPacketNum;
@@ -324,7 +360,7 @@ namespace TrainStationServer
             //    sipsocket.resId[i] = resId[i];
             //}
 
-            database.Insert("ivms_resources", columes, resId, name, location, purpose);
+            //database.Insert("ivms_resources", columes, resId, name, location, purpose);
 
             //for (int j = 0; j < resId.Count; j++)
             //{
@@ -349,7 +385,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "response", "result");
             XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            //Response.Save("D://ResReport-request.xml");
+            //Response.Save("D://ResReport-request" + num + ".xml");
 
             return Response;
         }

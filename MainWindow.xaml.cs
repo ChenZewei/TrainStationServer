@@ -29,7 +29,7 @@ namespace TrainStationServer
         class stateobject
         {
             public Socket socket;
-            public int BufferSize = 2048;
+            public int BufferSize = 8000;
             public byte[] recv;
             public byte[] send;
             public int recvLen;
@@ -42,8 +42,8 @@ namespace TrainStationServer
         private InterfaceC C;
         private System.Timers.Timer timer;
         private bool timeout = false;
-        private byte[] recv = new byte[2048], send = new byte[2048];
-        private byte[] recv2 = new byte[2048], send2 = new byte[2048];
+        private byte[] recv = new byte[8000], send = new byte[8000];
+        private byte[] recv2 = new byte[8000], send2 = new byte[8000];
         public MainWindow()
         {
             InitializeComponent();
@@ -76,6 +76,8 @@ namespace TrainStationServer
             timer.Elapsed += new System.Timers.ElapsedEventHandler(ClearTextBox);
             timer.Enabled = true;
             Start.IsEnabled = false;
+            //Combo.IsEnabled = true;
+            //Test.IsEnabled = true;
         }
         
         private void AsyncAccept(IAsyncResult ar)//异步Accept
@@ -90,11 +92,13 @@ namespace TrainStationServer
             clientObject.send = send;
             client.BeginReceive(clientObject.recv, 0, clientObject.BufferSize, 0, new AsyncCallback(recvProc), clientObject);
             testsocket = client;
-            if (Test.IsEnabled == false)
-            {
-                Combo.IsEnabled = true;
-                Test.IsEnabled = true;
-            }
+            this.Dispatcher.BeginInvoke(new Action(() => Combo.IsEnabled = true));
+            this.Dispatcher.BeginInvoke(new Action(() => Test.IsEnabled = true));
+            //if (Test.IsEnabled == false)
+            //{
+            //    Combo.IsEnabled = true;
+            //    Test.IsEnabled = true;
+            //}
         }
 
         private void AsyncAccept2(IAsyncResult ar)//异步Accept
@@ -115,6 +119,7 @@ namespace TrainStationServer
             stateobject state = (stateobject)ar.AsyncState;
             XmlDocument Doc = new XmlDocument();
             SipSocket temp;
+            bool Added = false;
             int cseq;
             string[] result;
             try
@@ -128,7 +133,7 @@ namespace TrainStationServer
                 }   
                 state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
-                SipSocket.Add(state.socket, new SIPTools(state.recv, i));
+                Added = SipSocket.Add(state.socket, new SIPTools(state.recv, i));
                 temp = SipSocket.FindSipSocket(state.socket);
                 if (temp == null)
                     return;
@@ -137,12 +142,28 @@ namespace TrainStationServer
                 cseq = SIPTools.getCSeq(state.recv);
                 if (cseq == -1)
                     return;
+
                 Doc = SIPTools.XmlExtract(recv, i);
+
                 if (Doc == null)
+                {
+                    Console.WriteLine("Xml extraction failed.");
                     return;
+                }
+                    
+                
+                //if(Added)
+                //{
+                //    if(!InterfaceC.IsSaRegister(Doc, temp))
+                //    {
+                //        temp.SendResponse(InterfaceC.Error("SA未注册"));
+                //        temp.socket.Close();
+                //        SipSocket.Delete(temp.socket);
+                //    }
+                //}
                 if (InterfaceC.IsRequest(Doc))
                 {
-                    temp.sip.RefreshCSeq(state.recv, i);
+                    temp.sip.Refresh(state.recv, i);
                     temp.SendResponse(InterfaceC.Request(Doc, temp));
                 }
                 else
