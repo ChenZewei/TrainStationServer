@@ -196,8 +196,8 @@ namespace TrainStationServer
                     if (Doc == null)
                     {
                         Copy(temprecv, 0, temp.lastRecv, 0, temprecv.Length);
-                        state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                         Console.WriteLine("Xml extraction failed.");
+                        state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                         return;
                     }
                     if (InterfaceC.IsRequest(Doc))
@@ -267,6 +267,7 @@ namespace TrainStationServer
             }
             catch(SocketException e)
             {
+                Console.WriteLine("recvProc: " + e.Message);
                 try
                 {
                     state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
@@ -275,11 +276,11 @@ namespace TrainStationServer
                 {
                     Console.WriteLine("recvProc: " + w.Message);
                 }
-                Console.WriteLine("recvProc: " + e.Message);
                 return;
             }
             catch(XmlException e)
             {
+                Console.WriteLine("recvProc: " + e.Message);
                 try
                 {
                     state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
@@ -288,11 +289,11 @@ namespace TrainStationServer
                 {
                     Console.WriteLine("recvProc: " + w.Message);
                 }
-                Console.WriteLine("recvProc: " + e.Message);
                 return;
             }
             catch(ObjectDisposedException e)
             {
+                Console.WriteLine("recvProc: " + e.Message);
                 try
                 {
                     state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);

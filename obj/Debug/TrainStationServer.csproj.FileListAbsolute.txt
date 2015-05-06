@@ -92,3 +92,4 @@ C:\Users\yangzheng\Desktop\TrainStationServer-master\obj\Debug\TrainStationServe
 C:\Users\yangzheng\Desktop\TrainStationServer-master\obj\Debug\TrainStationServer.g.resources
 C:\Users\yangzheng\Desktop\TrainStationServer-master\obj\Debug\TrainStationServer.Properties.Resources.resources
 C:\Users\yangzheng\Desktop\TrainStationServer-master\obj\Debug\TrainStationServer.csproj.GenerateResource.Cache
+C:\Users\czw\Documents\Visual Studio 2013\Projects\TrainStationServer\TrainStationServer\obj\Debug\TrainStationServer.csprojResolveAssemblyReference.cache

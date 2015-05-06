@@ -36,6 +36,34 @@ Content-Length: 1129
 	    <purpose>test3</purpose>
 	    <infomation>test3</infomation>
         </URL>
+	<URL>
+            <resId>6000000000000004</resId>
+            <name>隧道4</name>
+	    <location>外勤</location>
+	    <purpose>test4</purpose>
+	    <infomation>test4</infomation>
+        </URL>
+	<URL>
+            <resId>6000000000000005</resId>
+            <name>隧道5</name>
+	    <location>外勤</location>
+	    <purpose>test5</purpose>
+	    <infomation>test5</infomation>
+        </URL>
+	<URL>
+            <resId>6000000000000006</resId>
+            <name>隧道6</name>
+	    <location>外勤</location>
+	    <purpose>test6</purpose>
+	    <infomation>test6</infomation>
+        </URL>
+	<URL>
+            <resId>6000000000000007</resId>
+            <name>隧道7</name>
+	    <location>外勤</location>
+	    <purpose>test7</purpose>
+	    <infomation>test7</infomation>
+        </URL>
     </group>
   </parameters>
 </request>
