@@ -187,10 +187,16 @@ namespace TrainStationServer
                     //Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(recv, 0, i));
                     cseq = SIPTools.getCSeq(temprecv);
                     if (cseq == -1)
+                    {
+                        Copy(temprecv, 0, temp.lastRecv, 0, temprecv.Length);
+                        state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                         return;
+                    }
                     Doc = SIPTools.XmlExtract(temprecv, temprecv.Length);
                     if (Doc == null)
                     {
+                        Copy(temprecv, 0, temp.lastRecv, 0, temprecv.Length);
+                        state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                         Console.WriteLine("Xml extraction failed.");
                         return;
                     }
@@ -244,7 +250,7 @@ namespace TrainStationServer
                     }
                     recv.Initialize();
 
-                } while (true);
+                } while (recvlen > 0);
                 
                     
                 

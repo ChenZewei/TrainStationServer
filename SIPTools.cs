@@ -161,10 +161,11 @@ namespace TrainStationServer
             if (head == -1)
                 return null;
             int end = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), head + 10);
-            if (end == -1 && bflen != 8000)
+            //if (end == -1 && bflen != 8000)
+            //    end = recvlen;
+            if (end == -1)
                 end = recvlen;
-            else if (end == -1)
-                return null;
+                //return null;
             string temp = Encoding.ASCII.GetString(buffer, head, end - head);
             for (i = end; i < 10000; i++)
             {
