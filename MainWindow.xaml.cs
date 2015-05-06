@@ -130,7 +130,7 @@ namespace TrainStationServer
             temp = SipSocket.FindSipSocket(state.socket);
             if(temp != null)
             {
-                for (int i = 9999; i > 0; i-- )
+                for (int i = 9999; i >= 0; i-- )
                 {
                     if(temp.lastRecv[i] != 0)
                     {
