@@ -156,6 +156,7 @@ namespace TrainStationServer
 
         public static byte[] PckExtract(byte[] buffer, int bflen, int recvlen)
         {
+            bflen;
             int i,j = 0;
             int head = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), 0);
             if (head == -1)
@@ -165,7 +166,7 @@ namespace TrainStationServer
                 end = recvlen;
             else if (end == -1)
                 return null;
-            string temp = Encoding.ASCII.GetString(buffer, head, end - head);
+            string temp = Encoding.GetEncoding("GB2312").GetString(buffer, head, end - head);
             for (i = end; i < 10000; i++)
             {
                 buffer[j++] = buffer[i];

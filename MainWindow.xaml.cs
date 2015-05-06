@@ -121,6 +121,7 @@ namespace TrainStationServer
             SipSocket temp;
             bool Added = false;
             int cseq;
+            int recvlen;
             string[] result;
             int targetIndex = 0;
             byte[] recv = new byte[10000];
@@ -152,7 +153,7 @@ namespace TrainStationServer
                     state.socket.Close();
                     return;
                 }
-                
+                recvlen = i + targetIndex;
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 Copy(state.recv, 0, recv, targetIndex, state.recv.Length);
@@ -164,11 +165,12 @@ namespace TrainStationServer
                 {
                     
                     Doc = new XmlDocument();
-                    temprecv = SIPTools.PckExtract(recv, i, targetIndex);
+                    temprecv = SIPTools.PckExtract(recv, i, recvlen);
                     if (temprecv != null)
                     {
-                        tt = Encoding.GetEncoding("GB2312").GetString(temprecv, 0, temprecv.Length);
-                        Console.WriteLine(tt);
+                        recvlen -= temprecv.Length;
+                        //tt = Encoding.GetEncoding("GB2312").GetString(temprecv, 0, temprecv.Length);
+                        //Console.WriteLine(tt);
                     }
                     if(temprecv == null)
                     {
