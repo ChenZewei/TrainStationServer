@@ -90,7 +90,7 @@ namespace TrainStationServer
                 switch (node.InnerText)
                 {
                     case "SaRegister":
-                        response = SaRegister(doc, sipsocket);
+                        response = SaRegister(doc, ref sipsocket);
                         break;
                     case "SaKeepAlive":
                         response = SaKeepAlive(doc, sipsocket);
@@ -206,7 +206,7 @@ namespace TrainStationServer
         #region Down 2 Up
 
         #region SaRegister
-        public static XmlDocument SaRegister(XmlDocument Doc, SipSocket sipsocket)
+        public static XmlDocument SaRegister(XmlDocument Doc, ref SipSocket sipsocket)
         {
             XmlTools XmlOp = new XmlTools();
             XmlDocument Response = XmlOp.XmlCreate();
@@ -229,8 +229,10 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "result", 0, "success");
             XmlOp.ElementAdd(Response, "response", "parameters");
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "30");
+            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
             ////Response.Save("D://SaRegister-request.xml");
+
+            sipsocket.sip.Id = saId;
 
             return Response;
         }
@@ -271,6 +273,8 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
             ////Response.Save("D://SaRegister-request.xml");
 
+
+
             return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
         }
         #endregion
@@ -293,6 +297,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "30");
             ////Response.Save("D://SaKeepAlive-request.xml");
+
 
             return Response;
         }

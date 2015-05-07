@@ -77,6 +77,11 @@ namespace TrainStationServer
                 socket.Dispose();
                 return -1;
             }
+            catch(SocketException e)
+            {
+                socket.Close();
+                return -1;
+            }
         }
 
         public int SendResponse(XmlDocument doc)

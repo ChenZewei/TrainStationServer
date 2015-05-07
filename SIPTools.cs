@@ -62,7 +62,7 @@ namespace TrainStationServer
 
         public void Refresh(string buffer)
         {
-            Id = GetSIPInfo(buffer, "sip: ");
+            //Id = GetSIPInfo(buffer, "sip:");
             To = GetSIPInfo(buffer, "From: ");
             From = GetSIPInfo(buffer, "To: ");
             CSeq = GetSIPInfo(buffer, "CSeq: ");
@@ -87,8 +87,8 @@ namespace TrainStationServer
         public string SIPRequest(XmlDocument doc)
         {
             string sendBuffer = "";
-            //sendBuffer += "INVITE sip:6100002007000001 SIP/2.0\r\n";
-            sendBuffer += "SIP/2.0 200 OK\r\n";
+            sendBuffer += "INVITE sip:6100002007000001 SIP/2.0\r\n";
+            //sendBuffer += "SIP/2.0 200 OK\r\n";
             sendBuffer += "Via:SIP/2.0/TCP XX\r\n";
             sendBuffer += "To:" + To + "\r\n";
             sendBuffer += "From:" + From + "\r\n";

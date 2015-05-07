@@ -71,7 +71,7 @@ namespace TrainStationServer
             exosip = new eXosip();
             snoopThread = new Thread(Snoop);
             snoopThread.IsBackground = true;
-            //snoopThread.Start();
+            snoopThread.Start();
             timer = new System.Timers.Timer(60000);
             timer.Elapsed += new System.Timers.ElapsedEventHandler(ClearTextBox);
             timer.Enabled = true;
@@ -150,12 +150,14 @@ namespace TrainStationServer
                 {
                     state.socket.Shutdown(SocketShutdown.Both);
                     state.socket.Close();
+                    SipSocket.Delete(state.socket);
                     return;
                 }
                 recvlen = i + targetIndex;
-                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
+                tt = Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i);
+                this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(tt)));
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
-                Copy(state.recv, 0, recv, targetIndex, state.recv.Length);
+                Array.Copy(state.recv, 0, recv, targetIndex, state.recv.Length);
                 for (int j = 0; j < 8000; j++)
                 {
                     state.recv[j] = 0;
@@ -173,7 +175,7 @@ namespace TrainStationServer
                         if (cseq == -1)
                         {
                             temp.lastRecv = new byte[recv.Length];
-                            Copy(recv, 0, temp.lastRecv, 0, recv.Length);
+                            Array.Copy(recv, 0, temp.lastRecv, 0, recv.Length); ;
                             state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                             return;
                         }
@@ -181,10 +183,32 @@ namespace TrainStationServer
                         if (Doc == null)
                         {
                             temp.lastRecv = new byte[recv.Length];
-                            Copy(recv, 0, temp.lastRecv, 0, recv.Length);
+                            Array.Copy(recv, 0, temp.lastRecv, 0, recv.Length);
                             Console.WriteLine("Xml extraction failed.");
                             state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                             return;
+                        }
+                        if (Added)
+                        {
+                            if (!InterfaceC.IsSaRegister(Doc, temp))
+                            {
+                                int b = temp.SendResponse(InterfaceC.Error("SA未注册"));
+                                Console.WriteLine("<~~~~~~~~~~~~~~~~~~~~>");
+                                Console.WriteLine(b);
+                                temp.socket.Close();
+                                SipSocket.Delete(temp.socket);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            if(temp.sip.Id == null)
+                            {
+                                temp.SendResponse(InterfaceC.Error("SA未注册"));
+                                temp.socket.Close();
+                                SipSocket.Delete(temp.socket);
+                                return;
+                            }
                         }
                         if (InterfaceC.IsRequest(Doc))
                         {
@@ -512,6 +536,7 @@ namespace TrainStationServer
             string userCode = name2.Substring(4, name2.IndexOf('@') - 4);
             string userId = resId.Substring(0, 10) + userCode;
             exoSocket = SipSocket.FindSocket(resId.Substring(0, 6));
+            //exoSocket = testsocket;
             try
             {
                 if (exoSocket == null)
@@ -743,7 +768,7 @@ namespace TrainStationServer
                     sendLen = temp.SendRequest(InterfaceC.ReqCamResState("0000000000000000", str, 1));
                     break;
                 case "GetUserCurState":
-                    sendLen = temp.SendRequest(InterfaceC.GetUserCurState("0000000000000000", "6101010000000001"));
+                    sendLen = temp.SendRequest(InterfaceC.GetUserCurState("6100001234567890", "9900003003000005"));
                     break;
                 case "SetUserCamManage":
                     sendLen = temp.SendRequest(InterfaceC.SetUserCamManage("6100003020990001", "0", 0, "2015-04-17 16:05:45", "2015-04-17 17:05:45", "2015-04-17 16:05:58", camId, 1, null, 0));

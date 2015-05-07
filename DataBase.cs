@@ -264,7 +264,7 @@ namespace TrainStationServer
         public static string buildInsertCmd(string database, string[] columes, params List<string>[] values)
         {
 
-            string cmdText = "insert into " + database + "(";
+            string cmdText = "replace into " + database + "(";
             for (int i = 0; i < columes.Length; i++)
             {
                 cmdText += columes[i];
