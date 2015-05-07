@@ -32,6 +32,18 @@ namespace TrainStationServer
             cseq = 0;
             ncseq = 0;
         }
+
+        public SIPTools(string buffer)
+        {
+            Id = GetSIPInfo(buffer, "sip: ");
+            To = GetSIPInfo(buffer, "From: ");
+            From = GetSIPInfo(buffer, "To: ");
+            CSeq = GetSIPInfo(buffer, "CSeq: ");
+            CallId = GetSIPInfo(buffer, "Call-ID: ");
+            cseq = 0;
+            ncseq = 0;
+        }
+
         public SIPTools(string to, string from, string cseq)
         {
             To = to;
@@ -46,6 +58,15 @@ namespace TrainStationServer
         {
             CSeq = GetSIPInfo(recv, i, "CSeq");
             CallId = GetSIPInfo(recv, i, "Call-ID");
+        }
+
+        public void Refresh(string buffer)
+        {
+            Id = GetSIPInfo(buffer, "sip: ");
+            To = GetSIPInfo(buffer, "From: ");
+            From = GetSIPInfo(buffer, "To: ");
+            CSeq = GetSIPInfo(buffer, "CSeq: ");
+            CallId = GetSIPInfo(buffer, "Call-ID: ");
         }
 
         public string SIPRequest(XmlDocument doc,string To,string From, string CSeq)
@@ -158,6 +179,12 @@ namespace TrainStationServer
         {
             int i, j = 0;
             string bufstr = Encoding.ASCII.GetString(buffer, 0, recvlen);
+            int head = bufstr.IndexOf("INVITE sip:");
+            if (head == -1)
+                return null;
+            int end = bufstr.IndexOf("INVITE sip:", "INVITE sip:".Length);
+            if (end == -1)
+                end = recvlen;
             string mSip;
             byte[] mXmlBuffer;
             int sip_end = bufstr.IndexOf("\r\n\r\n");
@@ -232,6 +259,94 @@ namespace TrainStationServer
         //    return Encoding.ASCII.GetBytes(temp);
         //}
 
+        public static bool Extraction(ref SipSocket s, ref byte[] buffer, ref int bufferlen, out string sip, out string xml)
+        {
+            string mSip;
+            int mXmlOffset;
+            byte[] mXmlBuffer;
+            string sip_tmp = Encoding.ASCII.GetString(buffer);
+            int sip_end = sip_tmp.IndexOf("\r\n\r\n");
+            if (sip_end > 0)
+            {
+                int sip_length = sip_end + 4;
+                mSip = Encoding.ASCII.GetString(buffer, 0, sip_length);
+                int Content_Length_i = sip_tmp.IndexOf("Content-Length:");
+                if (Content_Length_i < 0)
+                {
+                    throw new Exception("SIP头错误，没有Content-Length:XX");
+                }
+                int xml_length;
+                int data_length_start = Content_Length_i + "Content-Length:".Length;
+                int data_length_end = sip_tmp.IndexOf("\r\n", data_length_start);
+                string data_length_str = sip_tmp.Substring(data_length_start, data_length_end - data_length_start);
+                if (!int.TryParse(data_length_str, out xml_length))
+                {
+                    throw new Exception("SIP头错误，Content-Length:XX,不能解析");
+                }
+                //Offset = sip_tmp.IndexOf("INVITE sip");
+                //if (Offset == -1)
+                //    Offset = bufferlen;
+                if (bufferlen - sip_length < xml_length) //只读取了部分xml
+                {
+                    //if (bufferlen > sip_length)
+                    //{
+                    //    mXmlOffset = bufferlen - sip_length;
+                    //    s.lastRecv = new byte[mXmlOffset];
+                    //    Array.Copy(buffer, sip_length, s.lastRecv, 0, mXmlOffset);
+                    //    buffer = Encoding.ASCII.GetBytes("");
+                    //    bufferlen = 0; 
+                    //}
+                    //else
+                    //{
+                    mXmlOffset = bufferlen;
+                    s.lastRecv = new byte[mXmlOffset];
+                    Array.Copy(buffer, 0, s.lastRecv, 0, bufferlen);
+                    buffer = Encoding.ASCII.GetBytes("");
+                    bufferlen = 0; 
+                    //}
+                }
+                else if (bufferlen - sip_length == xml_length)//刚好读完了所有xml
+                {
+                    mXmlBuffer = new byte[xml_length];
+                    Array.Copy(buffer, sip_length, mXmlBuffer, 0, xml_length);
+                    mXmlOffset = xml_length;
+                    sip = mSip;
+                    xml = Encoding.GetEncoding("GB2312").GetString(mXmlBuffer);
+                    mSip = null;
+                    mXmlBuffer = null;
+                    mXmlOffset = 0;
+                    buffer = Encoding.ASCII.GetBytes("");
+                    bufferlen = 0; 
+                    return true;
+                }
+                else//还读取了后续消息
+                {
+                    mXmlBuffer = new byte[xml_length];
+                    Array.Copy(buffer, sip_length, mXmlBuffer, 0, xml_length);
+                    sip = mSip;
+                    xml = Encoding.GetEncoding("GB2312").GetString(mXmlBuffer);
+                    string remainstr = sip_tmp.Substring(sip_length + xml_length, bufferlen - (sip_length + xml_length));
+                    buffer = Encoding.ASCII.GetBytes(remainstr);
+                    bufferlen = buffer.Length;
+                    mSip = null;
+                    mXmlBuffer = null;
+                    mXmlOffset = 0;
+                    return true;
+                }
+            }
+            else
+            {
+                mXmlOffset = bufferlen;
+                s.lastRecv = new byte[mXmlOffset];
+                Array.Copy(buffer, 0, s.lastRecv, 0, bufferlen);
+                buffer = Encoding.ASCII.GetBytes("");
+                bufferlen = 0; 
+            }
+            sip = null;
+            xml = null;
+            return false;
+        }
+
         public static string GetSIPInfo(byte[] buffer, int bufferlen ,string infoType)
         {
             int length = 0,index = 0;
@@ -251,6 +366,22 @@ namespace TrainStationServer
             else
                 return "";
             info = Encoding.UTF8.GetString(infoByte, 0, length);
+            return info;
+        }
+
+        public static string GetSIPInfo(string buffer, string infoType)
+        {
+            int length = 0, index = 0, end = 0;
+            string info = null;
+            byte[] infoByte = new byte[1024];
+            if ((index = buffer.IndexOf(infoType)) != -1)
+            {
+                index += infoType.Length;
+                end = buffer.IndexOf("\r\n", index);
+                info = buffer.Substring(index, end - index);
+            }
+            else
+                return "";
             return info;
         }
 
