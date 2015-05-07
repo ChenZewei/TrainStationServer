@@ -6,7 +6,7 @@ Max-Forwards: 70
 Call-ID: 6100002008000001
 CSeq: 3 INVITE
 Content-Type: RVSS/xml
-Content-Length: 1129
+Content-Length: 1692
 
 <?xml version="1.0" encoding="GB2312" standalone="yes"?>
 <request command="ResReport">

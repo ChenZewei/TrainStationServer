@@ -130,18 +130,11 @@ namespace TrainStationServer
             temp = SipSocket.FindSipSocket(state.socket);
             if(temp != null)
             {
-                for (int i = 9999; i >= 0; i-- )
+                if(temp.lastRecv != null)
                 {
-                    if(temp.lastRecv[i] != 0)
-                    {
-                        targetIndex = i + 1;
-                        break;
-                    }
-                }
-                temp.lastRecv.CopyTo(recv, 0);
-                for(int i = 0; i < 10000; i++)
-                {
-                    temp.lastRecv[i] = 0;
+                    targetIndex = temp.lastRecv.Length;
+                    temp.lastRecv.CopyTo(recv, 0);
+                    temp.lastRecv = null;
                 }
             }
             try
@@ -163,17 +156,17 @@ namespace TrainStationServer
                 }
                 do
                 {
-                    
                     Doc = new XmlDocument();
-                    temprecv = SIPTools.PckExtract(recv, i, recvlen);
+                    temprecv = SIPTools.PckExtract(ref recv, recvlen);
                     if (temprecv != null)
                     {
-                        recvlen -= temprecv.Length;
+                        recvlen = recv.Length;
                         //tt = Encoding.GetEncoding("GB2312").GetString(temprecv, 0, temprecv.Length);
                         //Console.WriteLine(tt);
                     }
-                    if(temprecv == null)
+                    else //if(temprecv == null)
                     {
+                        temp.lastRecv = new byte[recv.Length];
                         Copy(recv, 0, temp.lastRecv, 0, recv.Length);
                         state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                         return;
@@ -188,6 +181,7 @@ namespace TrainStationServer
                     cseq = SIPTools.getCSeq(temprecv);
                     if (cseq == -1)
                     {
+                        temp.lastRecv = new byte[temprecv.Length];
                         Copy(temprecv, 0, temp.lastRecv, 0, temprecv.Length);
                         state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
                         return;
@@ -195,6 +189,7 @@ namespace TrainStationServer
                     Doc = SIPTools.XmlExtract(temprecv, temprecv.Length);
                     if (Doc == null)
                     {
+                        temp.lastRecv = new byte[temprecv.Length];
                         Copy(temprecv, 0, temp.lastRecv, 0, temprecv.Length);
                         Console.WriteLine("Xml extraction failed.");
                         state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
@@ -248,7 +243,6 @@ namespace TrainStationServer
                             }
                         }
                     }
-                    recv.Initialize();
 
                 } while (recvlen > 0);
                 
@@ -304,7 +298,6 @@ namespace TrainStationServer
                 }
                 return;
             }
-            //state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
         }
 
         void recvProc2(IAsyncResult ar)//接收服务器请求

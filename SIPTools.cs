@@ -97,36 +97,36 @@ namespace TrainStationServer
         {
             XmlDocument xmlDoc;
             int i = 0, index = 0, end = bufferlen;
-            byte[] bufferline;
-            byte[] length;
+            string bufstr = Encoding.ASCII.GetString(buffer);
             string strBuffer;
-            bufferline = new byte[100];
-            length = new byte[10];
+            string mSip;
+            byte[] mXmlBuffer;
+            int sip_end = bufstr.IndexOf("\r\n\r\n");
+            if (sip_end > 0)
+            {
+                int sip_length = sip_end + 4;
+                mSip = Encoding.ASCII.GetString(buffer, 0, sip_length);
+                int Content_Length_i = bufstr.IndexOf("Content-Length:");
+                if (Content_Length_i < 0)
+                {
+                    throw new Exception("SIP头错误，没有Content-Length:XX");
+                }
+                int xml_length;
+                int data_length_start = Content_Length_i + "Content-Length:".Length;
+                int data_length_end = bufstr.IndexOf("\r\n", data_length_start);
+                string data_length_str = bufstr.Substring(data_length_start, data_length_end - data_length_start);
+                if (!int.TryParse(data_length_str, out xml_length))
+                {
+                    throw new Exception("SIP头错误，Content-Length:XX,不能解析");
+                }
+                mXmlBuffer = new byte[xml_length];
+            }
             try
             {
-                //if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("Content-Length"))) != -1)
-                //{
-                //    index++;
-                //    while ((index + i) < bufferlen)
-                //    {
-                //        length[i] = buffer[index + i];
-                //        i++;
-                //        if ((buffer[index + i] == '\r') && (buffer[index + i + 1] == '\n'))
-                //            break;
-                //    }
-                //}
                 if ((index = IndexOf(buffer, Encoding.ASCII.GetBytes("\r\n\r\n"))) != -1)
                 {
                     xmlDoc = new XmlDocument();
                     strBuffer = "";
-                    //for (int j = 1; j < bufferlen; j++)
-                    //{
-                    //    if (buffer[bufferlen - j] != '0' && buffer[bufferlen - j] != '\0')
-                    //    {
-                    //        strBuffer = Encoding.GetEncoding("GB2312").GetString(buffer, index, (bufferlen - index - j));
-                    //        break;
-                    //    }
-                    //}
                     for (int k = bufferlen-1; k >= 0; k-- )
                     {
                         if(buffer[k] == '>')
@@ -154,27 +154,83 @@ namespace TrainStationServer
             return null;
         }
 
-        public static byte[] PckExtract(byte[] buffer, int bflen, int recvlen)
+        public static byte[] PckExtract(ref byte[] buffer, int recvlen)
         {
-            int i,j = 0;
-            int head = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), 0);
-            if (head == -1)
-                return null;
-            int end = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), head + 10);
-            //if (end == -1 && bflen != 8000)
-            //    end = recvlen;
-            if (end == -1)
-                end = recvlen;
-                //return null;
-            string temp = Encoding.ASCII.GetString(buffer, head, end - head);
-            for (i = end; i < 10000; i++)
+            int i, j = 0;
+            string bufstr = Encoding.ASCII.GetString(buffer, 0, recvlen);
+            string mSip;
+            byte[] mXmlBuffer;
+            int sip_end = bufstr.IndexOf("\r\n\r\n");
+            if (sip_end > 0)
             {
-                buffer[j++] = buffer[i];
-                buffer[i] = 0;
-            }
+                int sip_length = sip_end + 4;
+                mSip = Encoding.ASCII.GetString(buffer, 0, sip_length);
+                int Content_Length_i = bufstr.IndexOf("Content-Length:");
+                if (Content_Length_i < 0)
+                {
+                    throw new Exception("SIP头错误，没有Content-Length:XX");
+                }
+                int xml_length;
+                int data_length_start = Content_Length_i + "Content-Length:".Length;
+                int data_length_end = bufstr.IndexOf("\r\n", data_length_start);
+                string data_length_str = bufstr.Substring(data_length_start, data_length_end - data_length_start);
+                if (!int.TryParse(data_length_str, out xml_length))
+                {
+                    throw new Exception("SIP头错误，Content-Length:XX,不能解析");
+                }
+                mXmlBuffer = new byte[xml_length];
+                if((recvlen - sip_length) < xml_length)
+                {
+                    return null;
+                }
+                if((recvlen - sip_length) == xml_length)
+                {
+                    string temp = bufstr.Substring(0, sip_length + xml_length);
+                    string remainstr = bufstr.Substring(sip_length + xml_length, recvlen - (sip_length + xml_length));
+                    buffer = Encoding.ASCII.GetBytes(remainstr);
+                    return Encoding.ASCII.GetBytes(temp);
+                    //Array.Copy(buffer, sip_length, mXmlBuffer, 0, xml_length);
+                    //mSip = null;
+                    //return mXmlBuffer;
+                }
 
-            return Encoding.ASCII.GetBytes(temp);
+            }
+            return null;
+            //int head = bufstr.IndexOf("INVITE sip:");
+            //if (head == -1)
+            //    return null;
+            //int end = bufstr.IndexOf("INVITE sip:", "INVITE sip:".Length);
+            //if (end == -1)
+            //    end = recvlen;
+
+            //string temp = bufstr.Substring(head, end - head);
+            //string remainstr = bufstr.Substring(end, recvlen - end);
+            //buffer = Encoding.ASCII.GetBytes(remainstr);
+            //return Encoding.ASCII.GetBytes(temp);
         }
+
+        //public static byte[] PckExtract(byte[] buffer, int bflen, int recvlen)
+        //{
+        //    int i,j = 0;
+        //    string bufferstr = Encoding.ASCII.GetString(buffer, 0, recvlen);
+        //    int head = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), 0);
+        //    if (head == -1)
+        //        return null;
+        //    int end = BeginOf(buffer, Encoding.ASCII.GetBytes("INVITE sip"), head + 10);
+        //    //if (end == -1 && bflen != 8000)
+        //    //    end = recvlen;
+        //    if (end == -1)
+        //        end = recvlen;
+        //        //return null;
+        //    string temp = Encoding.ASCII.GetString(buffer, head, end - head);
+        //    for (i = end; i < 10000; i++)
+        //    {
+        //        buffer[j++] = buffer[i];
+        //        buffer[i] = 0;
+        //    }
+
+        //    return Encoding.ASCII.GetBytes(temp);
+        //}
 
         public static string GetSIPInfo(byte[] buffer, int bufferlen ,string infoType)
         {

@@ -35,7 +35,7 @@ namespace TrainStationServer
         {
             socket = skt;
             sip = s;
-            lastRecv = new byte[10000];
+            //lastRecv = new byte[10000];
         }
 
         public SipSocket(AddressFamily af, SocketType st, ProtocolType pt)
