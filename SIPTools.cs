@@ -298,6 +298,9 @@ namespace TrainStationServer
                     //}
                     //else
                     //{
+                    //string t = Encoding.GetEncoding("GB2312").GetString(buffer,bufferlen - 11, 10 );
+                    //if(t == "<location>")
+                    //    t = null;
                     mXmlOffset = bufferlen;
                     s.lastRecv = new byte[mXmlOffset];
                     Array.Copy(buffer, 0, s.lastRecv, 0, bufferlen);
@@ -325,8 +328,10 @@ namespace TrainStationServer
                     Array.Copy(buffer, sip_length, mXmlBuffer, 0, xml_length);
                     sip = mSip;
                     xml = Encoding.GetEncoding("GB2312").GetString(mXmlBuffer);
-                    string remainstr = sip_tmp.Substring(sip_length + xml_length, bufferlen - (sip_length + xml_length));
-                    buffer = Encoding.ASCII.GetBytes(remainstr);
+                    //string remainstr = sip_tmp.Substring(sip_length + xml_length, bufferlen - (sip_length + xml_length));
+                    byte[] temp = new byte[bufferlen - (sip_length + xml_length)];
+                    Array.Copy(buffer, sip_length + xml_length, temp, 0, temp.Length);
+                    buffer = temp;
                     bufferlen = buffer.Length;
                     mSip = null;
                     mXmlBuffer = null;

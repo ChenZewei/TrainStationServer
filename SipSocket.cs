@@ -16,7 +16,7 @@ namespace TrainStationServer
         public string[] result;
         public string sessionIdRT, sessionIdPB, sessionIdDL;
         public string saId;
-        public string[] resId;
+        public List<string> resId;
         private static List<SipSocket> sipsocket = new List<SipSocket>();
         public List<ResponseList> XmlList = new List<ResponseList>();
         public byte[] lastRecv;
@@ -35,6 +35,7 @@ namespace TrainStationServer
         {
             socket = skt;
             sip = s;
+            resId = new List<string>();
             //lastRecv = new byte[10000];
         }
 
@@ -176,7 +177,7 @@ namespace TrainStationServer
                 return null;
             foreach (SipSocket temp in sipsocket)
             {
-                for (int i = 0; i < temp.resId.Length; i++ )
+                for (int i = 0; i < temp.resId.Count; i++ )
                 {
                     if (temp.resId[i].Equals(resId))
                     {

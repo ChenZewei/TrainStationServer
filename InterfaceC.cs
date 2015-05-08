@@ -237,46 +237,6 @@ namespace TrainStationServer
             return Response;
         }
 
-        public static byte[] SaRegister(byte[] recv, int i)
-        {
-            XmlDocument Doc = new XmlDocument();
-            try
-            {
-                sip = new SIPTools(recv, i);
-                Doc = SIPTools.XmlExtract(recv, i);
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            XmlTools XmlOp = new XmlTools();
-            XmlDocument Response = XmlOp.XmlCreate();
-            string saId, saIp, saSipPort, saName, saPassword, manufactureId, manufactureName, productiveVersion, softwareVersion;
-
-            saId = XmlOp.GetInnerText(Doc, "saId");
-            saIp = XmlOp.GetInnerText(Doc, "saIp");
-            saSipPort = XmlOp.GetInnerText(Doc, "saSipPort");
-            saName = XmlOp.GetInnerText(Doc, "saName");
-            saPassword = XmlOp.GetInnerText(Doc, "saPassword");
-            manufactureId = XmlOp.GetInnerText(Doc, "manufactureId");
-            manufactureName = XmlOp.GetInnerText(Doc, "manufactureName");
-            productiveVersion = XmlOp.GetInnerText(Doc, "productiveVersion");
-            softwareVersion = XmlOp.GetInnerText(Doc, "softwareVersion");
-            
-            XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaRegister");
-            XmlOp.ElementAdd(Response, "response", "result");
-            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
-            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            XmlOp.ElementAdd(Response, "response", "parameters");
-            XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "20");
-            ////Response.Save("D://SaRegister-request.xml");
-
-
-
-            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
-        }
         #endregion
 
         #region SaKeepAlive
@@ -302,36 +262,6 @@ namespace TrainStationServer
             return Response;
         }
 
-        public static byte[] SaKeepAlive(byte[] recv, int i)
-        {
-            XmlDocument Doc = new XmlDocument();
-            try
-            {
-                sip = new SIPTools(recv, i);
-                Doc = SIPTools.XmlExtract(recv, i);
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            XmlTools XmlOp = new XmlTools();
-            XmlDocument Response = XmlOp.XmlCreate();
-            string SaKeepAlive;
-
-            SaKeepAlive = XmlOp.GetInnerText(Doc, "saKeepAlivePeriod");
-
-            XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "SaKeepAlive");
-            XmlOp.ElementAdd(Response, "response", "result");
-            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
-            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            XmlOp.ElementAdd(Response, "response", "parameters");
-            XmlOp.ElementAdd(Response, "parameters", "saKeepAlivePeriod");
-            XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
-            ////Response.Save("D://SaKeepAlive-request.xml");
-
-            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
-        }
         #endregion
 
         #region ResReport
@@ -395,66 +325,6 @@ namespace TrainStationServer
             return Response;
         }
 
-        public static byte[] ResReport(byte[] recv, int i)
-        {
-            XmlDocument Doc = new XmlDocument();
-            try
-            {
-                sip = new SIPTools(recv, i);
-                Doc = SIPTools.XmlExtract(recv, i);
-            }
-            catch (XmlException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            XmlTools XmlOp = new XmlTools();
-            XmlDocument Response = XmlOp.XmlCreate();
-            string saId, totalPacketNum, curPacketNum;
-            string[] columes = { "id", "name", "location", "custom" };
-            string[] values = new string[4];
-            List<string> resId;
-            List<string> name;
-            List<string> location;
-            List<string> purpose;
-            List<string> infomation;
-
-            saId = XmlOp.GetInnerText(Doc, "saId");
-            totalPacketNum = XmlOp.GetInnerText(Doc, "totalPacketNum");
-            curPacketNum = XmlOp.GetInnerText(Doc, "curPacketNum");
-            resId = XmlOp.GetInnerTextList(Doc, "resId");
-            name = XmlOp.GetInnerTextList(Doc, "name");
-            location = XmlOp.GetInnerTextList(Doc, "location");
-            purpose = XmlOp.GetInnerTextList(Doc, "purpose");
-            infomation = XmlOp.GetInnerTextList(Doc, "infomation");
-
-            database.Insert("ivms_resources", columes, resId, name, location, purpose);
-
-            //for (int j = 0; j < resId.Count; j++)
-            //{
-            //    values[0] = resId[j];
-            //    values[1] = name[j];
-            //    if (location.Count >= 1)
-            //    {
-            //        values[2] = location[j];
-            //        num++;
-            //    }
-            //    if (purpose.Count >= 1)
-            //    {
-            //        values[3] = purpose[j];
-            //        num++;
-            //    }
-            //    database.Insert("ivms_resources", columes, values, num);
-            //}
-
-            XmlOp.ElementAdd(Response, null, "response");
-            XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ResReport");
-            XmlOp.ElementAdd(Response, "response", "result");
-            XmlOp.SetNodeAttribute(Response, "result", 0, "code", "0");
-            XmlOp.SetNodeInnerText(Response, "result", 0, "success");
-            //Response.Save("D://ResReport-request.xml");
-
-            return Encoding.GetEncoding("GB2312").GetBytes(sip.SIPResponse(Response));
-        }
         #endregion
         
         #region ResChange
@@ -524,10 +394,10 @@ namespace TrainStationServer
             resId = XmlOp.GetInnerTextList(Doc, "resId");
             state = XmlOp.GetInnerTextList(Doc, "state");
 
-            sipsocket.resId = new string[resId.Count];
+            //sipsocket.resId = new string[resId.Count];
             for (int i = 0; i < resId.Count; i++)
             {
-                sipsocket.resId[i] = resId[i];
+                sipsocket.resId.Add(resId[i]);
             }
 
             XmlOp.ElementAdd(Response, null, "response");
@@ -542,7 +412,8 @@ namespace TrainStationServer
                 XmlOp.ElementAdd(Response, "URL", "resId", i);
                 XmlOp.SetNodeInnerText(Response, "resId", i, "test");
             }
-            
+
+
             //Response.Save("D://response-ReportCamResState.xml");
 
             return Response;
@@ -896,6 +767,35 @@ namespace TrainStationServer
             //string[] paraNames = { "resId", "userId", "userLevel", "cmd", "param", "speed" };//原
             string[] paraNames = { "level", "command", "parameter" };
             parameters = XmlOp.GetAttribute(Doc, "PTZControl", paraNames);
+            switch(parameters[1])
+            {
+                case "Right":
+                    {
+                        parameters[1] = "PR";
+                        break;
+                    }
+                case "Left":
+                    {
+                        parameters[1] = "PL";
+                        break;
+                    }
+                case "Down":
+                    {
+                        parameters[1] = "TD";
+                        break;
+                    }
+                case "Up":
+                    {
+                        parameters[1] = "TU";
+                        break;
+                    }
+                case "0":
+                    {
+                        parameters[1] = "STOP";
+                        break;
+                    }
+                default: break;
+            }
             //return ControlPTZ(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);//原
             return ControlPTZ(param[0], param[1], parameters[0], parameters[1], parameters[2],"4");
         }
@@ -1421,7 +1321,7 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Request, "parameters", "saName");
             XmlOp.SetNodeInnerText(Request, "saName", 0, saName);
             XmlOp.ElementAdd(Request, "parameters", "group");
-            for (int i = 0; i < num; i++)
+            for (int i = 0; i <= num; i++)
             {
                 XmlOp.ElementAdd(Request, "group", "URL");
                 XmlOp.ElementAdd(Request, "URL", "id", i);
@@ -1469,12 +1369,12 @@ namespace TrainStationServer
             XmlOp.ElementAdd(Request, null, "request");
             XmlOp.SetNodeAttribute(Request, "request", 0, "command", "ReportAlarmInfo");
             XmlOp.ElementAdd(Request, "request", "parameters");
-            XmlOp.ElementAdd(Request, "parameters", "muId");
-            XmlOp.SetNodeInnerText(Request, "muId", 0, muId);
-            XmlOp.ElementAdd(Request, "parameters", "muName");
-            XmlOp.SetNodeInnerText(Request, "muName", 0, muName);
+            XmlOp.ElementAdd(Request, "parameters", "saId");
+            XmlOp.SetNodeInnerText(Request, "saId", 0, muId);
+            XmlOp.ElementAdd(Request, "parameters", "saName");
+            XmlOp.SetNodeInnerText(Request, "saName", 0, muName);
             XmlOp.ElementAdd(Request, "parameters", "group");
-            for (int i = 0; i < num; i++)
+            for (int i = 0; i <=num; i++)
             {
                 XmlOp.ElementAdd(Request, "group", "URL");
                 XmlOp.ElementAdd(Request, "URL", "id", i);

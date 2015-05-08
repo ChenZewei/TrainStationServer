@@ -405,7 +405,7 @@ namespace TrainStationServer
             {
                 IntPtr answer;
                 int i = eXosip_call_build_answer(eXosipContext, tid, status, out answer);
-                osip.ThrowException(i);
+               // osip.ThrowException(i);
                 return answer;
             }
             [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -413,7 +413,7 @@ namespace TrainStationServer
             public static void SendAnswer(int tid, int status, IntPtr answer)
             {
                 int i = eXosip_call_send_answer(eXosipContext, tid, status, answer);
-                osip.ThrowException(i);
+                //osip.ThrowException(i);
             }
             [DllImport("eXosip.dll", CallingConvention = CallingConvention.Cdecl)]
             private extern static int eXosip_call_build_ack(IntPtr context, int did, out IntPtr ack);
