@@ -135,7 +135,7 @@ namespace TrainStationServer
                 return null;
             foreach (SipSocket temp in sipsocket)
             {
-                if (temp.sip.Id.StartsWith(prefix))
+                if (temp.saId.StartsWith(prefix))
                 {
                     return temp.socket;
                 }
@@ -171,19 +171,16 @@ namespace TrainStationServer
             return null;
         }
 
-        public static SipSocket FindSipSocket(string resId)
+        public static SipSocket FindSipSocket(string prefix)
         {
             if (sipsocket.Count == 0)
                 return null;
             foreach (SipSocket temp in sipsocket)
             {
-                for (int i = 0; i < temp.resId.Count; i++ )
+                if (temp.saId.StartsWith(prefix))
                 {
-                    if (temp.resId[i].Equals(resId))
-                    {
-                        return temp;
-                    }
-                }  
+                    return temp;
+                }
             }
             return null;
         }

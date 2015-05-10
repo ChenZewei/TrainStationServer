@@ -14,6 +14,7 @@ namespace TrainStationServer
         static DataBase database;
         static SIPTools sip;
         static int num = 0;
+        static string param;
 
         public InterfaceC()
         {
@@ -163,6 +164,7 @@ namespace TrainStationServer
                         break;
                     case "ControlPTZ":
                         result = null;
+
                         break;
                     case "StartPlayBack":
                         result = new string[1];
@@ -232,7 +234,7 @@ namespace TrainStationServer
             XmlOp.SetNodeInnerText(Response, "saKeepAlivePeriod", 0, "10");
             ////Response.Save("D://SaRegister-request.xml");
 
-            sipsocket.sip.Id = saId;
+            sipsocket.saId = saId;
 
             return Response;
         }
@@ -395,10 +397,10 @@ namespace TrainStationServer
             state = XmlOp.GetInnerTextList(Doc, "state");
 
             //sipsocket.resId = new string[resId.Count];
-            for (int i = 0; i < resId.Count; i++)
-            {
-                sipsocket.resId.Add(resId[i]);
-            }
+            //for (int i = 0; i < resId.Count; i++)
+            //{
+            //    sipsocket.resId.Add(resId[i]);
+            //}
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "ReportCamResState");
@@ -437,7 +439,7 @@ namespace TrainStationServer
             id = XmlOp.GetInnerTextList(Doc, "ip");
             name = XmlOp.GetInnerTextList(Doc, "name");
 
-            sipsocket.saId = saId;
+            //sipsocket.saId = saId;
 
             XmlOp.ElementAdd(Response, null, "response");
             XmlOp.SetNodeAttribute(Response, "response", 0, "command", "UserResReport");
@@ -767,7 +769,7 @@ namespace TrainStationServer
             //string[] paraNames = { "resId", "userId", "userLevel", "cmd", "param", "speed" };//原
             string[] paraNames = { "level", "command", "parameter" };
             parameters = XmlOp.GetAttribute(Doc, "PTZControl", paraNames);
-            switch(parameters[1])
+            switch (parameters[1])
             {
                 case "Right":
                     {
@@ -789,13 +791,14 @@ namespace TrainStationServer
                         parameters[1] = "TU";
                         break;
                     }
-                case "0":
-                    {
-                        parameters[1] = "STOP";
-                        break;
-                    }
                 default: break;
             }
+            if (parameters[2] == "0")
+            {
+                parameters[2] = parameters[1];
+                parameters[1] = "STOP";
+            }
+                
             //return ControlPTZ(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);//原
             return ControlPTZ(param[0], param[1], parameters[0], parameters[1], parameters[2],"4");
         }

@@ -24,7 +24,7 @@ namespace TrainStationServer
 
         public SIPTools(byte[] buffer, int bufferlen)
         {
-            Id = GetSIPInfo(buffer, bufferlen, "sip");
+            Id = GetSIPInfo(buffer, bufferlen, "sip:");
             To = GetSIPInfo(buffer, bufferlen, "From");
             From = GetSIPInfo(buffer, bufferlen, "To");
             CSeq = GetSIPInfo(buffer, bufferlen, "CSeq");
@@ -35,7 +35,7 @@ namespace TrainStationServer
 
         public SIPTools(string buffer)
         {
-            Id = GetSIPInfo(buffer, "sip: ");
+            Id = GetSIPInfo(buffer, "sip:");
             To = GetSIPInfo(buffer, "From: ");
             From = GetSIPInfo(buffer, "To: ");
             CSeq = GetSIPInfo(buffer, "CSeq: ");
