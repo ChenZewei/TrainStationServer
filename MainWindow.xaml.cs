@@ -76,19 +76,6 @@ namespace TrainStationServer
             timer.Elapsed += new System.Timers.ElapsedEventHandler(ClearTextBox);
             timer.Enabled = true;
             Start.IsEnabled = false;
-            //string bb = "00哈哈哈哈";
-            //byte[] bd = Encoding.GetEncoding("GB2312").GetBytes(bb);
-            //byte[] bd1 = new byte[3], bd2 = new byte[7];
-            //for(int t = 0; t < 3; t++)
-            //    bd1[t] = bd[t];
-            //for (int t = 0; t < 7; t++)
-            //    bd2[t] = bd[t + 3];
-            //byte[] bd3 = new byte[10];
-            //Array.Copy(bd1, 0, bd3, 0, 3);
-            //Array.Copy(bd2, 0, bd3, 3, 7);
-            //Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(bd1));
-            //Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(bd2));
-            //Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(bd3));
             //Combo.IsEnabled = true;
             //Test.IsEnabled = true;
         }
@@ -138,7 +125,6 @@ namespace TrainStationServer
             string[] result;
             int targetIndex = 0;
             byte[] recv = new byte[16384];
-            //byte[] temprecv = new byte[16384];
             string tt;
             byte[] tempByte;
             string tempStr;
@@ -187,9 +173,6 @@ namespace TrainStationServer
                         int t = te.Length;
                         te = Encoding.GetEncoding("GB2312").GetBytes(sip);
                         t = te.Length;
-                        //temp = SipSocket.FindSipSocket(state.socket);
-                        //if (temp == null)
-                        //    return;
                         cseq = SIPTools.getCSeq(Encoding.ASCII.GetBytes(sip));
                         if (cseq == -1)
                         {
@@ -233,7 +216,6 @@ namespace TrainStationServer
                         }
                         if (InterfaceC.IsRequest(Doc))
                         {
-                            //temp.sip.Refresh(sip);
                             temp.SendResponse(InterfaceC.Request(Doc, temp));
                         }
                         else
@@ -293,31 +275,12 @@ namespace TrainStationServer
             }
             catch(SocketException e)
             {
-                //Console.WriteLine("recvProc: " + e.Message);
-                //try
-                //{
-                //    state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc), state);
-                //}
-                //catch (SocketException w)
-                //{
-                //    Console.WriteLine("recvProc: " + w.Message);
-                //}
                 temp.socket.Close();
                 SipSocket.Delete(temp.socket);
                 return;
             }
             catch(XmlException e)
             {
-                //Console.WriteLine("<000000000000000000000000>");
-                //Console.WriteLine(sip + xml);
-                //Console.WriteLine("<000000000000000000000000>");
-                //int rr = xml.IndexOf("<name>隧道6</name>\r\n");
-                //rr += 23;
-                //string asd = xml.Substring(rr, 25);
-                //string asdf = "<location>外勤</location>";
-                //byte[] bd1 = Encoding.GetEncoding("GB2312").GetBytes(asd);
-                //byte[] bd2 = Encoding.GetEncoding("GB2312").GetBytes(asdf);
-
                 temp.lastRecv = new byte[recvlen];
                 Array.Copy(recv, 0, temp.lastRecv, 0, recv.Length);
                 Console.WriteLine("recvProc: " + e.Message);
@@ -364,7 +327,6 @@ namespace TrainStationServer
                     state.socket.Close();
                     return;
                 }   
-                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
                 string recvbuffer = Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i);
                 Doc.LoadXml(recvbuffer);
                 XmlTools XmlOp = new XmlTools();
@@ -380,19 +342,37 @@ namespace TrainStationServer
                 Console.WriteLine("SendToClient: " + j.ToString());
                 Console.WriteLine(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i));
                 this.Dispatcher.BeginInvoke(new Action(() => Result.AppendText(Encoding.GetEncoding("GB2312").GetString(state.recv, 0, i))));
+                state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
             }
             catch (SocketException e)
             {
+
                 Console.WriteLine(e.Message);
                 return;
             }
             catch (XmlException e)
             {
+                try
+                {
+                    state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
+                }
+                catch (SocketException w)
+                {
+                    Console.WriteLine("recvProc: " + w.Message);
+                }
                 Console.WriteLine("recvProc2: " + e.Message);
                 return;
             }
             catch(ObjectDisposedException e)
             {
+                try
+                {
+                    state.socket.BeginReceive(state.recv, 0, state.BufferSize, 0, new AsyncCallback(recvProc2), state);
+                }
+                catch (SocketException w)
+                {
+                    Console.WriteLine("recvProc: " + w.Message);
+                }
                 Console.WriteLine("recvProc2: " + e.Message);
                 return;
             }
