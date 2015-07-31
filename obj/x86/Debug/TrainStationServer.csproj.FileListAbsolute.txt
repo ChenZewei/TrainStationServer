@@ -11,3 +11,6 @@ C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.exe
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.pdb
 C:\Users\ThinkPad\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.csprojResolveAssemblyReference.cache
+C:\Users\Viago\Documents\Visual Studio 2013\Projects\TrainStationServer\bin\x86\Debug\TrainStationServer.exe.config
+C:\Users\Viago\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.exe
+C:\Users\Viago\Documents\Visual Studio 2013\Projects\TrainStationServer\obj\x86\Debug\TrainStationServer.pdb
